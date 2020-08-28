@@ -4,7 +4,7 @@ module.exports = function (req, res, next) {
 
   //check if theres token in the header
   if (!token) {
-    return res.status(401).json({ message: "unauthorised" }); //401 is unauthorised
+    return res.status(401).json({ message: "unauthorised/no token found" }); //401 is unauthorised
   }
 
   try {
