@@ -67,7 +67,6 @@ router.post(
     const { email, password } = req.body; // destructuring request body
 
     const userExists = await checkuserExists("email", email);
-
     if (!userExists) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -83,7 +82,6 @@ router.post(
       if (!isMatch) {
         return res.status(400).json({ message: "Invalid credentials" });
       }
-
       const user_uid = rows[0].user_uid;
       const token = generateAccessToken(user_uid); // new access token
 
