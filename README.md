@@ -22,7 +22,7 @@ All non-invalid request errors (server error, query error, etc) will result in h
 
 ### /api/dev
 
-1. `/` - do a `GET` request to this endpoint - if everything works normally, it should return A JSON object of `{"message": "Hello World!"}` with the http status of `200`.
+1. `/` - `GET` request to this endpoint - if everything works normally, it should return A JSON object of `{"message": "Hello World!"}` with the http status of `200`.
 
 ### /api/admin
 
