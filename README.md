@@ -10,7 +10,7 @@ Backend for CHIMP 🦧 🧡 🍊
 
 ⭐ Please edit the **database detail/config and JWT secret** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine (this secret is not going to be used in prod).
 
-⭐ Database is included in the root folder called `chimp_db.sql`, feel free to restore/import it to your own machine/server. If you feel more comfortable doing it yourself, check out the file `db.text` included in the root folder.
+⭐ Database is included in the root folder called `chimp_db.sql`, feel free to restore/import it to your own machine/server. If you feel more comfortable creating one yourself (instead of importing), check out the file `db.text` included in the root folder.
 
 ## Running The Server
 
@@ -50,7 +50,7 @@ Private routes require JWT token to be sent as headers named `x-auth-token`. JWT
 
 1. `/` - `POST` **PRIVATE**
    Upon successful request: returns JSON object of the current logged in user (containing `user_uid`, and `email`) and a message `{user: userObject, message: "success"}, user_uid: "randomJWTtoken"}` with the http status of `200`.  
-   Upon failed request: [here (#2)](#errors).
+   Upon failed request: [Errors (#2)](#errors).
 
 ## General
 
