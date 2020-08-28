@@ -20,6 +20,7 @@ router.get("/", auth, async (req, res) => {
     );
     for (const property in rows[0]) {
       if (property === "password" || property === "id") {
+        // not including password and id
         delete rows[0][property];
       }
     }
