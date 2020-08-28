@@ -4,9 +4,12 @@ Backend for CHIMP 🦧 🧡 🍊
 
 ## Before You Start
 
-⭐ All JS commands should be ran inside the `root` directory.  
-⭐ After every `pull` (or the initial `clone`) to this repo, please run `npm install` (just in case some new module has been added) this is to make sure you have everything installed.  
-⭐ Please edit the **database detail/config and JWT secret** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine (this secret is not going to be used in prod).  
+⭐ All JS commands should be ran inside the `root` directory.
+
+⭐ After every `pull` (or the initial `clone`) to this repo, please run `npm install` (just in case some new module has been added) this is to make sure you have everything installed.
+
+⭐ Please edit the **database detail/config and JWT secret** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine (this secret is not going to be used in prod).
+
 ⭐ Database is included in the root folder called `chimp_db.sql`, feel free to restore/import it to your own machine/server. If you feel more comfortable doing it yourself, check out the file `db.text` included in the root folder.
 
 ## Running The Server
