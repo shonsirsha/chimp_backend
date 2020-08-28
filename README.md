@@ -1,13 +1,13 @@
 # chimp_backend
 
-Backend for CHIMP
+Backend for CHIMP 🦧 🧡 🍊
 
 ## Before You Start
 
-All JS commands should be ran inside the `root` directory.  
-After every `pull` (or the initial `clone`) to this repo, please run `npm install` (just in case some new module has been added) this is to make sure you have everything installed.
-
-Please edit the database detail/config in `db/pool.js` to match your own database config/detail.
+⭐ All JS commands should be ran inside the `root` directory.  
+⭐ After every `pull` (or the initial `clone`) to this repo, please run `npm install` (just in case some new module has been added) this is to make sure you have everything installed.
+⭐ Please edit the **database detail/config and JWT secret** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine (this secret is not going to be used in prod).
+⭐ Database is included in the root folder called `chimp_db.sql`, feel free to restore/import it to your own machine/server. If you feel more comfortable doing it yourself, check out the file `db.text` included in the root folder.
 
 ## Running The Server
 
@@ -15,7 +15,7 @@ Run `npm run nodemon` or `npm run start` (please note that with the latter you h
 Default hostname is `localhost`.  
 Default port is `5000`.  
 Default route to the REST API is `/api/`.  
-To make sure everything works normally, do a `GET` request to this endpoint `/api/dev` - it should return JSON object `{"message": "Hello World!"}` with the http status of `200`.
+To make sure everything works normally, do a `GET` request to this endpoint `/api/dev` (full URL endpoint: `localhost:5000/api/dev`) - it should return JSON object `{"message": "Hello World!"}` with the http status of `200`.
 
 All non-invalid request errors (server error, query error, etc) will result in http status of `500` with the message of `Server Error`
 
