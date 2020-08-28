@@ -34,7 +34,7 @@ All non-invalid request errors (server error, query error, etc) will result in h
 
 1. `/sign-in` - `POST`
    Upon successful request: returns JSON object `{message: "user logged in", token: "randomJWTtoken"}` with the http status of `200`.  
-   Upon failed request: returns JSON object `{message: "Invalid credentials"}` with the http status of `500`.
+   Upon failed request: returns JSON object `{message: "Invalid credentials"}` with the http status of `400`.
 
 ## General
 
