@@ -10,7 +10,7 @@ Backend for CHIMP 🦧 🧡 🍊
 
 ⭐ Please edit the **database detail/config and JWT secret** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine (this secret is not going to be used in prod).
 
-⭐ Database is included in the root folder called `chimp_db.sql`, feel free to restore/import it to your own machine/server. If you feel more comfortable creating one yourself (instead of importing), check out the file `db.text` included in the root folder.
+⭐ Database file (.sql) `chimp_db.sql` is included in the root folder. Feel free to restore / import it to your own machine/server. If you feel more comfortable creating one yourself (instead of importing), check out the file `db.text` included in the root folder.
 
 ## Running The Server
 
@@ -60,4 +60,4 @@ Database: PostgreSQL
 ## Errors
 
 1. All non-invalid request errors (any error coming from the backend itself) such as: server error, query error, etc will result in http status of `500` with the message of `Server Error`.
-2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{message: "Token is not valid"}` or `{message: "unauthorised/no token found"}` depending on the situation with the http status of `401`.
+2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{message: "Token is not valid"}` or `{message: "unauthorised/no token found"}` (depending on the situation) with the http status of `401`.
