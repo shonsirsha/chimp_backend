@@ -13,7 +13,7 @@ router.get("/all-users", async (req, res) => {
         }
       }
     });
-  } catch () {
+  } catch {
     res.status(500).send(`Server error`);
   }
 });
