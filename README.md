@@ -74,7 +74,7 @@ There are two types of endpoint, private and public.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
-   1. `{msg: "email_unavailable"}` - if email entered already exist in the db
+   1. `{msg: "invalid_credentials"}` - when credentials does not exist in the db
    2. If data validation is violated: object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg`.
 
    You can then work with `msg` if somehow your frontend validation allowed these violation(s) still. Value of `msg` can be seen above on the sub-section **Data Validation**.
