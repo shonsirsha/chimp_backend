@@ -24,7 +24,7 @@ router.get("/", auth, async (req, res) => {
         delete rows[0][property];
       }
     }
-    res.status(200).json({ user: rows[0], message: "success" });
+    res.status(200).json({ user: rows[0], msg: "success" });
   } catch {
     res.status(500).send("Server error");
   }

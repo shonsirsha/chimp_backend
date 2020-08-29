@@ -15,19 +15,19 @@ const checkuserExists = require("./utils/checkUserExists");
 router.post(
   "/sign-up",
   [
-    check("user_uid", "Please enter a user_uid").not().isEmpty(),
-    check("email", "Please include a valid email").isEmail(),
-    check(
-      "password",
-      "Please enter a password with 6 or more characters"
-    ).isLength({ min: 6 }),
+    check("email", "email_fail").isEmail(),
+    check("password", "password_fail").isLength({ min: 6 }),
   ],
   async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
     const { email, password } = req.body; // destructuring request body
     const userExists = await checkuserExists("email", email);
 
     if (userExists) {
-      return res.status(400).json({ message: "Email already in use" });
+      return res.status(400).json({ msg: "Email already in use" });
     }
 
     const user_uid = uuidv4();
@@ -43,7 +43,7 @@ router.post(
         if (error) {
           res.status(400).json(error);
         }
-        res.status(200).json({ message: "user registered", token });
+        res.status(200).json({ msg: "user registered", token });
       }
     );
   }
@@ -55,8 +55,8 @@ router.post(
 router.post(
   "/sign-in",
   [
-    check("email", "Please include a valid email").isEmail(),
-    check("password", "Password is required").exists(),
+    check("email", "email_fail").isEmail(),
+    check("password", "password_fail").exists(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -68,7 +68,7 @@ router.post(
 
     const userExists = await checkuserExists("email", email);
     if (!userExists) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ msg: "Invalid credentials" });
     }
 
     try {
@@ -80,12 +80,12 @@ router.post(
       const isMatch = await bcrypt.compare(password, passwordFromDb);
 
       if (!isMatch) {
-        return res.status(400).json({ message: "Invalid credentials" });
+        return res.status(400).json({ msg: "Invalid credentials" });
       }
       const user_uid = rows[0].user_uid;
       const token = generateAccessToken(user_uid); // new access token
 
-      res.status(200).json({ token, message: "logged in" });
+      res.status(200).json({ token, msg: "logged in" });
     } catch {
       res.status(500).send("Server error");
     }
