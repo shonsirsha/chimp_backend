@@ -13,6 +13,7 @@ router.get("/all-users", async (req, res) => {
         }
       }
     });
+    res.status(200).send(rows);
   } catch {
     res.status(500).send(`Server error`);
   }

@@ -26,24 +26,28 @@ To make sure everything works normally, do a `GET` request to this endpoint `/ap
 
 ## Available REST API Endpoints
 
-### /api/dev
-
 There are two types of endpoint, private and public.  
 **IMPORTANT: Private routes ALWAYS require JWT token to be sent as headers named `x-auth-token`.**  
 **JWT token can be obtained by signing in or signing up** (JWT authentication method).
+
+### /api/dev
 
 1. `/` - `GET` **PUBLIC**  
    If everything works normally, it should return A JSON object of `{"message": "Hello World!"}` with the http status of `200`.
 
 ### /api/admin
 
-1. `/sign-up` - `POST` **PUBLIC**  
-   Upon successful request: returns JSON object `{message: "user registered", token: "randomJWTtoken"}` with the http status of `200`.  
+1. `/all-users` - `GET` **PUBLIC** (most likely to change in the future)  
+   Upon successful request: returns an _array_ of (JSON) user objects `[userObject1,userObject2]` where `userObject` contains `{id: someid, user_uid: "some user_uid", email: "mail@ex.com" }` with the http status of `200`.  
    Upon failed request: returns an error object (JSON) with the http status of `400`.
 
 ### /api/auth
 
-1. `/sign-in` - `POST` **PUBLIC**  
+1. `/sign-up` - `POST` **PUBLIC**  
+   Upon successful request: returns JSON object `{message: "user registered", token: "randomJWTtoken"}` with the http status of `200`.  
+   Upon failed request: returns an error object (JSON) with the http status of `400`.
+
+2. `/sign-in` - `POST` **PUBLIC**  
    Upon successful request: returns JSON object `{message: "user logged in", token: "randomJWTtoken"}` with the http status of `200`.  
    Upon failed request: returns JSON object `{message: "Invalid credentials"}` with the http status of `400`.
 
