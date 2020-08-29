@@ -27,7 +27,7 @@ router.post(
     const userExists = await checkuserExists("email", email);
 
     if (userExists) {
-      return res.status(400).json({ msg: "Email already in use" });
+      return res.status(400).json({ msg: "email_unavailable" });
     }
 
     const user_uid = uuidv4();
@@ -68,7 +68,7 @@ router.post(
 
     const userExists = await checkuserExists("email", email);
     if (!userExists) {
-      return res.status(400).json({ msg: "Invalid credentials" });
+      return res.status(400).json({ msg: "invalid_credentials" });
     }
 
     try {
@@ -80,7 +80,7 @@ router.post(
       const isMatch = await bcrypt.compare(password, passwordFromDb);
 
       if (!isMatch) {
-        return res.status(400).json({ msg: "Invalid credentials" });
+        return res.status(400).json({ msg: "invalid_credentials" });
       }
       const user_uid = rows[0].user_uid;
       const token = generateAccessToken(user_uid); // new access token

@@ -98,4 +98,4 @@ Database: PostgreSQL
 ## Errors
 
 1. All non-invalid request errors (any error coming from the backend itself) such as: server error, query error, etc will result in http status of `500` with the msg of `Server Error`.
-2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{msg: "Token is not valid"}` or `{msg: "unauthorised/no token found"}` (depending on the situation) with the http status of `401`.
+2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{msg: "token_invalid"}` (fake/expired/wrong token) or `{msg: "unauthorised"}` (no token sent) with the http status of `401`.
