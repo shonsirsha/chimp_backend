@@ -38,31 +38,41 @@ There are two types of endpoint, private and public.
 ### /api/admin
 
 1. `/all-users` - `GET` **PUBLIC** (most likely to change in the future)  
-   **Upon successful request:** returns an **array** of (JSON) user objects `[userObject1,userObject2]` where `userObject` contains `{id: someid, user_uid: "some user_uid", email: "mail@ex.com" }` with the http status of `200`.  
+   **Upon successful request:** returns an **array** of (JSON) user objects `[userObject1,userObject2]` where `userObject` contains `{id: someid, user_uid: "some user_uid", email: "mail@ex.com" }` with the http status of `200`.
+
    **Upon failed request:** returns an error object (JSON) with the http status of `400`.
 
 ### /api/auth
 
 1. `/sign-up` - `POST` **PUBLIC**  
-   **Send from your application:** a JSON object like this: `{email: "email@mail.com", password: "password"}`  
-    **Data validation:**  
-    1. `email` must be of correct format  
-    2. `password` must be at least 6 characters long
-   **Upon successful request:** returns JSON object `{message: "user registered", token: "randomJWTtoken"}` with the http status of `200`.  
-    **Upon failed request:** returns an error object (JSON) with the http status of `400`.
+   **Send from your application:** a JSON object like this: `{email: "email@mail.com", password: "password"}`
 
-2. `/sign-in` - `POST` **PUBLIC**  
-   **Send from your application:** a JSON object like this: `{email: "email@mail.com", password: "password"}`  
    **Data validation:**
+
    1. `email` must be of correct format
    2. `password` must be at least 6 characters long
-      **Upon successful request:** returns JSON object `{message: "user logged in", token: "randomJWTtoken"}` with the http status of `200`.  
-      **Upon failed request:** returns JSON object `{message: "Invalid credentials"}` with the http status of `400`.
+
+   **Upon successful request:** returns JSON object `{message: "user registered", token: "randomJWTtoken"}` with the http status of `200`.
+
+   **Upon failed request:** returns an error object (JSON) with the http status of `400`.
+
+2. `/sign-in` - `POST` **PUBLIC**  
+   **Send from your application:** a JSON object like this: `{email: "email@mail.com", password: "password"}`
+
+   **Data validation:**
+
+   1. `email` must be of correct format
+   2. `password` must be at least 6 characters long
+
+   **Upon successful request:** returns JSON object `{message: "user logged in", token: "randomJWTtoken"}` with the http status of `200`.
+
+   **Upon failed request:** returns JSON object `{message: "Invalid credentials"}` with the http status of `400`.
 
 ### /api/user
 
 1. `/` - `GET` **PRIVATE**  
-   **Upon successful request:** returns JSON object of the current logged in user (containing `user_uid`, and `email`) and a message `{user: userObject, message: "success"}, user_uid: "randomJWTtoken"}` with the http status of `200`.  
+   **Upon successful request:** returns JSON object of the current logged in user (containing `user_uid`, and `email`) and a message `{user: userObject, message: "success"}, user_uid: "randomJWTtoken"}` with the http status of `200`.
+
    **Upon failed request:** [Errors (#2)](#errors).
 
 ## General
