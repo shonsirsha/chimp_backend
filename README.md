@@ -29,26 +29,27 @@ To make sure everything works normally, do a `GET` request to this endpoint `/ap
 ### /api/dev
 
 There are two types of endpoint, private and public.  
-Private routes require JWT token to be sent as headers named `x-auth-token`. JWT token can be obtained by signing in or signing up.
+**IMPORTANT: Private routes ALWAYS require JWT token to be sent as headers named `x-auth-token`.**  
+**JWT token can be obtained by signing in or signing up** (JWT authentication method).
 
-1. `/` - `GET` **PUBLIC**
+1. `/` - `GET` **PUBLIC**  
    If everything works normally, it should return A JSON object of `{"message": "Hello World!"}` with the http status of `200`.
 
 ### /api/admin
 
-1. `/sign-up` - `POST` **PUBLIC**
+1. `/sign-up` - `POST` **PUBLIC**  
    Upon successful request: returns JSON object `{message: "user registered", token: "randomJWTtoken"}` with the http status of `200`.  
    Upon failed request: returns an error object (JSON) with the http status of `400`.
 
 ### /api/auth
 
-1. `/sign-in` - `POST` **PUBLIC**
+1. `/sign-in` - `POST` **PUBLIC**  
    Upon successful request: returns JSON object `{message: "user logged in", token: "randomJWTtoken"}` with the http status of `200`.  
    Upon failed request: returns JSON object `{message: "Invalid credentials"}` with the http status of `400`.
 
 ### /api/user
 
-1. `/` - `POST` **PRIVATE**
+1. `/` - `POST` **PRIVATE**  
    Upon successful request: returns JSON object of the current logged in user (containing `user_uid`, and `email`) and a message `{user: userObject, message: "success"}, user_uid: "randomJWTtoken"}` with the http status of `200`.  
    Upon failed request: [Errors (#2)](#errors).
 
