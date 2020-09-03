@@ -38,7 +38,9 @@ router.post(
     const token = generateAccessToken(user_uid); // new access token
 
     pool.query(
-      `INSERT INTO users (user_uid, email, password) VALUES ('${user_uid}', '${email}', '${encryptedPassword}') `,
+      `INSERT INTO users (user_uid, email, password) VALUES ('${user_uid}', '${email}', '${encryptedPassword}');
+      INSERT INTO user_profile(user_uid, first_name, last_name, profile_pic_url) VALUES ('${user_uid}', '', '', '');
+      `,
       (error, results) => {
         if (error) {
           res.status(400).json(error);
