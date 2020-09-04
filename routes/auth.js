@@ -37,9 +37,15 @@ router.post(
 
     const token = generateAccessToken(user_uid); // new access token
 
+    const refreshToken = jwt.sign(
+      { payload: user_uid },
+      process.env.JWT_REFRESH_SECRET
+    ); // refresh token
+
     pool.query(
       `INSERT INTO users (user_uid, email, password) VALUES ('${user_uid}', '${email}', '${encryptedPassword}');
       INSERT INTO user_profile(user_uid, first_name, last_name, profile_pic_name) VALUES ('${user_uid}', '', '', '');
+      INSERT INTO refresh_tokens(user_uid, refresh_token) VALUES ('${user_uid}', '${refreshToken}');
       `,
       (error, results) => {
         if (error) {
@@ -90,6 +96,46 @@ router.post(
       res.status(200).json({ token, msg: "logged in", user_uid });
     } catch {
       res.status(500).send("Server error");
+    }
+  }
+);
+
+//@route    POST api/auth/new-access-token
+//@desc     Get new access token if expired (by supplying ID, and getting refrsh token in DB)
+//@access   Public
+router.post(
+  "/new-access-token",
+  [check("user_uid", "user_uid_fail").exists()],
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const { user_uid } = req.body; // destructuring request body
+      const { rows } = await pool.query(
+        `SELECT refresh_token FROM refresh_tokens WHERE user_uid='${user_uid}'`
+      );
+      console.log(rows[0].refresh_token.length > 0);
+      if (rows[0].refresh_token.length > 0) {
+        // if exists
+
+        jwt.verify(
+          rows[0].refresh_token,
+          process.env.JWT_REFRESH_SECRET,
+          (err) => {
+            if (err) res.status(401).json({ msg: "token_invalid" }); //token is not valid
+
+            const token = generateAccessToken(user_uid); // a new access token (refreshed)
+
+            res.status(200).json({ token: token });
+          }
+        );
+      } else {
+      }
+    } catch (e) {
+      res.status(500).send("Server error ", e);
     }
   }
 );
