@@ -10,7 +10,7 @@ const generateAccessToken = require("./utils/generateAccessToken");
 const checkuserExists = require("./utils/checkUserExists");
 
 //@route    POST api/auth/sign-up
-//@desc     Register a user & get token
+//@desc     Register a user & get token + user id
 //@access   Public
 router.post(
   "/sign-up",
@@ -45,7 +45,7 @@ router.post(
         if (error) {
           res.status(400).json(error);
         }
-        res.status(200).json({ msg: "user registered", token });
+        res.status(200).json({ msg: "user registered", token, user_uid });
       }
     );
   }
@@ -87,7 +87,7 @@ router.post(
       const user_uid = rows[0].user_uid;
       const token = generateAccessToken(user_uid); // new access token
 
-      res.status(200).json({ token, msg: "logged in" });
+      res.status(200).json({ token, msg: "logged in", user_uid });
     } catch {
       res.status(500).send("Server error");
     }
