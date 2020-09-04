@@ -9,9 +9,17 @@ module.exports = function (req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user_uid = decoded;
+    req.user_uid = decoded.payload;
+    req.token_expired = false;
     next();
   } catch (err) {
-    return res.status(401).json({ message: "token_invalid" });
+    if (err.name === "TokenExpiredError") {
+      //token expired
+      //get new token w/ refresh token
+      req.token_expired = true;
+      next();
+    } else {
+      return res.status(401).json({ message: "token_invalid" });
+    }
   }
 };
