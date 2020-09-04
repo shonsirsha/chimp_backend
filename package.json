@@ -17,8 +17,9 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "nodemon": "nodemon server.js"
+    "start": "npm run static & node server.js",
+    "nodemon": "npm run static & nodemon server.js",
+    "static": "http-server --port 7500"
   },
   "keywords": [],
   "author": "",
