@@ -39,7 +39,7 @@ router.post(
 
     pool.query(
       `INSERT INTO users (user_uid, email, password) VALUES ('${user_uid}', '${email}', '${encryptedPassword}');
-      INSERT INTO user_profile(user_uid, first_name, last_name, profile_pic_url) VALUES ('${user_uid}', '', '', '');
+      INSERT INTO user_profile(user_uid, first_name, last_name, profile_pic_name) VALUES ('${user_uid}', '', '', '');
       `,
       (error, results) => {
         if (error) {

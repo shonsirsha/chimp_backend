@@ -77,13 +77,31 @@ router.put("/profile-picture", auth, async (req, res) => {
     let dir = `user_uploads/public/images/profile_pictures/${user_uid}`;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
+    } else {
+      const { rows } = await pool.query(`SELECT * FROM user_profile`);
+      if (
+        rows[0].profile_pic_name.length !== "" ||
+        rows[0].profile_pic_name.length !== null
+      ) {
+        // if a profile picture alr exists
+        const picDir = `${dir}/${rows[0].profile_pic_name}`;
+        fs.unlinkSync(picDir, (err) => {
+          // delete that picture in dir
+          if (!err) {
+            console.log("DELETED");
+          } else {
+            console.log("Error deleting");
+          }
+        });
+      }
     }
     file.mv(`${dir}/${newFileName}`, (err) => {
       if (err) {
         return res.status(400).json({ msg: `mv_file_failed` });
       }
+      //updates in in db
       pool.query(
-        `UPDATE user_profile SET profile_pic_url='${dir}' WHERE user_uid='${user_uid}'`,
+        `UPDATE user_profile SET profile_pic_name='${newFileName}' WHERE user_uid='${user_uid}'`,
         (err) => {
           if (!err) {
             res.status(200).json({
