@@ -79,7 +79,7 @@ router.put("/profile-picture", auth, async (req, res) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     } else {
-      await deleteFile("images/profile_pictures", user_uid);
+      await deleteFile(false, "images/profile_pictures", user_uid); // false bc filename will be updated/overwritten below
     }
     file.mv(`${dir}/${newFileName}`, (err) => {
       if (err) {

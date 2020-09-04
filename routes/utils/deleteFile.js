@@ -1,7 +1,24 @@
 const fs = require("fs");
 const pool = require("../../db/pool");
 
-const deleteFile = async (detailPath, user_uid) => {
+const deleteFile = async (removeInDb, detailPath, user_uid) => {
+  if (removeInDb) {
+    pool.query(
+      `UPDATE user_profile SET profile_pic_name='' WHERE user_uid='${user_uid}'`,
+      async (err) => {
+        if (!err) {
+          await deleteActualFile(detailPath, user_uid);
+        } else {
+          res.status(400).json(error);
+        }
+      }
+    );
+  } else {
+    await deleteActualFile(detailPath, user_uid);
+  }
+};
+
+const deleteActualFile = async (detailPath, user_uid) => {
   let dir = `user_uploads/public/${detailPath}/${user_uid}`;
 
   const { rows } = await pool.query(
