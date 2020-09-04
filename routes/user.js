@@ -79,7 +79,8 @@ router.put("/profile-picture", auth, async (req, res) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     } else {
-      await deleteFile(false, "images/profile_pictures", user_uid); // false bc filename will be updated/overwritten below
+      deleteFile(false, "images/profile_pictures", user_uid);
+      // false bc filename will be updated/overwritten below
     }
     file.mv(`${dir}/${newFileName}`, (err) => {
       if (err) {
@@ -100,6 +101,26 @@ router.put("/profile-picture", auth, async (req, res) => {
         }
       );
     });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send("Server error");
+  }
+});
+
+//@route    DELETE api/user/profile-picture
+//@desc     DELETE / REMOVE (currently logged in) user's profile picture
+//@access   Private
+router.delete("/profile-picture", auth, async (req, res) => {
+  const { user_uid } = req;
+  try {
+    let dir = `user_uploads/public/images/profile_pictures/${user_uid}`;
+    if (!fs.existsSync(dir)) {
+      res.status(200).json({ msg: "profile_pic_removed" });
+    } else {
+      deleteFile(true, "images/profile_pictures", user_uid);
+
+      res.status(200).json({ msg: "profile_pic_removed" });
+    }
   } catch (e) {
     console.log(e);
     res.status(500).send("Server error");
