@@ -9,6 +9,7 @@ const pool = require("../db/pool");
 const router = express.Router();
 const generateAccessToken = require("./utils/generateAccessToken");
 const checkuserExists = require("./utils/checkUserExists");
+const deleteFile = require("./utils/deleteFile");
 
 //@route    GET api/user
 //@desc     Get currently logged in user
@@ -78,22 +79,7 @@ router.put("/profile-picture", auth, async (req, res) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     } else {
-      const { rows } = await pool.query(`SELECT * FROM user_profile`);
-      if (
-        rows[0].profile_pic_name.length !== "" ||
-        rows[0].profile_pic_name.length !== null
-      ) {
-        // if a profile picture alr exists
-        const picDir = `${dir}/${rows[0].profile_pic_name}`;
-        fs.unlinkSync(picDir, (err) => {
-          // delete that picture in dir
-          if (!err) {
-            console.log("DELETED");
-          } else {
-            console.log("Error deleting");
-          }
-        });
-      }
+      await deleteFile("images/profile_pictures", user_uid);
     }
     file.mv(`${dir}/${newFileName}`, (err) => {
       if (err) {
@@ -106,7 +92,7 @@ router.put("/profile-picture", auth, async (req, res) => {
           if (!err) {
             res.status(200).json({
               msg: "profile_pic_updated",
-              filePath: `${process.env.SERVER_ADDRESS}/${dir}/${newFileName}`,
+              filePath: `${dir}/${newFileName}`,
             });
           } else {
             res.status(400).json(error);
