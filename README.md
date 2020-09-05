@@ -12,17 +12,51 @@ Backend for CHIMP 🦧 🧡 🍊
 
 ⭐ Database file (.sql) `chimp_db.sql` is included in the root folder. Feel free to restore / import it to your own machine/server. If you feel more comfortable creating one yourself (instead of importing), check out the file `db.text` included in the root folder.
 
+⭐ Please see how the authentication method works and the reccomended practice <a href="#authMethod">below</a>.
+
 ## Running The Server
 
-Run `npm run nodemon` or `npm run start` (please note that with the latter you have to restart your server if you do make changes in the file(s) to see effect).
+Run `npm run nodemon` or `npm run start` (please note that with the latter you have to restart your server if you do make changes in the file(s) to see effect) to run the **REST API SERVER**.
+
+The command above will also automatically run the **FILE SEVER**.
 
 Default hostname is `localhost`.
 
-Default port is `5000`.
+Default port is `5000` for **REST API SERVER**  
+Default port is `7500` for **FILE SERVER**
 
-Default route to the REST API is `/api/`.
+Default route to the REST API SERVER is `/api/`.
+Default route to the FILE SERVER is `/` (the root dir of `chimp backend`).
+
+**Possible Error:**
+
+**`Error: listen EADDRINUSE: address already in use 0.0.0.0:7500`**
+
+This means that the port 7500 is being used. Please close any program that uses that port.  
+If no program is using it but error still persists, then please kill that port explicitly:
+
+`sudo lsof -i :7500` - then get the PID  
+`sudo kill -9 <PID>` - without the `<>`
 
 To make sure everything works normally, do a `GET` request to this endpoint `/api/dev` (full URL endpoint: `localhost:5000/api/dev`) - it should return JSON object `{"msg": "Hello World!"}` with the http status of `200`.
+
+## <span id="authMethod">Authentication</span>
+
+User signs up by hitting the `/api/auth/sign-up` endpoint. This returns (jwt) `token` and `user_uid`. Store these two in `localStorage` (web app) or (maybe) `Core Data` (in iOS). User is automatically authenticated (signed in) after this.
+
+User signs in by hitting the `/api/auth/sign-in` endpoint. This returns (jwt) `token` and `user_uid`. Store these two in `localStorage` (web app) or (maybe) `Core Data` (in iOS).
+
+Following the best practices of JWT authentication method, the access token (what is saved locally in the frontend) has a short expiration time (15 minutes).
+
+For testing/development purposes you may modify this expiration time to a different value - for seconds just put integer. E.g: 30 (this is 30 seconds).
+
+### Authentication Flow
+
+When a token has expired and an endpoint that requires a token (private endpoints), this token will no longer be valid and `{msg: token_expired}` will be returned.
+
+What is reccomended is to check any error. If it is equal to `token_expired`, then hit the `/auth/new-access-token`. This will return the new `{token: "sometoken"}` (that will, again, in default expire in 15 minutes). Replace the old (expired) `token` on your frontend with this newly returned `token`.
+
+After that, try to hit the endpoint that previously failed due to `token_expired`. This time it should succeed.
 
 ## Available REST API Endpoints
 
@@ -88,7 +122,7 @@ There are two types of endpoint, private and public.
 
    <span id="newAccTDV">**Data validation:**</span>
 
-   1. `user_uid` must exists -> Error message: `user_uid_fail`
+   1. `user_uid` must not empty -> Error message: `user_uid_fail`
 
    **Upon successful request:** returns JSON object `{"msg": "signed_out"}` with the http status of `200`.
 
@@ -107,7 +141,7 @@ There are two types of endpoint, private and public.
 
    <span id="signOutDV">**Data validation:**</span>
 
-   1. `user_uid` must not empty -> Error message: `user_uid_fail`
+   1. `user_uid` must not be empty -> Error message: `user_uid_fail`
 
    **Upon successful request:** returns JSON object `{"msg": "signed_out"}` with the http status of `200`.
 
@@ -175,4 +209,4 @@ Database: PostgreSQL
 ## Errors
 
 1. All non-invalid request errors (any error coming from the backend itself) such as: server error, query error, etc will result in http status of `500` with the msg of `Server Error`.
-2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{"msg": "token_invalid"}` (fake/wrong token) or `${"msg": "token_expired"}` (expired token) or `{"msg": "unauthorised"}` (no token sent) with the http status of `401`.
+2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{"msg": "token_invalid"}` (fake/wrong token) or `{"msg": "token_expired"}` (expired token) or `{"msg": "unauthorised"}` (no token sent) with the http status of `401`.
