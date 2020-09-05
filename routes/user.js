@@ -2,7 +2,7 @@ const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const fs = require("fs");
-const jwt = require("jsonwebtoken");
+const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
 const pool = require("../db/pool");
@@ -40,31 +40,43 @@ router.get("/", auth, async (req, res) => {
 //@route    PUT api/user
 //@desc     Update (currently logged in) user's profile detail
 //@access   Private
-router.put("/", auth, async (req, res) => {
-  const { user_uid } = req;
-  const { first_name, last_name } = req.body;
-  try {
-    pool.query(
-      `UPDATE user_profile SET first_name='${first_name}', last_name='${last_name}' WHERE user_uid='${user_uid}'`,
-      (err) => {
-        if (!err) {
-          res.status(200).json({ msg: "profile_detail_updated" });
-        } else {
-          res.status(400).json(error);
+router.put(
+  "/",
+  [
+    check("first_name", "first_name_mail").exists(),
+    check("last_name", "last_name_fail").exists(),
+  ],
+  auth,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { user_uid } = req;
+    const { first_name, last_name } = req.body;
+    try {
+      pool.query(
+        `UPDATE user_profile SET first_name='${first_name}', last_name='${last_name}' WHERE user_uid='${user_uid}'`,
+        (err) => {
+          if (!err) {
+            res.status(200).json({ msg: "profile_detail_updated" });
+          } else {
+            res.status(400).json(error);
+          }
         }
-      }
-    );
-  } catch (e) {
-    res.status(500).send("Server error");
+      );
+    } catch (e) {
+      res.status(500).send("Server error");
+    }
   }
-});
+);
 
 //@route    PUT api/user/profile-picture
 //@desc     Update (currently logged in) user's profile picture
 //@access   Private
 router.put("/profile-picture", auth, async (req, res) => {
   const { user_uid } = req;
-  if (req.files === null) {
+  if (req.files === null || req.files === undefined) {
     return res.status(400).json({ msg: "file_not_found" });
   }
   const { file } = req.files;
@@ -117,11 +129,9 @@ router.delete("/profile-picture", auth, async (req, res) => {
       res.status(200).json({ msg: "profile_pic_removed" });
     } else {
       deleteFile(true, "images/profile_pictures", user_uid);
-
       res.status(200).json({ msg: "profile_pic_removed" });
     }
   } catch (e) {
-    console.log(e);
     res.status(500).send("Server error");
   }
 });

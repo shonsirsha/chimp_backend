@@ -135,6 +135,12 @@ router.post(
 
     try {
       const { user_uid } = req.body; // destructuring request body
+
+      const userExists = await checkuserExists("user_uid", user_uid);
+      if (!userExists) {
+        return res.status(400).json({ msg: "invalid_credentials" });
+      }
+
       const { rows } = await pool.query(
         `SELECT refresh_token FROM tokens WHERE user_uid='${user_uid}' AND access_token='${oldAccessToken}'`
       );
@@ -170,28 +176,42 @@ router.post(
 //@route    POST api/auth/sign-out
 //@desc     Signs out currently logged in user
 //@access   Private (as user needs to prove that they have access token)
-router.post("/sign-out", async (req, res) => {
-  const accessToken = req.header("x-auth-token");
+router.post(
+  "/sign-out",
+  [check("user_uid", "user_uid_fail").exists()],
+  async (req, res) => {
+    const errors = validationResult(req);
 
-  //check if theres token in the header
-  if (!accessToken) {
-    return res.status(401).json({ msg: "unauthorised" });
-  }
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  try {
-    const { user_uid } = req.body; // destructuring request body
-    pool.query(
-      `DELETE FROM tokens WHERE user_uid='${user_uid}' AND access_token='${accessToken}'`,
-      (error, results) => {
-        if (error) {
-          res.status(400).json(error);
-        }
-        res.status(200).json({ msg: "signed_out" });
+    const accessToken = req.header("x-auth-token");
+
+    //check if theres token in the header
+    if (!accessToken) {
+      return res.status(401).json({ msg: "unauthorised" });
+    }
+
+    try {
+      const { user_uid } = req.body; // destructuring request body
+      const userExists = await checkuserExists("user_uid", user_uid);
+      if (!userExists) {
+        return res.status(400).json({ msg: "invalid_credentials" });
       }
-    );
-  } catch (e) {
-    res.status(500).send("Server error");
+      pool.query(
+        `DELETE FROM tokens WHERE user_uid='${user_uid}' AND access_token='${accessToken}'`,
+        (error, results) => {
+          if (error) {
+            res.status(400).json(error);
+          }
+          res.status(200).json({ msg: "signed_out" });
+        }
+      );
+    } catch (e) {
+      res.status(500).send("Server error");
+    }
   }
-});
+);
 
 module.exports = router;
