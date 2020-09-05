@@ -44,13 +44,13 @@ To make sure everything works normally, do a `GET` request to this endpoint `/ap
 
 User signs up by hitting the `/api/auth/sign-up` endpoint. This returns (jwt) `token` and `user_uid`. Store these two in `localStorage` (web app) or (maybe) `Core Data` (in iOS). User is automatically authenticated (signed in) after this.
 
-User signs in by hitting the `/api/auth/sign-in` endpoint. This returns (jwt) `token` and `user_uid`. Store these two in `localStorage` (web app) or (maybe) `Core Data` (in iOS).
+User signs in by hitting the `/api/auth/sign-in` endpoint. This returns (jwt) `token` and `user_uid`. Store these two in `localStorage` (web app) or (maybe) `Core Data` (in iOS). The reason for saving `user_uid` is because it is used on very few endpoints that does not require a not-expired (fresh) `token`. Read more on <a href="#authFlow">authentication flow</a>.
 
 Following the best practices of JWT authentication method, the access token (what is saved locally in the frontend) has a short expiration time (15 minutes).
 
 For testing/development purposes you may modify this expiration time to a different value - for seconds just put integer. E.g: 30 (this is 30 seconds).
 
-### Authentication Flow
+### <span id="authFlow">Authentication Flow</span>
 
 When a token has expired and an endpoint that requires a token (private endpoints), this token will no longer be valid and `{msg: token_expired}` will be returned.
 
