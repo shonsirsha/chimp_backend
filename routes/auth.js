@@ -45,7 +45,7 @@ router.post(
     pool.query(
       `INSERT INTO users (user_uid, email, password) VALUES ('${user_uid}', '${email}', '${encryptedPassword}');
       INSERT INTO user_profile(user_uid, first_name, last_name, profile_pic_name) VALUES ('${user_uid}', '', '', '');
-      INSERT INTO refresh_tokens(user_uid, refresh_token) VALUES ('${user_uid}', '${refreshToken}');
+      INSERT INTO tokens(user_uid, refresh_token, access_token) VALUES ('${user_uid}', '${refreshToken}', '${token}');
       `,
       (error, results) => {
         if (error) {
@@ -101,8 +101,8 @@ router.post(
 );
 
 //@route    POST api/auth/new-access-token
-//@desc     Get new access token if expired (by supplying ID, and getting refrsh token in DB)
-//@access   Public
+//@desc     Get new access token if expired (by supplying ID & expired access token and exchange it for a new token w/ the help of a refresh token)
+//@access   Private (as user needs to prove that they have the (expired) access token)
 router.post(
   "/new-access-token",
   [check("user_uid", "user_uid_fail").exists()],
@@ -112,30 +112,44 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+
+    const oldAccessToken = req.header("x-auth-token");
+
+    //check if theres token in the header
+    if (!oldAccessToken) {
+      return res.status(401).json({ msg: "unauthorised" });
+    }
+
     try {
       const { user_uid } = req.body; // destructuring request body
       const { rows } = await pool.query(
-        `SELECT refresh_token FROM refresh_tokens WHERE user_uid='${user_uid}'`
+        `SELECT refresh_token FROM tokens WHERE user_uid='${user_uid}' AND access_token='${oldAccessToken}'`
       );
-      console.log(rows[0].refresh_token.length > 0);
-      if (rows[0].refresh_token.length > 0) {
+      if (rows[0] !== undefined) {
         // if exists
-
         jwt.verify(
           rows[0].refresh_token,
           process.env.JWT_REFRESH_SECRET,
           (err) => {
-            if (err) res.status(401).json({ msg: "token_invalid" }); //token is not valid
+            if (err) res.status(401).json({ msg: "refresh_token_invalid" }); //token is not valid
 
-            const token = generateAccessToken(user_uid); // a new access token (refreshed)
-
-            res.status(200).json({ token: token });
+            const newAccessToken = generateAccessToken(user_uid); // a new access token (refreshed)
+            pool.query(
+              `UPDATE tokens SET access_token='${newAccessToken}' WHERE user_uid='${user_uid}' AND refresh_token='${rows[0].refresh_token}'`,
+              (error, results) => {
+                if (error) {
+                  res.status(400).json(error);
+                }
+                res.status(200).json({ token: newAccessToken });
+              }
+            );
           }
         );
       } else {
+        return res.status(401).json({ msg: "unauthorised" });
       }
     } catch (e) {
-      res.status(500).send("Server error ", e);
+      res.status(500).send("Server error");
     }
   }
 );

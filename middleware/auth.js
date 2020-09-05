@@ -4,7 +4,7 @@ module.exports = function (req, res, next) {
 
   //check if theres token in the header
   if (!token) {
-    return res.status(401).json({ message: "unauthorised" }); //401 is unauthorised
+    return res.status(401).json({ msg: "unauthorised" }); //401 is unauthorised
   }
 
   try {
@@ -16,10 +16,9 @@ module.exports = function (req, res, next) {
     if (err.name === "TokenExpiredError") {
       //token expired
       //get new token w/ refresh token
-      return res.status(401).json({ message: "token_expired" });
-      next();
+      return res.status(401).json({ msg: "token_expired" });
     } else {
-      return res.status(401).json({ message: "token_invalid" });
+      return res.status(401).json({ msg: "token_invalid" });
     }
   }
 };
