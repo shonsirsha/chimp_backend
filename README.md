@@ -30,14 +30,6 @@ Default route to the FILE SERVER is `/` (the root dir of `chimp backend`).
 
 **Possible Error:**
 
-**`Error: listen EADDRINUSE: address already in use 0.0.0.0:7500`**
-
-This means that the port 7500 is being used. Please close any program that uses that port.  
-If no program is using it but error still persists, then please kill that port explicitly:
-
-`sudo lsof -i :7500` - then get the PID  
-`sudo kill -9 <PID>` - without the `<>`
-
 To make sure everything works normally, do a `GET` request to this endpoint `/api/dev` (full URL endpoint: `localhost:5000/api/dev`) - it should return JSON object `{"msg": "Hello World!"}` with the http status of `200`.
 
 ## <span id="authMethod">Authentication</span>
@@ -209,4 +201,13 @@ Database: PostgreSQL
 ## Errors
 
 1. All non-invalid request errors (any error coming from the backend itself) such as: server error, query error, etc will result in http status of `500` with the msg of `Server Error`.
+
 2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{"msg": "token_invalid"}` (fake/wrong token) or `{"msg": "token_expired"}` (expired token) or `{"msg": "unauthorised"}` (no token sent) with the http status of `401`.
+
+3. **`Error: listen EADDRINUSE: address already in use 0.0.0.0:7500<`**
+
+   <span id="err3"> This means that the port 7500 is being used. Please close any program that uses that port.</span>
+   If no program is using it but error still persists, then please kill that port explicitly:
+
+   `sudo lsof -i :7500` - then get the PID  
+   `sudo kill -9 <PID>` - without the `<>`
