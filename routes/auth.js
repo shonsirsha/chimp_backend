@@ -51,7 +51,7 @@ router.post(
         if (error) {
           res.status(400).json(error);
         }
-        res.status(200).json({ msg: "user registered", token, user_uid });
+        res.status(200).json({ msg: "signed_up", token, user_uid });
       }
     );
   }
@@ -93,7 +93,20 @@ router.post(
       const user_uid = rows[0].user_uid;
       const token = generateAccessToken(user_uid); // new access token
 
-      res.status(200).json({ token, msg: "logged in", user_uid });
+      const refreshToken = jwt.sign(
+        { payload: user_uid },
+        process.env.JWT_REFRESH_SECRET
+      ); // refresh token
+
+      pool.query(
+        `INSERT INTO tokens(user_uid, refresh_token, access_token) VALUES ('${user_uid}', '${refreshToken}', '${token}')`,
+        (error, results) => {
+          if (error) {
+            res.status(400).json(error);
+          }
+          res.status(200).json({ token, msg: "signed_in", user_uid });
+        }
+      );
     } catch {
       res.status(500).send("Server error");
     }
@@ -153,5 +166,32 @@ router.post(
     }
   }
 );
+
+//@route    POST api/auth/sign-out
+//@desc     Signs out currently logged in user
+//@access   Private (as user needs to prove that they have access token)
+router.post("/sign-out", async (req, res) => {
+  const accessToken = req.header("x-auth-token");
+
+  //check if theres token in the header
+  if (!accessToken) {
+    return res.status(401).json({ msg: "unauthorised" });
+  }
+
+  try {
+    const { user_uid } = req.body; // destructuring request body
+    pool.query(
+      `DELETE FROM tokens WHERE user_uid='${user_uid}' AND access_token='${accessToken}'`,
+      (error, results) => {
+        if (error) {
+          res.status(400).json(error);
+        }
+        res.status(200).json({ msg: "signed_out" });
+      }
+    );
+  } catch (e) {
+    res.status(500).send("Server error");
+  }
+});
 
 module.exports = router;
