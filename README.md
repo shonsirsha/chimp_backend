@@ -44,7 +44,7 @@ Following the best practices of JWT authentication method, the access token (wha
 
 For testing/development purposes you may modify this expiration time to a different value - for seconds just put integer. E.g: 30 (this is 30 seconds).
 
-Modify the `expiresIn` property in `./routes/utilsgenerateAccessToken.js` file.
+To modify it, please modify the `expiresIn` property in `./routes/utilsgenerateAccessToken.js` file.
 
 ### <span id="authFlow">Authentication Flow</span>
 
