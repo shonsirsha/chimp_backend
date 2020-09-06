@@ -11,6 +11,43 @@ const generateAccessToken = require("./utils/generateAccessToken");
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
 
+//@route    GET api/contact
+//@desc     Get a contact for currently logged in user
+//@access   Private
+router.get(
+  "/",
+  [check("contact_uid", "first_name_fail").exists()],
+  auth,
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const { user_uid } = req;
+      const { contact_uid } = req.body;
+      const contactExists = await checkIfExists(
+        "contacts",
+        "contact_uid",
+        contact_uid
+      );
+      if (contact_uid.length === 0 || !contactExists) {
+        return res.status(400).json({ msg: "contact_not_found" });
+      }
+      let { rows } = await pool.query(
+        `SELECT * FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`
+      );
+      console.log(rows);
+      return res.status(200).json({ msg: "success", contact: rows[0] });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).send("Server error");
+    }
+  }
+);
+
 //@route    POST api/contact
 //@desc     Create a contact for currently logged in user
 //@access   Private
@@ -112,8 +149,12 @@ router.put(
         dob,
         note,
       } = req.body;
-      const y = await checkIfExists("contacts", "contact_uid", contact_uid);
-      if (contact_uid.length === 0 || !y) {
+      const contactExists = await checkIfExists(
+        "contacts",
+        "contact_uid",
+        contact_uid
+      );
+      if (contact_uid.length === 0 || !contactExists) {
         return res.status(400).json({ msg: "contact_not_found" });
       }
 
@@ -149,8 +190,12 @@ router.delete(
     try {
       const { user_uid } = req;
       const { contact_uid } = req.body;
-      const y = await checkIfExists("contacts", "contact_uid", contact_uid);
-      if (contact_uid.length === 0 || !y) {
+      const contactExists = await checkIfExists(
+        "contacts",
+        "contact_uid",
+        contact_uid
+      );
+      if (contact_uid.length === 0 || !contactExists) {
         return res.status(400).json({ msg: "contact_not_found" });
       }
 

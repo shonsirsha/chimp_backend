@@ -28,7 +28,7 @@ router.get("/", auth, async (req, res) => {
     }
     if (rows[0] === null || rows[0] === undefined) {
       // if token is valid but that uid not in db
-      return res.status(401).json({ msg: "token is invalid" });
+      return res.status(401).json({ msg: "token_invalid" });
     } else {
       return res.status(200).json({ user: rows[0], msg: "success" });
     }
