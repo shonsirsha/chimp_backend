@@ -50,6 +50,8 @@ What is reccomended is to check any error. If it is equal to `token_expired`, th
 
 After that, try to hit the endpoint that previously failed due to `token_expired`. This time it should succeed.
 
+On sign out, you should hit the sign out endpoint `/auth/sign-out` and then remove the `user_uid` and `token` that was saved locally in your application / client's device.
+
 ## Available REST API Endpoints
 
 There are two types of endpoint, private and public.  
