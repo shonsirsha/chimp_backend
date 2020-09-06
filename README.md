@@ -30,6 +30,8 @@ Default route to the FILE SERVER is `/` (the root dir of `chimp backend`).
 
 **Possible Error:**
 
+<a href="#err3">Here (#3)</a> is a possible error when running the server and how to fix it.
+
 To make sure everything works normally, do a `GET` request to this endpoint `/api/dev` (full URL endpoint: `localhost:5000/api/dev`) - it should return JSON object `{"msg": "Hello World!"}` with the http status of `200`.
 
 ## <span id="authMethod">Authentication</span>
@@ -206,9 +208,10 @@ Database: PostgreSQL
 
 2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{"msg": "token_invalid"}` (fake/wrong token) or `{"msg": "token_expired"}` (expired token) or `{"msg": "unauthorised"}` (no token sent) with the http status of `401`.
 
-3. **`Error: listen EADDRINUSE: address already in use 0.0.0.0:7500<`**
+3. <span id="err3">Error:</span> **`listen EADDRINUSE: address already in use 0.0.0.0:7500<`**
 
-   <span id="err3"> This means that the port 7500 is being used. Please close any program that uses that port.</span>
+   This means that the port 7500 is being used. Please close any program that uses that port.</span>
+
    If no program is using it but error still persists, then please kill that port explicitly:
 
    `sudo lsof -i :7500` - then get the PID  
