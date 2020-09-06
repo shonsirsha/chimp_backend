@@ -111,8 +111,6 @@ router.put(
         email,
         dob,
         note,
-        company_uid,
-        contact_image,
       } = req.body;
       const y = await checkIfExists("contacts", "contact_uid", contact_uid);
       if (contact_uid.length === 0 || !y) {
@@ -123,15 +121,49 @@ router.put(
         `UPDATE contacts SET first_name='${first_name}', last_name='${last_name}', phone='${phone}', email='${email}', dob='${dob}', note='${note}' WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
         (err, results) => {
           if (err) {
-            console.log(err);
             return res.status(400).json(err);
           }
-          console.log(results);
           return res.status(200).json({ msg: "contact_updated", contact_uid });
         }
       );
     } catch (e) {
-      console.log(e);
+      return res.status(500).send("Server error");
+    }
+  }
+);
+
+//@route    DELETE api/contact
+//@desc     Delete a contact for currently logged in user
+//@access   Private
+router.delete(
+  "/",
+  [check("contact_uid", "contact_uid_fail").exists()],
+  auth,
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const { user_uid } = req;
+      const { contact_uid } = req.body;
+      const y = await checkIfExists("contacts", "contact_uid", contact_uid);
+      if (contact_uid.length === 0 || !y) {
+        return res.status(400).json({ msg: "contact_not_found" });
+      }
+
+      pool.query(
+        `DELETE FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
+        (err, results) => {
+          if (err) {
+            return res.status(400).json(err);
+          }
+          return res.status(200).json({ msg: "contact_deleted" });
+        }
+      );
+    } catch (e) {
       return res.status(500).send("Server error");
     }
   }
