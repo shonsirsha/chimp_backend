@@ -220,7 +220,7 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
         (err) => {
           if (!err) {
             return res.status(200).json({
-              msg: "profile_pic_updated",
+              msg: "user_img_updated",
               filePath: `${dir}/${newFileName}`,
             });
           } else {
