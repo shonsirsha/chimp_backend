@@ -8,14 +8,14 @@ const auth = require("../middleware/auth");
 const pool = require("../db/pool");
 const router = express.Router();
 const generateAccessToken = require("./utils/generateAccessToken");
-const checkuserExists = require("./utils/checkUserExists");
+const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
 
 //@route    GET api/user
 //@desc     Get currently logged in user
 //@access   Private
 router.get("/", auth, async (req, res) => {
-  const { user_uid, token_expired } = req;
+  const { user_uid } = req;
   try {
     let { rows } = await pool.query(
       `SELECT * FROM users WHERE user_uid='${user_uid}'`
@@ -28,12 +28,12 @@ router.get("/", auth, async (req, res) => {
     }
     if (rows[0] === null || rows[0] === undefined) {
       // if token is valid but that uid not in db
-      res.status(401).json({ msg: "token is invalid" });
+      return res.status(401).json({ msg: "token is invalid" });
     } else {
-      res.status(200).json({ user: rows[0], msg: "success" });
+      return res.status(200).json({ user: rows[0], msg: "success" });
     }
   } catch {
-    res.status(500).send("Server error");
+    return res.status(500).send("Server error");
   }
 });
 
@@ -59,14 +59,14 @@ router.put(
         `UPDATE user_profile SET first_name='${first_name}', last_name='${last_name}' WHERE user_uid='${user_uid}'`,
         (err) => {
           if (!err) {
-            res.status(200).json({ msg: "profile_detail_updated" });
+            return res.status(200).json({ msg: "profile_detail_updated" });
           } else {
-            res.status(400).json(error);
+            return res.status(400).json(error);
           }
         }
       );
     } catch (e) {
-      res.status(500).send("Server error");
+      return res.status(500).send("Server error");
     }
   }
 );
@@ -102,19 +102,18 @@ router.put("/profile-picture", auth, async (req, res) => {
         `UPDATE user_profile SET profile_pic_name='${newFileName}' WHERE user_uid='${user_uid}'`,
         (err) => {
           if (!err) {
-            res.status(200).json({
+            return res.status(200).json({
               msg: "profile_pic_updated",
               filePath: `${dir}/${newFileName}`,
             });
           } else {
-            res.status(400).json(error);
+            return res.status(400).json(error);
           }
         }
       );
     });
   } catch (e) {
-    console.log(e);
-    res.status(500).send("Server error");
+    return res.status(500).send("Server error");
   }
 });
 
@@ -126,13 +125,13 @@ router.delete("/profile-picture", auth, async (req, res) => {
   try {
     let dir = `user_uploads/public/images/profile_pictures/${user_uid}`;
     if (!fs.existsSync(dir)) {
-      res.status(200).json({ msg: "profile_pic_removed" });
+      return res.status(200).json({ msg: "profile_pic_removed" });
     } else {
       deleteFile(true, "images/profile_pictures", user_uid);
-      res.status(200).json({ msg: "profile_pic_removed" });
+      return res.status(200).json({ msg: "profile_pic_removed" });
     }
   } catch (e) {
-    res.status(500).send("Server error");
+    return res.status(500).send("Server error");
   }
 });
 

@@ -7,7 +7,7 @@ const { check, validationResult } = require("express-validator");
 const pool = require("../db/pool");
 const router = express.Router();
 const generateAccessToken = require("./utils/generateAccessToken");
-const checkuserExists = require("./utils/checkUserExists");
+const checkIfExists = require("./utils/checkIfExists");
 
 //@route    POST api/auth/sign-up
 //@desc     Register a user & get token + user id
@@ -24,7 +24,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
     const { email, password } = req.body; // destructuring request body
-    const userExists = await checkuserExists("email", email);
+    const userExists = await checkIfExists("users", "email", email);
 
     if (userExists) {
       return res.status(400).json({ msg: "email_unavailable" });
@@ -49,9 +49,9 @@ router.post(
       `,
       (error, results) => {
         if (error) {
-          res.status(400).json(error);
+          return res.status(400).json(error);
         }
-        res.status(200).json({ msg: "signed_up", token, user_uid });
+        return res.status(200).json({ msg: "signed_up", token, user_uid });
       }
     );
   }
@@ -74,7 +74,7 @@ router.post(
 
     const { email, password } = req.body; // destructuring request body
 
-    const userExists = await checkuserExists("email", email);
+    const userExists = await checkIfExists("users", "email", email);
     if (!userExists) {
       return res.status(400).json({ msg: "invalid_credentials" });
     }
@@ -102,13 +102,13 @@ router.post(
         `INSERT INTO tokens(user_uid, refresh_token, access_token) VALUES ('${user_uid}', '${refreshToken}', '${token}')`,
         (error, results) => {
           if (error) {
-            res.status(400).json(error);
+            return res.status(400).json(error);
           }
-          res.status(200).json({ token, msg: "signed_in", user_uid });
+          return res.status(200).json({ token, msg: "signed_in", user_uid });
         }
       );
     } catch {
-      res.status(500).send("Server error");
+      return res.status(500).send("Server error");
     }
   }
 );
@@ -135,11 +135,6 @@ router.post(
 
     try {
       const { user_uid } = req.body; // destructuring request body
-
-      const userExists = await checkuserExists("user_uid", user_uid);
-      if (!userExists) {
-        return res.status(400).json({ msg: "invalid_credentials" });
-      }
 
       const { rows } = await pool.query(
         `SELECT refresh_token FROM tokens WHERE user_uid='${user_uid}' AND access_token='${oldAccessToken}'`
@@ -168,7 +163,7 @@ router.post(
         return res.status(401).json({ msg: "unauthorised" });
       }
     } catch (e) {
-      res.status(500).send("Server error");
+      return res.status(500).send("Server error");
     }
   }
 );
@@ -195,7 +190,7 @@ router.post(
 
     try {
       const { user_uid } = req.body; // destructuring request body
-      const userExists = await checkuserExists("user_uid", user_uid);
+      const userExists = await checkIfExists("users", "user_uid", user_uid);
       if (!userExists) {
         return res.status(400).json({ msg: "invalid_credentials" });
       }
@@ -203,13 +198,13 @@ router.post(
         `DELETE FROM tokens WHERE user_uid='${user_uid}' AND access_token='${accessToken}'`,
         (error, results) => {
           if (error) {
-            res.status(400).json(error);
+            return res.status(400).json(error);
           }
-          res.status(200).json({ msg: "signed_out" });
+          return res.status(200).json({ msg: "signed_out" });
         }
       );
     } catch (e) {
-      res.status(500).send("Server error");
+      return res.status(500).send("Server error");
     }
   }
 );
