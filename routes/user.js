@@ -98,7 +98,7 @@ router.put("/profile-picture", auth, async (req, res) => {
       file.name.substr(0, file.name.lastIndexOf(".")).replace(/ /g, "") +
       Date.now() +
       fileExt;
-    let dir = `user_uploads/public/images/profile_pictures/${user_uid}`;
+    let dir = `${process.env.USER_UPLOAD_PROFILE_PIC}${user_uid}`;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     } else {
@@ -146,7 +146,7 @@ router.delete("/profile-picture", auth, async (req, res) => {
     return res.status(400).json({ msg: "user_not_found" });
   }
   try {
-    let dir = `user_uploads/public/images/profile_pictures/${user_uid}`;
+    let dir = `${process.env.USER_UPLOAD_PROFILE_PIC}${user_uid}`;
     if (!fs.existsSync(dir)) {
       return res.status(200).json({ msg: "profile_pic_removed" });
     } else {

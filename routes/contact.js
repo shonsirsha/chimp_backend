@@ -196,7 +196,7 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
       file.name.substr(0, file.name.lastIndexOf(".")).replace(/ /g, "") +
       Date.now() +
       fileExt;
-    let dir = `user_uploads/public/images/contact_image/${contact_uid}`;
+    let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     } else {
@@ -250,7 +250,7 @@ router.delete("/image/:contact_uid", auth, async (req, res) => {
     return res.status(400).json({ msg: "contact_not_found" });
   }
   try {
-    let dir = `user_uploads/public/images/contact_image/${contact_uid}`;
+    let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
     if (!fs.existsSync(dir)) {
       return res.status(200).json({ msg: "contact_image_removed" });
     } else {
