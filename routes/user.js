@@ -102,7 +102,14 @@ router.put("/profile-picture", auth, async (req, res) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     } else {
-      deleteFile(false, "images/profile_pictures", user_uid);
+      deleteFile(
+        false,
+        "images/profile_pictures",
+        user_uid,
+        "user_profile",
+        "profile_pic_name",
+        "user_uid"
+      );
       // false bc filename will be updated/overwritten below
     }
     file.mv(`${dir}/${newFileName}`, (err) => {
@@ -143,7 +150,14 @@ router.delete("/profile-picture", auth, async (req, res) => {
     if (!fs.existsSync(dir)) {
       return res.status(200).json({ msg: "profile_pic_removed" });
     } else {
-      deleteFile(true, "images/profile_pictures", user_uid);
+      deleteFile(
+        true,
+        "images/profile_pictures",
+        user_uid,
+        "user_profile",
+        "profile_pic_name",
+        "user_uid"
+      );
       return res.status(200).json({ msg: "profile_pic_removed" });
     }
   } catch (e) {

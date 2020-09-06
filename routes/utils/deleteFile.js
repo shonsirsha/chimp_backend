@@ -1,16 +1,25 @@
 const fs = require("fs");
 const pool = require("../../db/pool");
 
-const deleteFile = async (removeInDb, detailPath, user_uid) => {
-  let dir = `user_uploads/public/${detailPath}/${user_uid}`;
+const deleteFile = async (
+  removeInDb,
+  detailPath,
+  key_uid,
+  table,
+  field,
+  keyIdName
+) => {
+  //keyIdName is the id for WHERE clause of SQL e.g key_uid
+  let dir = `user_uploads/public/${detailPath}/${key_uid}`;
 
   const { rows } = await pool.query(
-    `SELECT * FROM user_profile WHERE user_uid='${user_uid}'`
+    `SELECT * FROM ${table} WHERE ${keyIdName}='${key_uid}'`
   );
-  let fileName = rows[0].profile_pic_name;
+  let fileName = rows[0][`${field}`];
+
   if (removeInDb) {
     pool.query(
-      `UPDATE user_profile SET profile_pic_name='' WHERE user_uid='${user_uid}'`,
+      `UPDATE ${table} SET ${field}='' WHERE ${keyIdName}='${key_uid}'`,
       async (err) => {
         if (!err) {
           await deleteActualFile(dir, fileName);
@@ -25,9 +34,8 @@ const deleteFile = async (removeInDb, detailPath, user_uid) => {
 };
 
 const deleteActualFile = async (dir, fileName) => {
-  const picDir = `${dir}/${fileName}`;
-  fs.unlinkSync(picDir, (err) => {
-    // delete that file in dir
+  fs.rmdirSync(dir, { recursive: true }, (err) => {
+    // delete that dir since it's empty
     if (!err) {
       return true;
     } else {

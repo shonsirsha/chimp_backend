@@ -172,18 +172,18 @@ router.put(
   }
 );
 
-//@route    PUT api/contact/image
+//@route    PUT api/contact/image/contact_uid
 //@desc     Edit a contact's profile picture (image) for currently logged in user
 //@access   Private
 router.put("/image/:contact_uid", auth, async (req, res) => {
   const { user_uid } = req;
   const { contact_uid } = req.params;
-  let xists = await checkIfExists("users", "user_uid", user_uid);
-  if (!xists) {
+  let thisExists = await checkIfExists("users", "user_uid", user_uid);
+  if (!thisExists) {
     return res.status(400).json({ msg: "user_not_found" });
   }
-  xists = await checkIfExists("contacts", "contact_uid", contact_uid);
-  if (!xists || contact_uid.length.length === 0) {
+  thisExists = await checkIfExists("contacts", "contact_uid", contact_uid);
+  if (!thisExists || contact_uid.length.length === 0) {
     return res.status(400).json({ msg: "contact_not_found" });
   }
   if (req.files === null || req.files === undefined) {
@@ -196,11 +196,18 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
       file.name.substr(0, file.name.lastIndexOf(".")).replace(/ /g, "") +
       Date.now() +
       fileExt;
-    let dir = `user_uploads/public/images/contact_image/${user_uid}`;
+    let dir = `user_uploads/public/images/contact_image/${contact_uid}`;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     } else {
-      deleteFile(false, "/images/contact_image", user_uid);
+      deleteFile(
+        false,
+        "images/contact_image",
+        contact_uid,
+        "contacts",
+        "contact_image_name",
+        "contact_uid"
+      );
       // false bc filename will be updated/overwritten below
     }
     file.mv(`${dir}/${newFileName}`, (err) => {
@@ -209,7 +216,7 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
       }
       //updates in in db
       pool.query(
-        `UPDATE user_profile SET profile_pic_name='${newFileName}' WHERE user_uid='${user_uid}'`,
+        `UPDATE contacts SET contact_image_name='${newFileName}' WHERE contact_uid='${contact_uid}'`,
         (err) => {
           if (!err) {
             return res.status(200).json({
@@ -222,6 +229,41 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
         }
       );
     });
+  } catch (e) {
+    return res.status(500).send("Server error");
+  }
+});
+
+//@route    DELETE api/contact/image/contact_uid
+//@desc     DELETE / REMOVE (currently logged in) a user's contact's image
+//@access   Private
+router.delete("/image/:contact_uid", auth, async (req, res) => {
+  const { user_uid } = req;
+  const { contact_uid } = req.params;
+
+  let thisExists = await checkIfExists("users", "user_uid", user_uid);
+  if (!thisExists) {
+    return res.status(400).json({ msg: "user_not_found" });
+  }
+  thisExists = await checkIfExists("contacts", "contact_uid", contact_uid);
+  if (!thisExists || contact_uid.length.length === 0) {
+    return res.status(400).json({ msg: "contact_not_found" });
+  }
+  try {
+    let dir = `user_uploads/public/images/contact_image/${contact_uid}`;
+    if (!fs.existsSync(dir)) {
+      return res.status(200).json({ msg: "contact_image_removed" });
+    } else {
+      deleteFile(
+        true,
+        "images/contact_image",
+        contact_uid,
+        "contacts",
+        "contact_image_name",
+        "contact_uid"
+      );
+      return res.status(200).json({ msg: "contact_image_removed" });
+    }
   } catch (e) {
     return res.status(500).send("Server error");
   }
