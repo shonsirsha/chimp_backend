@@ -92,7 +92,6 @@ router.post(
         );
         if (!companyExists) {
           return res.status(400).json({ msg: "company_not_found" });
-        } else {
         }
       }
       const contact_uid = `cont-${uuidv4()}`;
@@ -172,6 +171,61 @@ router.put(
     }
   }
 );
+
+//@route    PUT api/contact/image
+//@desc     Edit a contact's profile picture (image) for currently logged in user
+//@access   Private
+router.put("/image/:contact_uid", auth, async (req, res) => {
+  const { user_uid } = req;
+  const { contact_uid } = req.params;
+  let xists = await checkIfExists("users", "user_uid", user_uid);
+  if (!xists) {
+    return res.status(400).json({ msg: "user_not_found" });
+  }
+  xists = await checkIfExists("contacts", "contact_uid", contact_uid);
+  if (!xists || contact_uid.length.length === 0) {
+    return res.status(400).json({ msg: "contact_not_found" });
+  }
+  if (req.files === null || req.files === undefined) {
+    return res.status(400).json({ msg: "file_not_found" });
+  }
+  const { file } = req.files;
+  try {
+    const fileExt = path.extname(file.name);
+    let newFileName =
+      file.name.substr(0, file.name.lastIndexOf(".")).replace(/ /g, "") +
+      Date.now() +
+      fileExt;
+    let dir = `user_uploads/public/images/contact_image/${user_uid}`;
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    } else {
+      deleteFile(false, "/images/contact_image", user_uid);
+      // false bc filename will be updated/overwritten below
+    }
+    file.mv(`${dir}/${newFileName}`, (err) => {
+      if (err) {
+        return res.status(400).json({ msg: `mv_file_failed` });
+      }
+      //updates in in db
+      pool.query(
+        `UPDATE user_profile SET profile_pic_name='${newFileName}' WHERE user_uid='${user_uid}'`,
+        (err) => {
+          if (!err) {
+            return res.status(200).json({
+              msg: "profile_pic_updated",
+              filePath: `${dir}/${newFileName}`,
+            });
+          } else {
+            return res.status(400).json(error);
+          }
+        }
+      );
+    });
+  } catch (e) {
+    return res.status(500).send("Server error");
+  }
+});
 
 //@route    DELETE api/contact
 //@desc     Delete a contact for currently logged in user

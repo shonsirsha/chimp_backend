@@ -16,6 +16,10 @@ const deleteFile = require("./utils/deleteFile");
 //@access   Private
 router.get("/", auth, async (req, res) => {
   const { user_uid } = req;
+  const userExists = checkIfExists("users", "user_uid", user_uid);
+  if (!userExists) {
+    return res.status(400).json({ msg: "user_not_found" });
+  }
   try {
     let { rows } = await pool.query(
       `SELECT * FROM users WHERE user_uid='${user_uid}'`
@@ -53,6 +57,10 @@ router.put(
       return res.status(400).json({ errors: errors.array() });
     }
     const { user_uid } = req;
+    const userExists = checkIfExists("users", "user_uid", user_uid);
+    if (!userExists) {
+      return res.status(400).json({ msg: "user_not_found" });
+    }
     const { first_name, last_name } = req.body;
     try {
       pool.query(
@@ -76,6 +84,10 @@ router.put(
 //@access   Private
 router.put("/profile-picture", auth, async (req, res) => {
   const { user_uid } = req;
+  let userExists = checkIfExists("users", "user_uid", user_uid);
+  if (!userExists) {
+    return res.status(400).json({ msg: "user_not_found" });
+  }
   if (req.files === null || req.files === undefined) {
     return res.status(400).json({ msg: "file_not_found" });
   }
@@ -122,6 +134,10 @@ router.put("/profile-picture", auth, async (req, res) => {
 //@access   Private
 router.delete("/profile-picture", auth, async (req, res) => {
   const { user_uid } = req;
+  let userExists = checkIfExists("users", "user_uid", user_uid);
+  if (!userExists) {
+    return res.status(400).json({ msg: "user_not_found" });
+  }
   try {
     let dir = `user_uploads/public/images/profile_pictures/${user_uid}`;
     if (!fs.existsSync(dir)) {
