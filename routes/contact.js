@@ -39,8 +39,20 @@ router.get(
       let { rows } = await pool.query(
         `SELECT * FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`
       );
-      console.log(rows);
-      return res.status(200).json({ msg: "success", contact: rows[0] });
+
+      const tagsFromDb = await pool.query(
+        `SELECT tag FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`
+      );
+
+      let tags = [];
+      tagsFromDb.rows.forEach(({ tag }) => {
+        tags.push(tag);
+      });
+
+      let contactModel = rows[0];
+      contactModel["tags"] = tags;
+
+      return res.status(200).json({ msg: "success", contact: contactModel });
     } catch (e) {
       console.log(e);
       return res.status(500).send("Server error");
@@ -62,6 +74,7 @@ router.post(
     check("note", "note_fail").exists(),
     check("company_uid", "company_uid_fail").exists(),
     check("contact_image", "contact_image_fail").exists(),
+    check("tags", "tags_fail").exists(),
   ],
   auth,
   async (req, res) => {
@@ -82,7 +95,13 @@ router.post(
         note,
         company_uid,
         contact_image,
+        tags,
       } = req.body;
+      if (!Array.isArray(tags)) {
+        return res.status(400).json({ msg: "tags_not_array" });
+      }
+
+      const contact_uid = `cont-${uuidv4()}`;
 
       if (company_uid.length > 0) {
         const companyExists = await checkIfExists(
@@ -93,21 +112,39 @@ router.post(
         if (!companyExists) {
           return res.status(400).json({ msg: "company_not_found" });
         }
+
+        pool.query(
+          `INSERT INTO company_contact(contact_uid,company_uid) VALUES( '${contact_uid}', '${company_uid}')`,
+          (err) => {
+            if (err) {
+              return res.status(400).json(err);
+            }
+          }
+        );
       }
-      const contact_uid = `cont-${uuidv4()}`;
       pool.query(
         `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, contact_image_name) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '${contact_image}')`,
-        (err, results) => {
+        (err) => {
           if (err) {
-            console.log(err);
             return res.status(400).json(err);
           }
-          console.log(results);
+
+          if (tags.length >= 1) {
+            tags.forEach((tag) => {
+              pool.query(
+                `INSERT INTO tag_contact(user_uid, contact_uid, tag) VALUES('${user_uid}', '${contact_uid}', '${tag}')`,
+                (err) => {
+                  if (err) {
+                    return res.status(400).json(err);
+                  }
+                }
+              );
+            });
+          }
           return res.status(200).json({ msg: "contact_added", contact_uid });
         }
       );
     } catch (e) {
-      console.log(e);
       return res.status(500).send("Server error");
     }
   }
@@ -127,7 +164,6 @@ router.put(
     check("dob", "dob_fail").exists(),
     check("note", "note_fail").exists(),
     check("company_uid", "company_uid_fail").exists(),
-    check("contact_image", "contact_image_fail").exists(),
   ],
   auth,
   async (req, res) => {
