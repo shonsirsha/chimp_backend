@@ -18,7 +18,7 @@ Backend for CHIMP 🦧 🧡 🍊
 
 Run `npm run nodemon` or `npm run start` (please note that with the latter you have to restart your server if you do make changes in the file(s) to see effect) to run the **REST API SERVER**.
 
-The command above will also automatically run the **FILE SEVER**.
+Any of the command above will also automatically run the **FILE SEVER**.
 
 Default hostname is `localhost`.
 
@@ -28,7 +28,7 @@ Default port is `7500` for **FILE SERVER**
 **FILE SERVER** is used to serve/host static files (such as images, documents,etc). For example, to access a profile picture of a user from your application, make sure that the file server is running, and it should be located at `localhost:7500/somepath/profile_pic.jpg`.
 
 Default route to the REST API SERVER is `/api/`.
-Default route to the FILE SERVER is `/` (the root dir of `chimp backend`).
+Default route to the FILE SERVER is `/` (the root directory of this repo).
 
 **Possible Error:**
 
