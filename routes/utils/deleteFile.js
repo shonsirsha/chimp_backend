@@ -29,7 +29,6 @@ const deleteFile = async (
       }
     );
   } else {
-    console.log("BB");
     await deleteActualFile(dir, fileName);
   }
 };

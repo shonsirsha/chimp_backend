@@ -73,7 +73,7 @@ router.post(
     check("dob", "dob_fail").exists(),
     check("note", "note_fail").exists(),
     check("company_uid", "company_uid_fail").exists(),
-    check("contact_image", "contact_image_fail").exists(),
+    check("picture", "picture_fail").exists(),
     check("tags", "tags_fail").exists(),
   ],
   auth,
@@ -94,7 +94,7 @@ router.post(
         dob,
         note,
         company_uid,
-        contact_image,
+        picture,
         tags,
       } = req.body;
       if (!Array.isArray(tags)) {
@@ -123,7 +123,7 @@ router.post(
         );
       }
       pool.query(
-        `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '${contact_image}')`,
+        `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '${picture}')`,
         (err) => {
           if (err) {
             return res.status(400).json(err);
