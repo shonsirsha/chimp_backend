@@ -1,6 +1,5 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
-const bcrypt = require("bcryptjs");
 const fs = require("fs");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
@@ -27,6 +26,12 @@ router.get(
 
     try {
       const { user_uid } = req;
+
+      const userExists = checkIfExists("users", "user_uid", user_uid);
+      if (!userExists) {
+        return res.status(400).json({ msg: "user_not_found" });
+      }
+
       const { contact_uid } = req.body;
       const contactExists = await checkIfExists(
         "contacts",

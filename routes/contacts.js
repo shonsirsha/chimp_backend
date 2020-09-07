@@ -1,15 +1,10 @@
 const express = require("express");
-const { v4: uuidv4 } = require("uuid");
-const bcrypt = require("bcryptjs");
-const fs = require("fs");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
 const pool = require("../db/pool");
 const router = express.Router();
-const generateAccessToken = require("./utils/generateAccessToken");
 const checkIfExists = require("./utils/checkIfExists");
-const deleteFile = require("./utils/deleteFile");
 
 //@route    GET api/contacts
 //@desc     Get all contacts for currently logged in user
@@ -23,7 +18,10 @@ router.get("/", auth, async (req, res) => {
 
   try {
     const { user_uid } = req;
-
+    const userExists = checkIfExists("users", "user_uid", user_uid);
+    if (!userExists) {
+      return res.status(400).json({ msg: "user_not_found" });
+    }
     let { rows } = await pool.query(
       `SELECT * FROM contacts WHERE user_uid='${user_uid}' ORDER BY id ASC`
     );

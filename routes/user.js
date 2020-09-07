@@ -1,13 +1,10 @@
 const express = require("express");
-const { v4: uuidv4 } = require("uuid");
-const bcrypt = require("bcryptjs");
 const fs = require("fs");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
 const pool = require("../db/pool");
 const router = express.Router();
-const generateAccessToken = require("./utils/generateAccessToken");
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
 
