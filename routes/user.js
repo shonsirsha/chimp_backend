@@ -22,7 +22,7 @@ router.get("/", auth, async (req, res) => {
   }
   try {
     let { rows } = await pool.query(
-      `SELECT * FROM users WHERE user_uid='${user_uid}'`
+      `SELECT user_profile.*, users.* FROM user_profile, users WHERE users.user_uid='${user_uid}'`
     );
     for (const property in rows[0]) {
       if (property === "password" || property === "id") {
@@ -99,26 +99,22 @@ router.put("/profile-picture", auth, async (req, res) => {
       Date.now() +
       fileExt;
     let dir = `${process.env.USER_UPLOAD_PROFILE_PIC}${user_uid}`;
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    } else {
-      deleteFile(
-        false,
-        "images/profile_pictures",
-        user_uid,
-        "user_profile",
-        "profile_pic_name",
-        "user_uid"
-      );
-      // false bc filename will be updated/overwritten below
-    }
+    await deleteFile(
+      false,
+      "images/profile_pictures",
+      user_uid,
+      "user_profile",
+      "profile_pic",
+      "user_uid"
+    );
+    fs.mkdirSync(dir, { recursive: true });
     file.mv(`${dir}/${newFileName}`, (err) => {
       if (err) {
         return res.status(400).json({ msg: `mv_file_failed` });
       }
       //updates in in db
       pool.query(
-        `UPDATE user_profile SET profile_pic_name='${newFileName}' WHERE user_uid='${user_uid}'`,
+        `UPDATE user_profile SET profile_pic='${newFileName}' WHERE user_uid='${user_uid}'`,
         (err) => {
           if (!err) {
             return res.status(200).json({
@@ -155,7 +151,7 @@ router.delete("/profile-picture", auth, async (req, res) => {
         "images/profile_pictures",
         user_uid,
         "user_profile",
-        "profile_pic_name",
+        "profile_pic",
         "user_uid"
       );
       return res.status(200).json({ msg: "profile_pic_removed" });
