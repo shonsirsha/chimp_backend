@@ -24,23 +24,32 @@ router.get("/", auth, async (req, res) => {
   try {
     const { user_uid } = req;
 
-    let { rows } = await pool.query(`SELECT * FROM contacts `);
+    let { rows } = await pool.query(
+      `SELECT * FROM contacts WHERE user_uid='${user_uid}' ORDER BY id ASC`
+    );
     let contactArr = [];
-    rows.forEach(async (contact, ix) => {
-      const tagsFromDb = await pool.query(
-        `SELECT tag FROM tag_contact WHERE contact_uid='${contact.contact_uid}' AND user_uid='${user_uid}'`
-      );
+    rows.forEach((contact, ix) => {
+      pool.query(
+        `SELECT tag FROM tag_contact WHERE contact_uid='${contact.contact_uid}' AND user_uid='${user_uid}'`,
+        (err, result) => {
+          // result.rows gives the tag
 
-      let tags = [];
-      tagsFromDb.rows.forEach(({ tag }) => {
-        tags.push(tag);
-      });
-      contact["tags"] = tags;
-      contactArr.push(contact);
-      if (ix === rows.length - 1) {
-        // last
-        return res.status(200).json({ msg: "success", contact: contactArr });
-      }
+          if (err) {
+            console.log(err);
+            return;
+          }
+          let tags = [];
+          result.rows.forEach(({ tag }) => {
+            tags.push(tag);
+          });
+
+          contact["tags"] = tags;
+          if (ix === rows.length - 1) {
+            // last
+            return res.status(200).json({ msg: "success", contact: rows });
+          }
+        }
+      );
     });
   } catch (e) {
     console.log(e);
