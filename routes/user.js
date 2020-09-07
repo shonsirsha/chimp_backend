@@ -119,7 +119,7 @@ router.put("/profile-picture", auth, async (req, res) => {
           if (!err) {
             return res.status(200).json({
               msg: "picture_updated",
-              picture: `${dir}/${newFileName}`,
+              picture: `${process.env.FILE_SERVER_HOST}/${dir}/${newFileName}`,
             });
           } else {
             return res.status(400).json(error);
