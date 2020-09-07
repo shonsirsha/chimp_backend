@@ -25,6 +25,8 @@ Default hostname is `localhost`.
 Default port is `5000` for **REST API SERVER**  
 Default port is `7500` for **FILE SERVER**
 
+**FILE SERVER** is used to serve/host static files (such as images, documents,etc). For example, to access a profile picture of a user from your application, make sure that the file server is running, and it should be located at `localhost:7500/somepath/profile_pic.jpg`.
+
 Default route to the REST API SERVER is `/api/`.
 Default route to the FILE SERVER is `/` (the root dir of `chimp backend`).
 
