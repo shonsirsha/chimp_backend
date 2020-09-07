@@ -16,7 +16,7 @@ const deleteFile = require("./utils/deleteFile");
 //@access   Private
 router.get(
   "/",
-  [check("contact_uid", "first_name_fail").exists()],
+  [check("contact_uid", "contact_uid_fail").exists()],
   auth,
   async (req, res) => {
     const errors = validationResult(req);
