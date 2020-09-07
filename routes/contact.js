@@ -123,7 +123,7 @@ router.post(
         );
       }
       pool.query(
-        `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, contact_image_name) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '${contact_image}')`,
+        `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '${contact_image}')`,
         (err) => {
           if (err) {
             return res.status(400).json(err);
@@ -220,7 +220,7 @@ router.put(
 
       pool.query(
         `UPDATE contacts SET first_name='${first_name}', last_name='${last_name}', phone='${phone}', email='${email}', dob='${dob}', note='${note}' WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
-        (err, results) => {
+        (err) => {
           if (err) {
             return res.status(400).json(err);
           }
@@ -258,31 +258,27 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
       Date.now() +
       fileExt;
     let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    } else {
-      deleteFile(
-        false,
-        "images/contact_image",
-        contact_uid,
-        "contacts",
-        "contact_image_name",
-        "contact_uid"
-      );
-      // false bc filename will be updated/overwritten below
-    }
+    await deleteFile(
+      false,
+      "images/contact_image",
+      contact_uid,
+      "contacts",
+      "picture",
+      "contact_uid"
+    );
+    fs.mkdirSync(dir, { recursive: true });
     file.mv(`${dir}/${newFileName}`, (err) => {
       if (err) {
         return res.status(400).json({ msg: `mv_file_failed` });
       }
       //updates in in db
       pool.query(
-        `UPDATE contacts SET contact_image_name='${newFileName}' WHERE contact_uid='${contact_uid}'`,
+        `UPDATE contacts SET picture='${newFileName}' WHERE contact_uid='${contact_uid}'`,
         (err) => {
           if (!err) {
             return res.status(200).json({
-              msg: "user_img_updated",
-              filePath: `${dir}/${newFileName}`,
+              msg: "picture_updated",
+              picture: `${dir}/${newFileName}`,
             });
           } else {
             return res.status(400).json(error);
@@ -313,17 +309,17 @@ router.delete("/image/:contact_uid", auth, async (req, res) => {
   try {
     let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
     if (!fs.existsSync(dir)) {
-      return res.status(200).json({ msg: "contact_image_removed" });
+      return res.status(200).json({ msg: "picture_removed" });
     } else {
-      deleteFile(
+      await deleteFile(
         true,
         "images/contact_image",
         contact_uid,
         "contacts",
-        "contact_image_name",
+        "picture",
         "contact_uid"
       );
-      return res.status(200).json({ msg: "contact_image_removed" });
+      return res.status(200).json({ msg: "picture_removed" });
     }
   } catch (e) {
     return res.status(500).send("Server error");
@@ -358,7 +354,7 @@ router.delete(
 
       pool.query(
         `DELETE FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
-        (err, results) => {
+        (err) => {
           if (err) {
             return res.status(400).json(err);
           }

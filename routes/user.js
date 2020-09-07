@@ -104,7 +104,7 @@ router.put("/profile-picture", auth, async (req, res) => {
       "images/profile_pictures",
       user_uid,
       "user_profile",
-      "profile_pic",
+      "picture",
       "user_uid"
     );
     fs.mkdirSync(dir, { recursive: true });
@@ -114,12 +114,12 @@ router.put("/profile-picture", auth, async (req, res) => {
       }
       //updates in in db
       pool.query(
-        `UPDATE user_profile SET profile_pic='${newFileName}' WHERE user_uid='${user_uid}'`,
+        `UPDATE user_profile SET picture='${newFileName}' WHERE user_uid='${user_uid}'`,
         (err) => {
           if (!err) {
             return res.status(200).json({
-              msg: "profile_pic_updated",
-              filePath: `${dir}/${newFileName}`,
+              msg: "picture_updated",
+              picture: `${dir}/${newFileName}`,
             });
           } else {
             return res.status(400).json(error);
@@ -144,17 +144,17 @@ router.delete("/profile-picture", auth, async (req, res) => {
   try {
     let dir = `${process.env.USER_UPLOAD_PROFILE_PIC}${user_uid}`;
     if (!fs.existsSync(dir)) {
-      return res.status(200).json({ msg: "profile_pic_removed" });
+      return res.status(200).json({ msg: "picture_removed" });
     } else {
-      deleteFile(
+      await deleteFile(
         true,
         "images/profile_pictures",
         user_uid,
         "user_profile",
-        "profile_pic",
+        "picture",
         "user_uid"
       );
-      return res.status(200).json({ msg: "profile_pic_removed" });
+      return res.status(200).json({ msg: "picture_removed" });
     }
   } catch (e) {
     return res.status(500).send("Server error");
