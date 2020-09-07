@@ -164,6 +164,7 @@ router.put(
     check("dob", "dob_fail").exists(),
     check("note", "note_fail").exists(),
     check("company_uid", "company_uid_fail").exists(),
+    check("tags", "tags_fail").exists(),
   ],
   auth,
   async (req, res) => {
@@ -183,7 +184,12 @@ router.put(
         email,
         dob,
         note,
+        tags,
       } = req.body;
+
+      if (!Array.isArray(tags)) {
+        return res.status(400).json({ msg: "tags_not_array" });
+      }
       const contactExists = await checkIfExists(
         "contacts",
         "contact_uid",
@@ -192,6 +198,25 @@ router.put(
       if (contact_uid.length === 0 || !contactExists) {
         return res.status(400).json({ msg: "contact_not_found" });
       }
+      pool.query(
+        `DELETE FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
+        (err) => {
+          // delete all tags
+          if (err) {
+            return res.status(400).json(err);
+          }
+          tags.forEach((tag) => {
+            pool.query(
+              `INSERT INTO tag_contact(user_uid, contact_uid, tag) VALUES('${user_uid}', '${contact_uid}', '${tag}')`,
+              (err) => {
+                if (err) {
+                  return res.status(400).json(err);
+                }
+              }
+            );
+          }); // insert all tags
+        }
+      ); // readjust tags
 
       pool.query(
         `UPDATE contacts SET first_name='${first_name}', last_name='${last_name}', phone='${phone}', email='${email}', dob='${dob}', note='${note}' WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
