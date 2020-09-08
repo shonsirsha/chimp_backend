@@ -26,6 +26,8 @@ router.get("/", auth, async (req, res) => {
       `SELECT * FROM contacts WHERE user_uid='${user_uid}' ORDER BY id ASC`
     );
     if (rows.length > 0) {
+      let processed = 0;
+
       rows.forEach((contact, ix) => {
         pool.query(
           //get all tags for this person
@@ -57,7 +59,8 @@ router.get("/", auth, async (req, res) => {
                 });
 
                 contact["companies"] = company_uids;
-                if (ix === rows.length - 1) {
+                processed++;
+                if (processed === rows.length) {
                   // last
                   return res
                     .status(200)

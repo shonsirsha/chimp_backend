@@ -411,9 +411,8 @@ There are two types of endpoint, private and public.
      "email": "mail@example.com",
      "dob": "01.01.1990",
      "note": "",
-     "company_uid": "",
-     "tags": [],
-     "picture": ""
+     "company_uids": [],
+     "tags": []
    }
    ```
 
@@ -431,9 +430,8 @@ There are two types of endpoint, private and public.
    4. `email` must exists -> Error message: `email_fail`
    5. `dob` must exists -> Error message: `dob_fail`
    6. `note` must exists -> Error message: `note_fail`
-   7. `company_uid` must exists -> Error message: `company_uid_fail`
+   7. `company_uids` must exists -> Error message: `company_uids_fail`
    8. `tags` must exists -> Error message: `tags_fail`
-   9. `picture` must exists -> Error message: `picture_fail`
 
    **Upon successful request:** returns `{ "msg": "contact_created", contact_uid: "someC/imagontactId"}` with the http status of `200`.
 
@@ -442,8 +440,9 @@ There are two types of endpoint, private and public.
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Error (#2)</a>
    3. `{msg: "tags_not_array"}` - when `tags` is not of type array
-   4. `{msg: "company_not_found"}` - when `company_uid` does not exist in the db.
-   5. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#createContactDV">above</a> in the **Data Validation** sub-section.
+   4. `{msg: "company_uids_not_array"}` - when `company_uids` is not of type array
+   5. `{msg: "company_not_found", company_uid: "someCompanyId"}` - when one of the `company_uid` does not exist in the db.
+   6. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#createContactDV">above</a> in the **Data Validation** sub-section.
 
    The number of `errorObject` depends on how many data validation is present & how many is violated.
 
@@ -459,9 +458,8 @@ There are two types of endpoint, private and public.
      "email": "mail@example.com",
      "dob": "01.01.1990",
      "note": "",
-     "company_uid": "",
-     "tags": [],
-     "picture": ""
+     "company_uids": [],
+     "tags": []
    }
    ```
 
@@ -475,9 +473,8 @@ There are two types of endpoint, private and public.
    4. `email` must exists -> Error message: `email_fail`
    5. `dob` must exists -> Error message: `dob_fail`
    6. `note` must exists -> Error message: `note_fail`
-   7. `company_uid` must exists -> Error message: `company_uid_fail`
+   7. `company_uids` must exists -> Error message: `company_uids_fail`
    8. `tags` must exists -> Error message: `tags_fail`
-   9. `picture` must exists -> Error message: `picture_fail`
 
    **Upon successful request:** returns `{ "msg": "contact_updated", contact_uid: "someContactId"}` with the http status of `200`.
 
@@ -486,8 +483,9 @@ There are two types of endpoint, private and public.
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Error (#2)</a>
    3. `{msg: "tags_not_array"}` - when `tags` is not of type array
-   4. `{msg: "company_not_found"}` - when `company_uid` does not exist in the db.
-   5. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateSingleContactDV">above</a> in the **Data Validation** sub-section.
+   4. `{msg: "company_uids_not_array"}` - when `company_uids_not_array` is not of type array
+   5. `{msg: "company_not_found"}` - when `company_uid` does not exist in the db.
+   6. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateSingleContactDV">above</a> in the **Data Validation** sub-section.
 
 4. `/image/someContactID` - `PUT` | **PRIVATE** | **UPDATE / ADD IMAGE OF A CONTACT**
 
@@ -498,7 +496,7 @@ There are two types of endpoint, private and public.
 
    **Send from your application (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
 
-   **Upon successful request:** returns `{"msg": "picture_updated","filePath": "localhost:7500/user_uploads/public/images/contact_image/someContactID/image.jpg"}` with the http status of `200`.
+   **Upon successful request:** returns `{"msg": "picture_updated", "filePath": "localhost:7500/user_uploads/public/images/contact_image/someContactID/image.jpg"}` with the http status of `200`.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
@@ -617,7 +615,7 @@ There are two types of endpoint, private and public.
 
     However, this isn't the case with updaing/uploading **user's** picture/file because the user has an access token (JWT token) sent via `header` (called `x-access-token`) and when it's decoded it contains the UID needed (`user_uid`).
 
-3.  **"<span id="whyUpdateTwoEndpoints">Why are some endpoints, such as updating user's detail (string) and updating user's image (file) separated?</span>**
+3.  **<span id="whyUpdateTwoEndpoints">Why are some endpoints, such as updating user's detail (string) and updating user's image (file) separated?</span>**
 
     While it seems logically correct to have one endpoint to do both as they are essentially "editing" the user, it is simply not possible due to the nature of the request.
 

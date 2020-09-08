@@ -21,6 +21,7 @@ router.get("/", auth, async (req, res) => {
     );
 
     if (rows.length > 0) {
+      let processed = 0;
       rows.forEach((company, ix) => {
         pool.query(
           //get all people's (contacts) contact_uid that are working for this company
@@ -34,10 +35,9 @@ router.get("/", auth, async (req, res) => {
             result.rows.forEach(({ contact_uid }) => {
               contact_uids.push(contact_uid);
             });
-
             company["people"] = contact_uids;
-            if (ix === rows.length - 1) {
-              // last
+            processed++;
+            if (processed === rows.length) {
               return res.status(200).json({ msg: "success", companies: rows });
             }
           }

@@ -293,7 +293,9 @@ router.delete(
       }
 
       pool.query(
-        `DELETE FROM companies WHERE company_uid='${company_uid}' AND user_uid='${user_uid}'`,
+        `DELETE FROM company_contact WHERE company_uid='${company_uid}';
+        DELETE FROM companies WHERE company_uid='${company_uid}' AND user_uid='${user_uid}';
+        `,
         (err) => {
           if (err) {
             return res.status(400).json(err);

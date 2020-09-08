@@ -77,8 +77,7 @@ router.post(
     check("email", "email_fail").exists().isEmail(),
     check("dob", "dob_fail").exists(),
     check("note", "note_fail").exists(),
-    check("company_uid", "company_uid_fail").exists(),
-    check("picture", "picture_fail").exists(),
+    check("company_uids", "company_uids_fail").exists(),
     check("tags", "tags_fail").exists(),
   ],
   auth,
@@ -98,37 +97,21 @@ router.post(
         email,
         dob,
         note,
-        company_uid,
-        picture,
+        company_uids,
         tags,
       } = req.body;
       if (!Array.isArray(tags)) {
         return res.status(400).json({ msg: "tags_not_array" });
       }
 
+      if (!Array.isArray(company_uids)) {
+        return res.status(400).json({ msg: "company_uid_not_array" });
+      }
+
       const contact_uid = `cont-${uuidv4()}`;
 
-      if (company_uid.length > 0) {
-        const companyExists = await checkIfExists(
-          "companies",
-          "company_uid",
-          company_uid
-        );
-        if (!companyExists) {
-          return res.status(400).json({ msg: "company_not_found" });
-        }
-
-        pool.query(
-          `INSERT INTO company_contact(contact_uid,company_uid) VALUES( '${contact_uid}', '${company_uid}')`,
-          (err) => {
-            if (err) {
-              return res.status(400).json(err);
-            }
-          }
-        );
-      }
       pool.query(
-        `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '${picture}')`,
+        `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '')`,
         (err) => {
           if (err) {
             return res.status(400).json(err);
@@ -146,10 +129,38 @@ router.post(
               );
             });
           }
-          return res.status(200).json({ msg: "contact_added", contact_uid });
+          if (company_uids.length > 0) {
+            company_uids.forEach(async (uid) => {
+              const companyExists = await checkIfExists(
+                "companies",
+                "company_uid",
+                uid
+              );
+              if (!companyExists) {
+                return res
+                  .status(400)
+                  .json({ msg: "company_not_found", company_uid: uid });
+              } else {
+                pool.query(
+                  `INSERT INTO company_contact(contact_uid,company_uid) VALUES( '${contact_uid}', '${uid}')`,
+                  (err) => {
+                    if (err) {
+                      return res.status(400).json(err);
+                    }
+                    return res
+                      .status(200)
+                      .json({ msg: "contact_added", contact_uid });
+                  }
+                );
+              }
+            });
+          } else {
+            return res.status(200).json({ msg: "contact_added", contact_uid });
+          }
         }
       );
     } catch (e) {
+      console.log(e);
       return res.status(500).send("Server error");
     }
   }
@@ -168,7 +179,7 @@ router.put(
     check("email", "email_fail").exists().isEmail(),
     check("dob", "dob_fail").exists(),
     check("note", "note_fail").exists(),
-    check("company_uid", "company_uid_fail").exists(),
+    check("company_uids", "company_uids_fail").exists(),
     check("tags", "tags_fail").exists(),
   ],
   auth,
@@ -190,11 +201,17 @@ router.put(
         dob,
         note,
         tags,
+        company_uids,
       } = req.body;
 
       if (!Array.isArray(tags)) {
         return res.status(400).json({ msg: "tags_not_array" });
       }
+
+      if (!Array.isArray(company_uids)) {
+        return res.status(400).json({ msg: "company_uids_not_array" });
+      }
+
       const contactExists = await checkIfExists(
         "contacts",
         "contact_uid",
@@ -203,6 +220,7 @@ router.put(
       if (contact_uid.length === 0 || !contactExists) {
         return res.status(400).json({ msg: "contact_not_found" });
       }
+
       pool.query(
         `DELETE FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
         (err) => {
@@ -229,7 +247,51 @@ router.put(
           if (err) {
             return res.status(400).json(err);
           }
-          return res.status(200).json({ msg: "contact_updated", contact_uid });
+          pool.query(
+            `DELETE FROM company_contact WHERE contact_uid='${contact_uid}'`, // deleting all relation of company-contact
+            (err) => {
+              if (err) {
+                return res.status(400).json(err);
+              }
+              if (company_uids.length > 0) {
+                let processed = 0;
+
+                company_uids.forEach(async (uid, ix) => {
+                  const companyExists = await checkIfExists(
+                    "companies",
+                    "company_uid",
+                    uid
+                  );
+                  processed++;
+                  if (!companyExists) {
+                    return res
+                      .status(400)
+                      .json({ msg: "company_not_found", company_uid: uid });
+                  } else {
+                    pool.query(
+                      `INSERT INTO company_contact(contact_uid, company_uid) VALUES('${contact_uid}', '${uid}')`,
+                      (err) => {
+                        // re inserting it back from the company_uid arr supplied by the user...
+                        if (err) {
+                          return res.status(400).json(err);
+                        }
+
+                        if (processed === company_uids.length) {
+                          return res
+                            .status(200)
+                            .json({ msg: "contact_updated", contact_uid });
+                        }
+                      }
+                    );
+                  }
+                });
+              } else {
+                return res
+                  .status(200)
+                  .json({ msg: "contact_updated", contact_uid });
+              }
+            }
+          );
         }
       );
     } catch (e) {
@@ -369,7 +431,10 @@ router.delete(
       }
 
       pool.query(
-        `DELETE FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
+        `DELETE FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}';
+        DELETE FROM company_contact WHERE contact_uid='${contact_uid}';
+        DELETE FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}';
+        `,
         (err) => {
           if (err) {
             return res.status(400).json(err);
