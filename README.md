@@ -490,7 +490,7 @@ There are two types of endpoint, private and public.
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Error (#2)</a>
    3. `{msg: "tags_not_array"}` - when `tags` is not of type array
-   4. `{msg: "company_uids_not_array"}` - when `company_uids_not_array` is not of type array
+   4. `{msg: "company_uids_not_array"}` - when `company_uids` is not of type array
    5. `{msg: "company_not_found"}` - when `company_uid` does not exist in the db.
    6. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateSingleContactDV">above</a> in the **Data Validation** sub-section.
 
