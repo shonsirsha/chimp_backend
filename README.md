@@ -106,8 +106,9 @@ There are two types of endpoint, private and public.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
-   1. `{"msg": "invalid_credentials"}` - when credentials does not exist in the db
-   2. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#signInDV">above</a> in the **Data Validation** sub-section..
+   1. <a href="#err4">Query Error (#4)</a>
+   2. `{"msg": "invalid_credentials"}` - when credentials does not exist in the db
+   3. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#signInDV">above</a> in the **Data Validation** sub-section..
 
       The number of `errorObject` depends on how many data validation is present & how many is violated.
 
@@ -123,8 +124,10 @@ There are two types of endpoint, private and public.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
-   1. `{"msg": "invalid_credentials"}` - when `user_uid` does not exist in the db
-   2. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#newAccTDV">above</a> in the **Data Validation** sub-section..
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+   3. `{"msg": "invalid_credentials"}` - when `user_uid` does not exist in the db
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#newAccTDV">above</a> in the **Data Validation** sub-section..
 
       The number of `errorObject` depends on how many data validation is present & how many is violated.
 
@@ -141,7 +144,7 @@ There are two types of endpoint, private and public.
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. <a href="#err4">Query Error (#4)</a>
-   2. <a href="#errors">Error (#2)</a>
+   2. <a href="#errors">Token Error (#2)</a>
    3. `{"msg": "invalid_credentials"}` - when `user_uid` does not exist in the db
    4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#signOutDV">above</a> in the **Data Validation** sub-section..
 
@@ -160,7 +163,7 @@ There are two types of endpoint, private and public.
    **Upon failed request:**
 
    1. <a href="#err4">Query Error (#4)</a>
-   2. <a href="#errors">Error (#2)</a>
+   2. <a href="#errors">Token Error (#2)</a>
 
 2. `/` - `PUT` | **PRIVATE** | **EDIT CURRENT USER DETAIL**
 
@@ -178,7 +181,8 @@ There are two types of endpoint, private and public.
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. <a href="#err4">Query Error (#4)</a>
-   2. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateUserProfileDV">above</a> in the **Data Validation** sub-section..
+   2. <a href="#errors">Token Error (#2)</a>
+   3. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateUserProfileDV">above</a> in the **Data Validation** sub-section..
 
       The number of `errorObject` depends on how many data validation is present & how many is violated.
 
@@ -190,7 +194,9 @@ There are two types of endpoint, private and public.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
-   1. `{"msg": "file_error"}` - when `file` not found / `file` isn't properly formatted.
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+   3. `{"msg": "file_error"}` - when `file` not found / `file` isn't properly formatted.
 
 4. `/profile-picture` - `DELETE` | **PRIVATE** | **DELETE CURRENT USER'S PROFILE PICTURE**
 
@@ -200,7 +206,8 @@ There are two types of endpoint, private and public.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
-   1. <a href="#err4">Query Error (#4)</a>
+   1. <a href="#err4">Query Error (#4) </a>
+   2. <a href="#errors">Token Error (#2)</a>
 
 ### /api/companies
 
@@ -234,7 +241,7 @@ There are two types of endpoint, private and public.
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. <a href="#err4">Query Error (#4)</a>
-   2. <a href="#errors">Error (#2)</a>
+   2. <a href="#errors">Token Error (#2)</a>
    3. `{ msg: "company_not_found" }` - when `company_uid` does not exist in the db.
    4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#getCompanyDV">above</a> in the **Data Validation** sub-section.
 
@@ -269,7 +276,7 @@ There are two types of endpoint, private and public.
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. <a href="#err4">Query Error (#4)</a>
-   2. <a href="#errors">Error (#2)</a>
+   2. <a href="#errors">Token Error (#2)</a>
    3. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#getCompanyDV">above</a> in the **Data Validation** sub-section.
 
    The number of `errorObject` depends on how many data validation is present & how many is violated.
@@ -303,9 +310,9 @@ There are two types of endpoint, private and public.
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. <a href="#err4">Query Error (#4)</a>
-   2. `{ msg: "company_not_found" }` - when `company_uid` does not exist in the db.
-   3. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#getCompanyDV">above</a> in the **Data Validation** sub-section.
-   4. <a href="#errors">Error (#2)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+   3. `{ msg: "company_not_found" }` - when `company_uid` does not exist in the db.
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#getCompanyDV">above</a> in the **Data Validation** sub-section.
 
       The number of `errorObject` depends on how many data validation is present & how many is violated.
 
@@ -323,9 +330,9 @@ There are two types of endpoint, private and public.
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. <a href="#err4">Query Error (#4)</a>
-   2. `{"msg": "file_error"}` - when `file` not found / `file` isn't properly formatted.
-   3. `{"msg": "company_not_found"}` - when `company_uid` does not exist in the db.
-   4. <a href="#errors">Token Error (#2)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+   3. `{"msg": "file_error"}` - when `file` not found / `file` isn't properly formatted.
+   4. `{"msg": "company_not_found"}` - when `company_uid` does not exist in the db.
 
 5. `/image` - `DELETE` | **PRIVATE** | **DELETE AN IMAGE OF A COMPANY**
 
@@ -438,7 +445,7 @@ There are two types of endpoint, private and public.
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. <a href="#err4">Query Error (#4)</a>
-   2. <a href="#errors">Error (#2)</a>
+   2. <a href="#errors">Token Error (#2)</a>
    3. `{msg: "tags_not_array"}` - when `tags` is not of type array
    4. `{msg: "company_uids_not_array"}` - when `company_uids` is not of type array
    5. `{msg: "company_not_found", company_uid: "someCompanyId"}` - when one of the `company_uid` does not exist in the db.
@@ -501,9 +508,9 @@ There are two types of endpoint, private and public.
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. <a href="#err4">Query Error (#4)</a>
-   2. `{"msg": "file_error"}` - when `file` not found / `file` isn't properly formatted.
-   3. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
-   4. <a href="#errors">Token Error (#2)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+   3. `{"msg": "file_error"}` - when `file` not found / `file` isn't properly formatted.
+   4. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
 
 5. `/image` - `DELETE` | **PRIVATE** | **DELETE AN IMAGE OF A CONTACT**
 
