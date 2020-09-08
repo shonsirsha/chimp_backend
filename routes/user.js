@@ -15,7 +15,7 @@ router.get("/", auth, async (req, res) => {
   const { user_uid } = req;
   const userExists = checkIfExists("users", "user_uid", user_uid);
   if (!userExists) {
-    return res.status(400).json({ msg: "user_not_found" });
+    return res.status(400).json({ msg: "invalid_credentials" });
   }
   try {
     let { rows } = await pool.query(
@@ -56,7 +56,7 @@ router.put(
     const { user_uid } = req;
     const userExists = checkIfExists("users", "user_uid", user_uid);
     if (!userExists) {
-      return res.status(400).json({ msg: "user_not_found" });
+      return res.status(400).json({ msg: "invalid_credentials" });
     }
     const { first_name, last_name } = req.body;
     try {
@@ -83,7 +83,7 @@ router.put("/profile-picture", auth, async (req, res) => {
   const { user_uid } = req;
   let userExists = checkIfExists("users", "user_uid", user_uid);
   if (!userExists) {
-    return res.status(400).json({ msg: "user_not_found" });
+    return res.status(400).json({ msg: "invalid_credentials" });
   }
   if (req.files === null || req.files === undefined) {
     return res.status(400).json({ msg: "file_not_found" });
@@ -136,7 +136,7 @@ router.delete("/profile-picture", auth, async (req, res) => {
   const { user_uid } = req;
   let userExists = checkIfExists("users", "user_uid", user_uid);
   if (!userExists) {
-    return res.status(400).json({ msg: "user_not_found" });
+    return res.status(400).json({ msg: "invalid_credentials" });
   }
   try {
     let dir = `${process.env.USER_UPLOAD_PROFILE_PIC}${user_uid}`;

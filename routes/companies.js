@@ -13,35 +13,39 @@ router.get("/", auth, async (req, res) => {
 
     const userExists = checkIfExists("users", "user_uid", user_uid);
     if (!userExists) {
-      return res.status(400).json({ msg: "user_not_found" });
+      return res.status(400).json({ msg: "invalid_credentials" });
     }
 
     let { rows } = await pool.query(
       `SELECT * FROM companies WHERE user_uid='${user_uid}' ORDER BY id ASC`
     );
 
-    rows.forEach((company, ix) => {
-      pool.query(
-        //get all people's (contacts) contact_uid that are working for this company
-        `SELECT contact_uid FROM company_contact WHERE company_uid='${company.company_uid}'`,
-        (err, result) => {
-          //result.rows gives ({contact_uid})
-          if (err) {
-            return res.status(400).json(error);
-          }
-          let contact_uids = [];
-          result.rows.forEach(({ contact_uid }) => {
-            contact_uids.push(contact_uid);
-          });
+    if (rows.length > 0) {
+      rows.forEach((company, ix) => {
+        pool.query(
+          //get all people's (contacts) contact_uid that are working for this company
+          `SELECT contact_uid FROM company_contact WHERE company_uid='${company.company_uid}'`,
+          (err, result) => {
+            //result.rows gives ({contact_uid})
+            if (err) {
+              return res.status(400).json(error);
+            }
+            let contact_uids = [];
+            result.rows.forEach(({ contact_uid }) => {
+              contact_uids.push(contact_uid);
+            });
 
-          company["people"] = contact_uids;
-          if (ix === rows.length - 1) {
-            // last
-            return res.status(200).json({ msg: "success", companies: rows });
+            company["people"] = contact_uids;
+            if (ix === rows.length - 1) {
+              // last
+              return res.status(200).json({ msg: "success", companies: rows });
+            }
           }
-        }
-      );
-    });
+        );
+      });
+    } else {
+      return res.status(200).json({ msg: "success", companies: rows });
+    }
   } catch (e) {
     return res.status(500).send("Server error");
   }

@@ -67,7 +67,6 @@ router.post(
     check("company_email", "company_email_fail").exists(),
     check("company_website", "company_website_fail").exists(),
     check("company_phone", "company_phone_fail").exists(),
-    check("picture", "picture_fail").exists(),
   ],
   auth,
   async (req, res) => {
@@ -84,14 +83,13 @@ router.post(
         company_email,
         company_website,
         company_phone,
-        picture,
       } = req.body;
 
       const company_uid = `company-${uuidv4()}`;
 
       pool.query(
         `INSERT INTO companies(user_uid, company_uid, company_name, company_email, company_website, company_phone, picture) 
-        VALUES('${user_uid}','${company_uid}' ,'${company_name}', '${company_email}', '${company_website}', '${company_phone}' ,'${picture}')`,
+        VALUES('${user_uid}','${company_uid}' ,'${company_name}', '${company_email}', '${company_website}', '${company_phone}' ,'')`,
         (err) => {
           if (err) {
             return res.status(400).json(err);
@@ -220,40 +218,51 @@ router.put("/image/:company_uid", auth, async (req, res) => {
   }
 });
 
-//@route    DELETE api/contact/image/company_uid
+//@route    DELETE api/contact/image/
 //@desc     DELETE / REMOVE (currently logged in) a company's image
 //@access   Private
-router.delete("/image/:company_uid", auth, async (req, res) => {
-  const { user_uid } = req;
-  const { company_uid } = req.params;
+router.delete(
+  "/image",
+  check("company_uid", "company_uid_fail").exists(),
+  auth,
+  async (req, res) => {
+    const errors = validationResult(req);
 
-  let thisExists = await checkIfExists("users", "user_uid", user_uid);
-  if (!thisExists) {
-    return res.status(400).json({ msg: "user_not_found" });
-  }
-  thisExists = await checkIfExists("companies", "company_uid", company_uid);
-  if (!thisExists || company_uid.length === 0) {
-    return res.status(400).json({ msg: "company_not_found" });
-  }
-  try {
-    let dir = `${process.env.USER_UPLOAD_COMPANY_IMAGE}${company_uid}`;
-    if (!fs.existsSync(dir)) {
-      return res.status(200).json({ msg: "picture_removed" });
-    } else {
-      await deleteFile(
-        true,
-        "images/company_image",
-        company_uid,
-        "companies",
-        "picture",
-        "company_uid"
-      );
-      return res.status(200).json({ msg: "picture_removed" });
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-  } catch (e) {
-    return res.status(500).send("Server error");
+
+    const { user_uid } = req;
+    const { company_uid } = req.body;
+
+    let thisExists = await checkIfExists("users", "user_uid", user_uid);
+    if (!thisExists) {
+      return res.status(400).json({ msg: "user_not_found" });
+    }
+    thisExists = await checkIfExists("companies", "company_uid", company_uid);
+    if (!thisExists || company_uid.length === 0) {
+      return res.status(400).json({ msg: "company_not_found" });
+    }
+    try {
+      let dir = `${process.env.USER_UPLOAD_COMPANY_IMAGE}${company_uid}`;
+      if (!fs.existsSync(dir)) {
+        return res.status(200).json({ msg: "picture_removed" });
+      } else {
+        await deleteFile(
+          true,
+          "images/company_image",
+          company_uid,
+          "companies",
+          "picture",
+          "company_uid"
+        );
+        return res.status(200).json({ msg: "picture_removed" });
+      }
+    } catch (e) {
+      return res.status(500).send("Server error");
+    }
   }
-});
+);
 
 //@route    DELETE api/company
 //@desc     Delete a company

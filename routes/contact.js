@@ -29,7 +29,7 @@ router.get(
 
       const userExists = checkIfExists("users", "user_uid", user_uid);
       if (!userExists) {
-        return res.status(400).json({ msg: "user_not_found" });
+        return res.status(400).json({ msg: "invalid_credentials" });
       }
 
       const { contact_uid } = req.body;
@@ -246,7 +246,7 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
   const { contact_uid } = req.params;
   let thisExists = await checkIfExists("users", "user_uid", user_uid);
   if (!thisExists) {
-    return res.status(400).json({ msg: "user_not_found" });
+    return res.status(400).json({ msg: "invalid_credentials" });
   }
   thisExists = await checkIfExists("contacts", "contact_uid", contact_uid);
   if (!thisExists || contact_uid.length.length === 0) {
@@ -299,37 +299,48 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
 //@route    DELETE api/contact/image/contact_uid
 //@desc     DELETE / REMOVE (currently logged in) a user's contact's image
 //@access   Private
-router.delete("/image/:contact_uid", auth, async (req, res) => {
-  const { user_uid } = req;
-  const { contact_uid } = req.params;
+router.delete(
+  "/image",
+  check("contact_uid", "contact_uid_fail").exists(),
+  auth,
+  async (req, res) => {
+    const errors = validationResult(req);
 
-  let thisExists = await checkIfExists("users", "user_uid", user_uid);
-  if (!thisExists) {
-    return res.status(400).json({ msg: "user_not_found" });
-  }
-  thisExists = await checkIfExists("contacts", "contact_uid", contact_uid);
-  if (!thisExists || contact_uid.length.length === 0) {
-    return res.status(400).json({ msg: "contact_not_found" });
-  }
-  try {
-    let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
-    if (!fs.existsSync(dir)) {
-      return res.status(200).json({ msg: "picture_removed" });
-    } else {
-      await deleteFile(
-        true,
-        "images/contact_image",
-        contact_uid,
-        "contacts",
-        "picture",
-        "contact_uid"
-      );
-      return res.status(200).json({ msg: "picture_removed" });
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-  } catch (e) {
-    return res.status(500).send("Server error");
+
+    const { user_uid } = req;
+    const { contact_uid } = req.body;
+
+    let thisExists = await checkIfExists("users", "user_uid", user_uid);
+    if (!thisExists) {
+      return res.status(400).json({ msg: "invalid_credentials" });
+    }
+    thisExists = await checkIfExists("contacts", "contact_uid", contact_uid);
+    if (!thisExists || contact_uid.length.length === 0) {
+      return res.status(400).json({ msg: "contact_not_found" });
+    }
+    try {
+      let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
+      if (!fs.existsSync(dir)) {
+        return res.status(200).json({ msg: "picture_removed" });
+      } else {
+        await deleteFile(
+          true,
+          "images/contact_image",
+          contact_uid,
+          "contacts",
+          "picture",
+          "contact_uid"
+        );
+        return res.status(200).json({ msg: "picture_removed" });
+      }
+    } catch (e) {
+      return res.status(500).send("Server error");
+    }
   }
-});
+);
 
 //@route    DELETE api/contact
 //@desc     Delete a contact for currently logged in user

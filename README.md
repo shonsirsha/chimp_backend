@@ -1,6 +1,6 @@
-# chimp_backend
+# CHIMP BACKEND 🦧
 
-Backend for CHIMP 🦧 🧡 🍊
+Developed by the best team out there 🍊🧡
 
 ## Before You Start
 
@@ -25,10 +25,12 @@ Default hostname is `localhost`.
 Default port is `5000` for **REST API SERVER**  
 Default port is `7500` for **FILE SERVER**
 
-**FILE SERVER** is used to serve/host static files (such as images, documents,etc). For example, to access a profile picture of a user from your application, make sure that the file server is running, and it should be located at `localhost:7500/somepath/profile_pic.jpg`.
+**FILE SERVER** is used to serve/host static files (mostly images, documents, and other user uploads). It is in default located at `./user_uploads`
 
-Default route to the REST API SERVER is `/api/`.
-Default route to the FILE SERVER is `/` (the root directory of this repo).
+For example, to access a profile picture of a user from your application, make sure that the file server is running, and it should be located at `localhost:7500/user_uploads/somepath/profile_pic.jpg`.
+
+Default host to the REST API SERVER is `localhost:5000/api/`.  
+Default host to the FILE SERVER is `localhost:7500/` (the root directory of this repo).
 
 **Possible Error:**
 
@@ -66,145 +68,564 @@ There are two types of endpoint, private and public.
 
 ### /api/dev
 
-1. `/` - `GET` **PUBLIC**  
+1. `/` - `GET` | **PUBLIC**  
    If everything works normally, it should return A JSON object of `{"msg": "Hello World!"}` with the http status of `200`.
-
-### /api/admin
-
-1. `/all-users` - `GET` **PUBLIC** (most likely to change in the future)  
-   **Upon successful request:** returns an **array** of (JSON) user objects `[userObject0, userObject1]` where `userObject` contains `{id: someid, user_uid: "some user_uid", email: "mail@ex.com" }` with the http status of `200`.
-
-   **Upon failed request:** returns an error object (JSON) with the http status of `400`.
 
 ### /api/auth
 
-1. `/sign-up` - `POST` **PUBLIC**  
-   **Send from your application (`Content-Type`: `application/JSON`):** a JSON object like this: `{email: "email@mail.com", password: "password"}`.
+1. `/sign-up` - `POST` | **PUBLIC** | **USER SIGN UP**
+
+   **Send from your application (`Content-Type`: `application/JSON`):** `{email: "email@mail.com", password: "password"}`.
 
    <span id="signUpDV">**Data validation:**</span>
 
    1. `email` must be of correct format -> Error message: `email_fail`
    2. `password` must be at least 6 characters long -> Error message: `password_fail`
 
-   **Upon successful request:** returns JSON object `{"msg": "user registered", token: "randomJWTtoken", user_uid: "some user_uid"}` with the http status of `200`.
+   **Upon successful request:** returns `{"msg": "user registered", token: "randomJWTtoken", user_uid: "some user_uid"}` with the http status of `200`.
+
+   **Note:** Upon successful request - a new user profile is automatically created in the `user_profile` table with all columns empty (empty string - not null) except for `user_uid` column.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
-   1. `{"msg": "email_unavailable"}` - if email entered already exist in the db
-   2. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg`.
+   1. <a href="#err4">Query Error (#4)</a>
+   2. `{"msg": "email_unavailable"}` - if email entered already exist in the db
+   3. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#signUpDV">above</a> in the **Data Validation** sub-section..
 
-   You can then work with `msg` if somehow your frontend validation still allows this violation(s).  
-   The value of `msg` can be seen above on the sub-section <a href="#signUpDV">**Data Validation**</a>.
+      The number of `errorObject` depends on how many data validation is present & how many is violated.
 
-   The number of `errorObject` depends on how many data validation is violated.
+2. `/sign-in` - `POST` | **PUBLIC** | **USER SIGN IN**
 
-2. `/sign-in` - `POST` **PUBLIC**  
-   **Send from your application (`Content-Type`: `application/JSON`):** a JSON object like this: `{email: "email@mail.com", password: "password"}`
+   **Send from your application (`Content-Type`: `application/JSON`):** `{email: "email@mail.com", password: "password"}`
 
    <span id="signInDV">**Data validation:**</span>
 
    1. `email` must be of correct format -> Error message: `email_fail`
 
-   **Upon successful request:** returns JSON object `{"msg": "user logged in", token: "randomJWTtoken", user_uid: "some user_uid"}` with the http status of `200`.
+   **Upon successful request:** returns `{"msg": "user logged in", token: "randomJWTtoken", user_uid: "some user_uid"}` with the http status of `200`.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. `{"msg": "invalid_credentials"}` - when credentials does not exist in the db
-   2. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg`.
+   2. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#signInDV">above</a> in the **Data Validation** sub-section..
 
-   You can then work with `msg` if somehow your frontend validation still allows this violation(s).  
-   The value of `msg` can be seen above on the sub-section <a href="#signInDV">**Data Validation**</a>.
+      The number of `errorObject` depends on how many data validation is present & how many is violated.
 
-   The number of `errorObject` depends on how many data validation is violated.
+3. `/new-access-token` - `POST` | **PRIVATE** | **GETTING NEW ACCESS TOKEN**
 
-3. `/new-access-token` - `POST` **PRIVATE**  
-   **Send from your application (`Content-Type`: `application/JSON`):** a JSON object like this: `{user_uid: "some user_uid"}`
+   **Send from your application (`Content-Type`: `application/JSON`):** `{user_uid: "some user_uid"}`
 
    <span id="newAccTDV">**Data validation:**</span>
 
    1. `user_uid` must not empty -> Error message: `user_uid_fail`
 
-   **Upon successful request:** returns JSON object `{"msg": "signed_out"}` with the http status of `200`.
+   **Upon successful request:** returns `{"msg": "signed_out"}` with the http status of `200`.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. `{"msg": "invalid_credentials"}` - when `user_uid` does not exist in the db
-   2. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg`.
+   2. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#newAccTDV">above</a> in the **Data Validation** sub-section..
 
-   You can then work with `msg` if somehow your frontend validation still allows this violation(s).  
-   The value of `msg` can be seen above on the sub-section <a href="#newAccTDV">**Data Validation**</a>.
+      The number of `errorObject` depends on how many data validation is present & how many is violated.
 
-   The number of `errorObject` depends on how many data validation is violated.
+4. `/sign-out` - `POST` | **PRIVATE** | **USER SIGN OUT**
 
-4. `/sign-out` - `POST` **PRIVATE**  
-   **Send from your application (`Content-Type`: `application/JSON`):** a JSON object like this: `{user_uid: "some user_uid"}`
+   **Send from your application (`Content-Type`: `application/JSON`):** `{user_uid: "some user_uid"}`
 
    <span id="signOutDV">**Data validation:**</span>
 
    1. `user_uid` must not be empty -> Error message: `user_uid_fail`
 
-   **Upon successful request:** returns JSON object `{"msg": "signed_out"}` with the http status of `200`.
+   **Upon successful request:** returns `{"msg": "signed_out"}` with the http status of `200`.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
-   1. Returns an error object (JSON) with the http status of `400` - this error comes from DB (very unlikely).
-   2. `{"msg": "invalid_credentials"}` - when `user_uid` does not exist in the db
-   3. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg`.
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Error (#2)</a>
+   3. `{"msg": "invalid_credentials"}` - when `user_uid` does not exist in the db
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#signOutDV">above</a> in the **Data Validation** sub-section..
 
-   You can then work with `msg` if somehow your frontend validation still allows this violation(s).  
-   The value of `msg` can be seen above on the sub-section <a href="#signOutDV">**Data Validation**</a>.
-
-   The number of `errorObject` depends on how many data validation is violated.
+      The number of `errorObject` depends on how many data validation is present & how many is violated.
 
 ### /api/user
 
-1. `/` - `GET` **PRIVATE**  
-   **Upon successful request:** returns JSON object of `userObject` and a msg `{user: userObject, "msg": "success"}` where `userObject` is `{user_uid: "some user_uid", email "email@mail.com"}` with the http status of `200`.
+1. `/` - `GET` | **PRIVATE** | **GET CURRENT USER DETAIL**
 
-   **Upon failed request:** [Errors (#2)](#errors).
+   **Send from your application :** none
 
-2. `/` - `PUT` **PRIVATE**  
-   **Send from your application (`Content-Type`: `application/JSON`):** a JSON object like this: `{user_uid: "some user_uid"}`
+   **Upon successful request:** returns `{user: userObject, "msg": "success"}` with the http status of `200`.
+
+   `userObject` is defined <a href="#userObjRes">here</a>
+
+   **Upon failed request:**
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Error (#2)</a>
+
+2. `/` - `PUT` | **PRIVATE** | **EDIT CURRENT USER DETAIL**
+
+   **Send from your application (`Content-Type`: `application/JSON`):** `{"first_name": "firstName", "last_name": "lastName"}`.
+
+   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB along with other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
 
    <span id="updateUserProfileDV">**Data validation:**</span>
 
    1. `first_name` must exists -> Error message: `first_name_fail`
-   1. `last_name` must exists -> Error message: `last_name_fail`
+   2. `last_name` must exists -> Error message: `last_name_fail`
 
-   **Upon successful request:** returns JSON object `{ "msg": "profile_detail_updated"}` with the http status of `200`.
+   **Upon successful request:** returns `{ "msg": "profile_detail_updated"}` with the http status of `200`.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
-   1. Returns an error object (JSON) with the http status of `400` - this error comes from DB (very unlikely).
-   2. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg`.
+   1. <a href="#err4">Query Error (#4)</a>
+   2. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateUserProfileDV">above</a> in the **Data Validation** sub-section..
 
-   You can then work with `msg` if somehow your frontend validation still allows this violation(s).  
-   The value of `msg` can be seen above on the sub-section <a href="#updateUserProfileDV">**Data Validation**</a>.
+      The number of `errorObject` depends on how many data validation is present & how many is violated.
 
-   The number of `errorObject` depends on how many data validation is violated.
+3. `/profile-picture` - `PUT` | **PRIVATE** | **UPLOAD/UPDATE CURRENT USER'S PROFILE PICTURE**
 
-3. `/profile-picture` - `PUT` **PRIVATE**  
    **Send from your application (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
 
-   **Upon successful request:** returns JSON object `{"msg": "profile_pic_updated","filePath": "user_uploads/public/images/profile_pictures/some_user_uid/image.png"}` with the http status of `200`.
+   **Upon successful request:** returns `{"msg": "profile_pic_updated","filePath": "localhost:7500/user_uploads/public/images/profile_pictures/some_user_uid/image.jpg"}` with the http status of `200`.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
    1. `{"msg": "file_error"}` - when `file` not found / `file` isn't properly formatted.
 
-4. `/profile-picture` - `DELETE` **PRIVATE**  
+4. `/profile-picture` - `DELETE` | **PRIVATE** | **DELETE CURRENT USER'S PROFILE PICTURE**
+
    **Send from your application :** none
 
-   **Upon successful request:** returns JSON object `{"msg": "profile_pic_removed"}` with the http status of `200`.
+   **Upon successful request:** returns `{"msg": "profile_pic_removed"}` with the http status of `200`.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
-   1. Returns an error object (JSON) with the http status of `400` - this error comes from DB (very unlikely).
+   1. <a href="#err4">Query Error (#4)</a>
 
-## General
+### /api/companies
 
-Authentication method: JWT  
-Database: PostgreSQL
+1. `/` - `GET` | **PRIVATE** | **GET ALL COMPANIES**
+
+   **Send from your application :** none
+
+   **Upon successful request:** returns `{companies: [companyObject0,companyObject1], "msg": "success"}` with the http status of `200`.
+
+   `companyObject1` (as **`result`**) is defined <a href="#companyObjRes">here</a>
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+
+### /api/company
+
+1. `/` - `GET` | **PRIVATE** | **GET A SINGLE COMPANY**
+
+   **Send from your application :** `{"company_uid": "someCompanyId"}`.
+
+   <span id="getCompanyDV">**Data validation:**</span>
+
+   1. `company_uid` must exists -> On error: `{"msg": "company_uid_fail"}`
+
+   **Upon successful request:** returns `{company: companyObject, "msg": "success"}` with the http status of `200`.
+
+   `companyObject` is defined <a href="#companyObjRes">here</a>
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Error (#2)</a>
+   3. `{ msg: "company_not_found" }` - when `company_uid` does not exist in the db.
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#getCompanyDV">above</a> in the **Data Validation** sub-section.
+
+      The number of `errorObject` depends on how many data validation is present & how many is violated.
+
+2. `/` - `POST` | **PRIVATE** | **CREATE A SINGLE COMPANY**
+
+   **Send from your application (`Content-Type`: `application/JSON`):**
+
+   ```json
+   {
+     "company_name": "someCompanyName",
+     "company_email": "mail@example.com",
+     "company_website": "https://somewebsite.de",
+     "company_phone": "+490000"
+   }
+   ```
+
+   **You may leave any of the field as an empty string if you wish to not have anything for that field.**
+
+   For example, company does not have a website, leave it empty like: `{"company_website": ""}`
+
+   <span id="updateUserProfileDV">**Data validation:**</span>
+
+   1. `company_name` must exists -> Error message: `company_name_fail`
+   2. `company_email` must exists -> Error message: `company_email_fail`
+   3. `company_website` must exists -> Error message: `company_website_fail`
+   4. `company_phone` must exists -> Error message: `company_phone_fail`
+
+   **Upon successful request:** returns `{ "msg": "company_created", company_uid: "someCompanyId"}` with the http status of `200`.
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Error (#2)</a>
+   3. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#getCompanyDV">above</a> in the **Data Validation** sub-section.
+
+   The number of `errorObject` depends on how many data validation is present & how many is violated.
+
+3. `/` - `PUT` | **PRIVATE** | **EDIT A SINGLE COMPANY**
+
+   **Send from your application (`Content-Type`: `application/JSON`):**
+
+   ```json
+   {
+     "company_uid": "someCompanyId",
+     "company_name": "someCompanyName",
+     "company_email": "mail@example.com",
+     "company_website": "https://somewebsite.de",
+     "company_phone": "+490000"
+   }
+   ```
+
+   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB along with other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
+
+   <span id="updateUserProfileDV">**Data validation:**</span>
+
+   1. `company_uid` must exists -> Error message: `company_name_fail`
+   2. `company_name` must exists -> Error message: `company_name_fail`
+   3. `company_email` must exists -> Error message: `company_email_fail`
+   4. `company_website` must exists -> Error message: `company_website_fail`
+   5. `company_phone` must exists -> Error message: `company_phone_fail`
+
+   **Upon successful request:** returns `{ "msg": "company_created", company_uid: "someCompanyId"}` with the http status of `200`.
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. `{ msg: "company_not_found" }` - when `company_uid` does not exist in the db.
+   3. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#getCompanyDV">above</a> in the **Data Validation** sub-section.
+   4. <a href="#errors">Error (#2)</a>
+
+      The number of `errorObject` depends on how many data validation is present & how many is violated.
+
+4. `/image/someCompanyID` - `PUT` | **PRIVATE** | **UPDATE / ADD IMAGE OF A COMPANY**
+
+   Related:
+
+   1. <a href="#whyViaURL">**Why do some endpoints require passing id via URL and not JSON?**</a>
+   2. <a href="#whyUpdateTwoEndpoints">**Why are some endpoints, such as this one separated from the 'main' edit/update endpoint?**</a>
+
+   **Send from your application (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
+
+   **Upon successful request:** returns `{"msg": "picture_updated","filePath": "localhost:7500/user_uploads/public/images/company_image/someCompanyId/image.jpg"}` with the http status of `200`.
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. `{"msg": "file_error"}` - when `file` not found / `file` isn't properly formatted.
+   3. `{"msg": "company_not_found"}` - when `company_uid` does not exist in the db.
+   4. <a href="#errors">Token Error (#2)</a>
+
+5. `/image` - `DELETE` | **PRIVATE** | **DELETE AN IMAGE OF A COMPANY**
+
+   **Send from your application :** `{"company_uid": "someCompanyId"}`
+
+   <span id="companyImageDeleteDV">**Data validation:**</span>
+
+   1. `company_uid` must exists -> Error message: `company_uid_fail`
+
+   **Upon successful request:** returns `{"msg": "picture_removed"}` with the http status of `200`.
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+   3. `{"msg": "company_not_found"}` - when `company_uid` does not exist in the db.
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#companyImageDeleteDV">above</a> in the **Data Validation** sub-section.
+
+6. `/` - `DELETE` | **PRIVATE** | **DELETE A COMPANY**
+
+   **Send from your application :** `{"company_uid": "someCompanyId"}`
+
+   <span id="companyDeleteDV">**Data validation:**</span>
+
+   1. `company_uid` must exists -> Error message: `company_uid_fail`
+
+   **Upon successful request:** returns `{"msg": "company_deleted"}` with the http status of `200`.
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+   3. `{"msg": "company_not_found"}` - when `company_uid` does not exist in the db.
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#companyDeleteDV">above</a> in the **Data Validation** sub-section.
+
+### /api/contacts
+
+1. `/` - `GET` | **PRIVATE** | **GET ALL CONTACTS**
+
+   **Send from your application :** none
+
+   **Upon successful request:** returns `{contacts: [contactObject0,contactObject1], "msg": "success"}` with the http status of `200`.
+
+   `contactObject` (as **`result`**) is defined <a href="#contactObjRes">here</a>
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+
+### /api/contact
+
+1. `/` - `GET` | **PRIVATE** | **GET A SINGLE CONTACT**
+
+   **Send from your application :** `{"contact_uid": "someContactUid"}`.
+
+   <span id="getContactDV">**Data validation:**</span>
+
+   1. `contact_uid` must exists -> On error: `{"msg": "contact_uid_fail"}`
+
+   **Upon successful request:** returns `{company: contactObject, "msg": "success"}` with the http status of `200`.
+
+   `contactObject` is defined <a href="#contactObjRes">here</a>
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+   3. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#getContactDV">above</a> in the **Data Validation** sub-section.
+
+      The number of `errorObject` depends on how many data validation is present & how many is violated.
+
+2. `/` - `POST` | **PRIVATE** | **CREATE A SINGLE CONTACT**
+
+   **Send from your application (`Content-Type`: `application/JSON`):**
+
+   ```json
+   {
+     "first_name": "firstName",
+     "last_name": "lastName",
+     "phone": "+49000",
+     "email": "mail@example.com",
+     "dob": "01.01.1990",
+     "note": "",
+     "company_uid": "",
+     "tags": [],
+     "picture": ""
+   }
+   ```
+
+   **You may leave any of field empty if you wish to not have anything for that field**
+
+   For example, contact does not belong to any company, leave it empty like: `{"company_uid": ""}`
+
+   Tags can be added as array of strings as such: `["tag0", "tag1"]`
+
+   <span id="createContactDV">**Data validation:**</span>
+
+   1. `first_name` must exists -> Error message: `first_name_fail`
+   2. `last_name` must exists -> Error message: `last_name_fail`
+   3. `phone` must exists -> Error message: `phone_fail`
+   4. `email` must exists -> Error message: `email_fail`
+   5. `dob` must exists -> Error message: `dob_fail`
+   6. `note` must exists -> Error message: `note_fail`
+   7. `company_uid` must exists -> Error message: `company_uid_fail`
+   8. `tags` must exists -> Error message: `tags_fail`
+   9. `picture` must exists -> Error message: `picture_fail`
+
+   **Upon successful request:** returns `{ "msg": "contact_created", contact_uid: "someC/imagontactId"}` with the http status of `200`.
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Error (#2)</a>
+   3. `{msg: "tags_not_array"}` - when `tags` is not of type array
+   4. `{msg: "company_not_found"}` - when `company_uid` does not exist in the db.
+   5. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#createContactDV">above</a> in the **Data Validation** sub-section.
+
+   The number of `errorObject` depends on how many data validation is present & how many is violated.
+
+3. `/` - `PUT` | **PRIVATE** | **EDIT A SINGLE CONTACT**
+
+   **Send from your application (`Content-Type`: `application/JSON`):**
+
+   ```json
+   {
+     "first_name": "firstName",
+     "last_name": "lastName",
+     "phone": "+49000",
+     "email": "mail@example.com",
+     "dob": "01.01.1990",
+     "note": "",
+     "company_uid": "",
+     "tags": [],
+     "picture": ""
+   }
+   ```
+
+   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB along with other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
+
+   <span id="updateSingleContactDV">**Data validation:**</span>
+
+   1. `first_name` must exists -> Error message: `first_name_fail`
+   2. `last_name` must exists -> Error message: `last_name_fail`
+   3. `phone` must exists -> Error message: `phone_fail`
+   4. `email` must exists -> Error message: `email_fail`
+   5. `dob` must exists -> Error message: `dob_fail`
+   6. `note` must exists -> Error message: `note_fail`
+   7. `company_uid` must exists -> Error message: `company_uid_fail`
+   8. `tags` must exists -> Error message: `tags_fail`
+   9. `picture` must exists -> Error message: `picture_fail`
+
+   **Upon successful request:** returns `{ "msg": "contact_updated", contact_uid: "someContactId"}` with the http status of `200`.
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Error (#2)</a>
+   3. `{msg: "tags_not_array"}` - when `tags` is not of type array
+   4. `{msg: "company_not_found"}` - when `company_uid` does not exist in the db.
+   5. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateSingleContactDV">above</a> in the **Data Validation** sub-section.
+
+4. `/image/someContactID` - `PUT` | **PRIVATE** | **UPDATE / ADD IMAGE OF A CONTACT**
+
+   Related:
+
+   1. <a href="#whyViaURL">**Why do some endpoints require passing id via URL and not JSON?**</a>
+   2. <a href="#whyUpdateTwoEndpoints">**Why are some endpoints, such as this one separated from the 'main' edit/update endpoint?**</a>
+
+   **Send from your application (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
+
+   **Upon successful request:** returns `{"msg": "picture_updated","filePath": "localhost:7500/user_uploads/public/images/contact_image/someContactID/image.jpg"}` with the http status of `200`.
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. `{"msg": "file_error"}` - when `file` not found / `file` isn't properly formatted.
+   3. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
+   4. <a href="#errors">Token Error (#2)</a>
+
+5. `/image` - `DELETE` | **PRIVATE** | **DELETE AN IMAGE OF A CONTACT**
+
+   **Send from your application :** `{"contact_uid": "someCompanyId"}`
+
+   <span id="contactImageDeleteDV">**Data validation:**</span>
+
+   1. `contact_uid` must exists -> Error message: `contact_uid_failed`
+
+   **Upon successful request:** returns `{"msg": "picture_removed"}` with the http status of `200`.
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+   3. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#contactImageDeleteDV">above</a> in the **Data Validation** sub-section.
+
+6. `/` - `DELETE` | **PRIVATE** | **DELETE A COMPANY**
+
+   **Send from your application :** `{"contact_uid": "someContactUID"}`
+
+   <span id="contactDeleteDV">**Data validation:**</span>
+
+   1. `contact_uid` must exists -> Error message: `contact_uid_failed`
+
+   **Upon successful request:** returns `{"msg": "contact_deleted"}` with the http status of `200`.
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+   3. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#contactDeleteDV">above</a> in the **Data Validation** sub-section.
+
+### /api/admin
+
+1. `/all-users` - `GET` **PUBLIC** | PLEASE DON'T USE THIS ENDPOINT (Will change in the future - not usable / important for now)
+
+   **Upon successful request:** returns an **array** of (JSON) user objects `[userObject0, userObject1]` with the http status of `200`.
+
+   `userObject` is defined as `{id: someid, user_uid: "some user_uid", email: "mail@ex.com" }`
+
+   **Upon failed request:** Returns an error object (JSON).
+
+## Results
+
+1. <span id="userObjRes">`userObject`:</span>
+
+   ```json
+   {
+     "user_uid": "someUserId",
+     "email": "email@mail.com"
+   }
+   ```
+
+2. <span id="companyObjRes">`companyObject`:</span>
+
+   ```json
+   {
+     "id": someId,
+     "user_uid": "someUserId",
+     "company_uid": "someCompanyId",
+     "company_name": "someCompanyName",
+     "company_email": "mail@example.com",
+     "company_website": "https://somewebsite.de",
+     "picture": "pathToPicture/img.jpg",
+     "company_phone": "+490000",
+     "people": ["contactUid0", "contactUid1"]
+   }
+   ```
+
+   Any of these might be an empty string except: `id`, `user_uid`, `company_uid`.
+
+3. <span id="contactObjRes">`contactObject`:</span>
+
+   ```json
+   {
+     "id": someId,
+     "user_uid": "someUserId",
+     "contact_uid": "someContactId",
+     "first_name": "firstName",
+     "last_name": "lastName",
+     "phone": "+490000",
+     "email": "mail@example.com",
+     "dob": "01.01.1990",
+     "note": "someNote",
+     "picture": "pathToPicture/img.jpg",
+     "tags": ["tag0", "tag1"],
+     "companies": ["companyUid0", "companyUid1"]
+   }
+   ```
+
+   Any of these might be an empty string except: `id`, `user_uid`, `contact_uid`.
+
+## <span id="putExplanation">General Knwoledge Board</span>
+
+1.  For ALL `PUT` endpoints</span> please enter the data that you want to be updated and saved to the DB along with other required data.
+
+    **For example**, for `/api/user/`, if you want `lastName` to be renamed to `newLastName`, then send the full request (with all **required** and unchanged fields), such as (here `first_name` is unchanged): `{"first_name": "firstName", "last_name": "newLastName"}`.
+
+    **Leaving `"first_name"` as empty string will result to updating its value to empty string in the DB, essentially removing it. So please be very careful.**
+
+2.  **<span id="whyViaURL">Why do some endpoints require passing id via URL and not JSON?</span>**
+
+    The reason is because the UID of the contact/company is needed and sending it via JSON is **simply not possible**, due to the nature of the request.
+
+    On endpoints that upload a picture/file it is reccomended to use **multipart/form-data** (both for file size and security), and sending **multipart/form-data** simultaneously with **JSON** is not possible.
+
+    However, this isn't the case with updaing/uploading **user's** picture/file because the user has an access token (JWT token) sent via `header` (called `x-access-token`) and when it's decoded it contains the UID needed (`user_uid`).
+
+3.  **"<span id="whyUpdateTwoEndpoints">Why are some endpoints, such as updating user's detail (string) and updating user's image (file) separated?</span>**
+
+    While it seems logically correct to have one endpoint to do both as they are essentially "editing" the user, it is simply not possible due to the nature of the request.
+
+    On endpoints that upload a picture/file it is reccomended to use **multipart/form-data** (both for file size and security), and sending **multipart/form-data** simultaneously with **JSON** is not possible.
+
+    In the future, an enhacement may be possible - that is to have one general endpoint that expects the client to send both picture/file and JSON as **file (.json)** at the same time.
+
+    However, this means the client (your app) has to somehow turn the JSON request into a file first (.json). The two (or more) then are going to be separated in the backend.
 
 ## Errors
 
@@ -220,3 +641,5 @@ Database: PostgreSQL
 
    `sudo lsof -i :7500` - then get the PID  
    `sudo kill -9 <PID>` - without the `<>`
+
+4. <span id="err4">Error: Returns</span> an error object (JSON) - this error comes from failed DB query(ies) (very unlikely).
