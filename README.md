@@ -548,7 +548,7 @@ There are two types of endpoint, private and public.
 
 ### /api/admin
 
-1. `/all-users` - `GET` **PUBLIC** | PLEASE DON'T USE THIS ENDPOINT (Will change in the future - not usable / important for now)
+1. `/all-users` - `GET` **PUBLIC** | DEPRECATED - PLEASE DON'T USE THIS ENDPOINT (Will change in the future - not usable / important for now)
 
    **Upon successful request:** returns an **array** of (JSON) user objects `[userObject0, userObject1]` with the http status of `200`.
 
@@ -563,6 +563,9 @@ There are two types of endpoint, private and public.
    ```json
    {
      "user_uid": "someUserId",
+     "first_name": "firstName",
+     "last_name": "lastName",
+     "picture": "pathToPicture/img.jpg",
      "email": "email@mail.com"
    }
    ```
