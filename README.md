@@ -173,8 +173,8 @@ There are two types of endpoint, private and public.
 
    <span id="updateUserProfileDV">**Data validation:**</span>
 
-   1. `first_name` must exists -> Error message: `first_name_fail`
-   2. `last_name` must exists -> Error message: `last_name_fail`
+   1. `first_name` must exists in the JSON request from your app -> Error message: `first_name_fail`
+   2. `last_name` must exists in the JSON request from your app -> Error message: `last_name_fail`
 
    **Upon successful request:** returns `{ "msg": "profile_detail_updated"}` with the http status of `200`.
 
@@ -232,7 +232,7 @@ There are two types of endpoint, private and public.
 
    <span id="getCompanyDV">**Data validation:**</span>
 
-   1. `company_uid` must exists -> On error: `{"msg": "company_uid_fail"}`
+   1. `company_uid` must exists in the JSON request from your app -> On error: `{"msg": "company_uid_fail"}`
 
    **Upon successful request:** returns `{company: companyObject, "msg": "success"}` with the http status of `200`.
 
@@ -266,10 +266,10 @@ There are two types of endpoint, private and public.
 
    <span id="updateUserProfileDV">**Data validation:**</span>
 
-   1. `company_name` must exists -> Error message: `company_name_fail`
-   2. `company_email` must exists -> Error message: `company_email_fail`
-   3. `company_website` must exists -> Error message: `company_website_fail`
-   4. `company_phone` must exists -> Error message: `company_phone_fail`
+   1. `company_name` must exists in the JSON request from your app -> Error message: `company_name_fail`
+   2. `company_email` must exists in the JSON request from your app -> Error message: `company_email_fail`
+   3. `company_website` must exists in the JSON request from your app -> Error message: `company_website_fail`
+   4. `company_phone` must exists in the JSON request from your app -> Error message: `company_phone_fail`
 
    **Upon successful request:** returns `{ "msg": "company_created", company_uid: "someCompanyId"}` with the http status of `200`.
 
@@ -299,11 +299,11 @@ There are two types of endpoint, private and public.
 
    <span id="updateUserProfileDV">**Data validation:**</span>
 
-   1. `company_uid` must exists -> Error message: `company_name_fail`
-   2. `company_name` must exists -> Error message: `company_name_fail`
-   3. `company_email` must exists -> Error message: `company_email_fail`
-   4. `company_website` must exists -> Error message: `company_website_fail`
-   5. `company_phone` must exists -> Error message: `company_phone_fail`
+   1. `company_uid` must exists in the JSON request from your app -> Error message: `company_name_fail`
+   2. `company_name` must exists in the JSON request from your app -> Error message: `company_name_fail`
+   3. `company_email` must exists in the JSON request from your app -> Error message: `company_email_fail`
+   4. `company_website` must exists in the JSON request from your app -> Error message: `company_website_fail`
+   5. `company_phone` must exists in the JSON request from your app -> Error message: `company_phone_fail`
 
    **Upon successful request:** returns `{ "msg": "company_created", company_uid: "someCompanyId"}` with the http status of `200`.
 
@@ -340,7 +340,7 @@ There are two types of endpoint, private and public.
 
    <span id="companyImageDeleteDV">**Data validation:**</span>
 
-   1. `company_uid` must exists -> Error message: `company_uid_fail`
+   1. `company_uid` must exists in the JSON request from your app -> Error message: `company_uid_fail`
 
    **Upon successful request:** returns `{"msg": "picture_removed"}` with the http status of `200`.
 
@@ -357,7 +357,7 @@ There are two types of endpoint, private and public.
 
    <span id="companyDeleteDV">**Data validation:**</span>
 
-   1. `company_uid` must exists -> Error message: `company_uid_fail`
+   1. `company_uid` must exists in the JSON request from your app -> Error message: `company_uid_fail`
 
    **Upon successful request:** returns `{"msg": "company_deleted"}` with the http status of `200`.
 
@@ -391,7 +391,7 @@ There are two types of endpoint, private and public.
 
    <span id="getContactDV">**Data validation:**</span>
 
-   1. `contact_uid` must exists -> On error: `{"msg": "contact_uid_fail"}`
+   1. `contact_uid` must exists in the JSON request from your app -> On error: `{"msg": "contact_uid_fail"}`
 
    **Upon successful request:** returns `{company: contactObject, "msg": "success"}` with the http status of `200`.
 
@@ -431,14 +431,14 @@ There are two types of endpoint, private and public.
 
    <span id="createContactDV">**Data validation:**</span>
 
-   1. `first_name` must exists -> Error message: `first_name_fail`
-   2. `last_name` must exists -> Error message: `last_name_fail`
-   3. `phone` must exists -> Error message: `phone_fail`
-   4. `email` must exists -> Error message: `email_fail`
-   5. `dob` must exists -> Error message: `dob_fail`
-   6. `note` must exists -> Error message: `note_fail`
-   7. `company_uids` must exists -> Error message: `company_uids_fail`
-   8. `tags` must exists -> Error message: `tags_fail`
+   1. `first_name` must exists in the JSON request from your app -> Error message: `first_name_fail`
+   2. `last_name` must exists in the JSON request from your app -> Error message: `last_name_fail`
+   3. `phone` must exists in the JSON request from your app -> Error message: `phone_fail`
+   4. `email` must exists in the JSON request from your app -> Error message: `email_fail`
+   5. `dob` must exists in the JSON request from your app -> Error message: `dob_fail`
+   6. `note` must exists in the JSON request from your app -> Error message: `note_fail`
+   7. `company_uids` must exists in the JSON request from your app -> Error message: `company_uids_fail`
+   8. `tags` must exists in the JSON request from your app -> Error message: `tags_fail`
 
    **Upon successful request:** returns `{ "msg": "contact_created", contact_uid: "someC/imagontactId"}` with the http status of `200`.
 
@@ -474,14 +474,14 @@ There are two types of endpoint, private and public.
 
    <span id="updateSingleContactDV">**Data validation:**</span>
 
-   1. `first_name` must exists -> Error message: `first_name_fail`
-   2. `last_name` must exists -> Error message: `last_name_fail`
-   3. `phone` must exists -> Error message: `phone_fail`
-   4. `email` must exists -> Error message: `email_fail`
-   5. `dob` must exists -> Error message: `dob_fail`
-   6. `note` must exists -> Error message: `note_fail`
-   7. `company_uids` must exists -> Error message: `company_uids_fail`
-   8. `tags` must exists -> Error message: `tags_fail`
+   1. `first_name` must exists in the JSON request from your app -> Error message: `first_name_fail`
+   2. `last_name` must exists in the JSON request from your app -> Error message: `last_name_fail`
+   3. `phone` must exists in the JSON request from your app -> Error message: `phone_fail`
+   4. `email` must exists in the JSON request from your app -> Error message: `email_fail`
+   5. `dob` must exists in the JSON request from your app -> Error message: `dob_fail`
+   6. `note` must exists in the JSON request from your app -> Error message: `note_fail`
+   7. `company_uids` must exists in the JSON request from your app -> Error message: `company_uids_fail`
+   8. `tags` must exists in the JSON request from your app -> Error message: `tags_fail`
 
    **Upon successful request:** returns `{ "msg": "contact_updated", contact_uid: "someContactId"}` with the http status of `200`.
 
@@ -518,7 +518,7 @@ There are two types of endpoint, private and public.
 
    <span id="contactImageDeleteDV">**Data validation:**</span>
 
-   1. `contact_uid` must exists -> Error message: `contact_uid_failed`
+   1. `contact_uid` must exists in the JSON request from your app -> Error message: `contact_uid_failed`
 
    **Upon successful request:** returns `{"msg": "picture_removed"}` with the http status of `200`.
 
@@ -535,7 +535,7 @@ There are two types of endpoint, private and public.
 
    <span id="contactDeleteDV">**Data validation:**</span>
 
-   1. `contact_uid` must exists -> Error message: `contact_uid_failed`
+   1. `contact_uid` must exists in the JSON request from your app -> Error message: `contact_uid_failed`
 
    **Upon successful request:** returns `{"msg": "contact_deleted"}` with the http status of `200`.
 
