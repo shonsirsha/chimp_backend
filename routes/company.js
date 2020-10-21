@@ -200,7 +200,7 @@ router.put("/image/:company_uid", auth, async (req, res) => {
       }
       //updates in in db
       pool.query(
-        `UPDATE companies SET picture='${newFileName}' WHERE id='2'`,
+        `UPDATE companies SET picture='${newFileName}' WHERE company_uid='${company_uid}'`,
         (err) => {
           if (!err) {
             return res.status(200).json({

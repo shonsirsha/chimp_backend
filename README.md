@@ -264,7 +264,7 @@ There are two types of endpoint, private and public.
 
    For example, company does not have a website, leave it empty like: `{"company_website": ""}`
 
-   <span id="updateUserProfileDV">**Data validation:**</span>
+   <span id="createCompanyDV">**Data validation:**</span>
 
    1. `company_name` must exists in the JSON request from your app -> Error message: `company_name_fail`
    2. `company_email` must exists in the JSON request from your app -> Error message: `company_email_fail`
@@ -277,7 +277,7 @@ There are two types of endpoint, private and public.
 
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Token Error (#2)</a>
-   3. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#getCompanyDV">above</a> in the **Data Validation** sub-section.
+   3. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#createCompanyDV">above</a> in the **Data Validation** sub-section.
 
    The number of `errorObject` depends on how many data validation is present & how many is violated.
 
@@ -297,7 +297,7 @@ There are two types of endpoint, private and public.
 
    **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB along with other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
 
-   <span id="updateUserProfileDV">**Data validation:**</span>
+   <span id="editCompanyDV">**Data validation:**</span>
 
    1. `company_uid` must exists in the JSON request from your app -> Error message: `company_name_fail`
    2. `company_name` must exists in the JSON request from your app -> Error message: `company_name_fail`
@@ -312,7 +312,7 @@ There are two types of endpoint, private and public.
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Token Error (#2)</a>
    3. `{ msg: "company_not_found" }` - when `company_uid` does not exist in the db.
-   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#getCompanyDV">above</a> in the **Data Validation** sub-section.
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#editCompanyDV">above</a> in the **Data Validation** sub-section.
 
       The number of `errorObject` depends on how many data validation is present & how many is violated.
 
