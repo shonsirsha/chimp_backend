@@ -72,6 +72,7 @@ router.get("/", auth, async (req, res) => {
         );
       });
     } else {
+      //returns empty array (user has 0 contact)
       return res.status(200).json({ msg: "success", contacts: rows });
     }
   } catch (e) {

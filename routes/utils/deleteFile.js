@@ -15,25 +15,24 @@ const deleteFile = async (
   const { rows } = await pool.query(
     `SELECT * FROM ${table} WHERE ${keyIdName}='${key_uid}'`
   );
-  let fileName = rows[0][`${field}`];
 
   if (removeInDb) {
     pool.query(
       `UPDATE ${table} SET ${field}='' WHERE ${keyIdName}='${key_uid}'`,
       async (err) => {
         if (!err) {
-          await deleteActualFile(dir, fileName);
+          await deleteActualFile(dir);
         } else {
           res.status(400).json(error);
         }
       }
     );
   } else {
-    await deleteActualFile(dir, fileName);
+    await deleteActualFile(dir);
   }
 };
 
-const deleteActualFile = async (dir, fileName) => {
+const deleteActualFile = async (dir) => {
   fs.rmdirSync(dir, { recursive: true }, (err) => {
     // delete that dir since it's empty
     if (!err) {
