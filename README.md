@@ -425,7 +425,7 @@ There are two types of endpoint, private and public.
 
    **You may leave any of field empty if you wish to not have anything for that field**
 
-   For example, contact does not belong to any company, leave it empty like: `{"company_uid": ""}`
+   For example, contact does not belong to any company, leave it as (an) empty (array - in this case) like: `{"[company_uid]": []}`
 
    Tags can be added as array of strings as such: `["tag0", "tag1"]`
 
@@ -440,7 +440,7 @@ There are two types of endpoint, private and public.
    7. `company_uids` must exists in the JSON request from your app -> Error message: `company_uids_fail`
    8. `tags` must exists in the JSON request from your app -> Error message: `tags_fail`
 
-   **Upon successful request:** returns `{ "msg": "contact_created", contact_uid: "someC/imagontactId"}` with the http status of `200`.
+   **Upon successful request:** returns `{ "msg": "contact_created", contact_uid: "someContactUid"}` with the http status of `200`.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
