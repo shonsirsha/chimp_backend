@@ -6,13 +6,19 @@
 	},
 	"item": [
 		{
-			"name": "SIGN IN - CHIMP",
+			"name": "USER - SIGN IN",
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"seangeekpro@mail.com\",\n    \"password\": \"123456\"\n}",
+					"raw": "{\n    \"email\": \"sean@mail.com\",\n    \"password\": \"123456\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -35,13 +41,13 @@
 			"response": []
 		},
 		{
-			"name": "SIGN UP",
+			"name": "USER - SIGN UP",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"seangeekpro@mail.com\",\n    \"password\": \"123456\"\n}",
+					"raw": "{\n    \"email\": \"sean@mail.com\",\n    \"password\": \"123456\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -64,7 +70,7 @@
 			"response": []
 		},
 		{
-			"name": "NEW ACCESS TOKEN FOR CURRENT USER",
+			"name": "USER - NEW ACCESS TOKEN",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -76,7 +82,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\"user_uid\": \"b22bccf6-d6a9-44ff-bcbf-e07ce7a22c56\"\n\n}",
+					"raw": "{\n\"user_uid\": \"e0f26173-0fd9-4799-9421-05c3122614dc\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -99,7 +105,7 @@
 			"response": []
 		},
 		{
-			"name": "SIGN OUT",
+			"name": "USER - SIGN OUT",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -134,7 +140,7 @@
 			"response": []
 		},
 		{
-			"name": "ADD PROFILE PIC",
+			"name": "USER - ADD IMAGE ( PROFILE PIC)",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {}
 			},
@@ -153,7 +159,7 @@
 						{
 							"key": "file",
 							"type": "file",
-							"src": "/Users/max/Desktop/Screenshot 2020-08-31 at 21.57.54.png"
+							"src": []
 						}
 					],
 					"options": {
@@ -178,7 +184,7 @@
 			"response": []
 		},
 		{
-			"name": "EDIT USER DETAIL",
+			"name": "USER - CREATE/EDIT PROFILE",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -213,7 +219,7 @@
 			"response": []
 		},
 		{
-			"name": "GET USER",
+			"name": "USER - GET USER DETAIL",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -239,7 +245,7 @@
 			"response": []
 		},
 		{
-			"name": "DELETE PROFILE PIC",
+			"name": "USER - DELETE PROFILE PIC",
 			"request": {
 				"method": "DELETE",
 				"header": [
@@ -265,7 +271,7 @@
 			"response": []
 		},
 		{
-			"name": "GET A CONTACT",
+			"name": "CONTACT - GET A CONTACT",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -280,7 +286,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"contact_uid\": \"cont-77a4d9a3-7573-405a-9f06-e70d97bec77e\"\n}",
+					"raw": "{\n    \"contact_uid\": \"cont-991184e1-6ced-45b4-93a6-9fdebb19b6e4\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -303,7 +309,7 @@
 			"response": []
 		},
 		{
-			"name": "CREATE NEW CONTACT",
+			"name": "CONTACT - CREATE A SINGLE CONTACT",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -315,7 +321,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\n    \"first_name\": \"Apple\",\n    \"last_name\": \"Dude\",\n    \"phone\": \"+123123\",\n    \"email\": \"apple@asdasd.com\",\n    \"dob\": \"1972-12-29\",\n    \"note\": \"Apple fanboy dude\",\n    \"company_uids\": [],\n    \"contact_image\": \"\",\n    \"tags\": [\"fanboy\"]\n}",
+					"raw": "{\n\n    \"first_name\": \"Martin\",\n    \"last_name\": \"Garry\",\n    \"phone\": \"+3123123\",\n    \"email\": \"garry@asdasd.com\",\n    \"dob\": \"1972-12-29\",\n    \"note\": \"Another fanboy\",\n    \"company_uids\": [],\n    \"tags\": [\"fanboy\", \"dj\"]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -338,7 +344,7 @@
 			"response": []
 		},
 		{
-			"name": "EDIT A CONTACT",
+			"name": "CONTACT - EDIT A SINGLE CONTACT",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -350,7 +356,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"contact_uid\": \"cont-b290c167-056b-4580-bf51-c2855b576052\",\n\n     \"first_name\": \"Bssill\",\n    \"last_name\": \"Gates\",\n    \"phone\": \"+231123123\",\n    \"email\": \"bill@microsoft.com\",\n    \"dob\": \"1990-12-29\",\n    \"note\": \"CEO dude, but retired\",\n    \"company_uids\": [],\n    \"tags\": []\n}",
+					"raw": "{\n    \"contact_uid\": \"cont-991184e1-6ced-45b4-93a6-9fdebb19b6e4\",\n    \"first_name\": \"Martin\",\n    \"last_name\": \"Garrix\",\n    \"phone\": \"+3123123\",\n    \"email\": \"garry@asdasd.com\",\n    \"dob\": \"1972-12-29\",\n    \"note\": \"Another fanboy\",\n    \"company_uids\": [\"company-77482147-733a-4602-83e2-cc34a3d66d4f\"],\n    \"tags\": [\"fanboy\", \"dj\", \"edm\"]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -373,7 +379,7 @@
 			"response": []
 		},
 		{
-			"name": "DELETE A CONTACT",
+			"name": "CONTACT - DELETE A SINGLE CONTACT",
 			"request": {
 				"method": "DELETE",
 				"header": [
@@ -408,7 +414,7 @@
 			"response": []
 		},
 		{
-			"name": "ADD CONTACT IMAGE",
+			"name": "CONTACT - ADD/EDIT A SINGLE CONTACT'S IMAGE",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -445,7 +451,7 @@
 			"response": []
 		},
 		{
-			"name": "DELETE CONTACT IMG",
+			"name": "CONTACT - DELETE A SINGLE CONTACT'S IMAGE",
 			"request": {
 				"method": "DELETE",
 				"header": [
@@ -480,7 +486,7 @@
 			"response": []
 		},
 		{
-			"name": "GET ALL CONTACTS",
+			"name": "CONTACTS - GET ALL CONTACTS",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -506,7 +512,7 @@
 			"response": []
 		},
 		{
-			"name": "CREATE NEW COMPANY",
+			"name": "COMPANY - CREATE A SINGLE COMPANY",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -540,7 +546,7 @@
 			"response": []
 		},
 		{
-			"name": "EDIT A COMPANY",
+			"name": "COMPANY - EDIT A SINGLE COMPANY",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -574,7 +580,7 @@
 			"response": []
 		},
 		{
-			"name": "DELETE A COMPANY",
+			"name": "COMPANY - DELETE A SINGLE COMPANY",
 			"request": {
 				"method": "DELETE",
 				"header": [],
@@ -602,16 +608,22 @@
 			"response": []
 		},
 		{
-			"name": "GET A SINGLE COMPANY",
+			"name": "COMPANY - GET A SINGLE COMPANY",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "x-auth-token",
+						"value": "",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"company_uid\":\"company-150be9db-7a32-4152-9d61-a01b30a55084\"\n}",
+					"raw": "{\n    \"company_uid\":\"company-77482147-733a-4602-83e2-cc34a3d66d4f\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -634,7 +646,7 @@
 			"response": []
 		},
 		{
-			"name": "ADD A COMPANY IMAGE",
+			"name": "COMPANY - ADD/EDIT A SINGLE COMPANY'S IMAGE",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -650,12 +662,12 @@
 						{
 							"key": "file",
 							"type": "file",
-							"src": "/Users/max/Desktop/Screenshot 2020-09-06 at 22.06.54.png"
+							"src": []
 						}
 					]
 				},
 				"url": {
-					"raw": "localhost:5000/api/company/image/company-150be9db-7a32-4152-9d61-a01b30a55084",
+					"raw": "localhost:5000/api/company/image/company-77482147-733a-4602-83e2-cc34a3d66d4f",
 					"host": [
 						"localhost"
 					],
@@ -664,25 +676,34 @@
 						"api",
 						"company",
 						"image",
-						"company-150be9db-7a32-4152-9d61-a01b30a55084"
+						"company-77482147-733a-4602-83e2-cc34a3d66d4f"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "DELETE A COMPANY IMAGE",
+			"name": "COMPANY - DELETE A SINGLE COMPANY'S IMAGE",
 			"request": {
 				"method": "DELETE",
 				"header": [
 					{
 						"key": "x-auth-token",
-						"value": "",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjoiZTBmMjYxNzMtMGZkOS00Nzk5LTk0MjEtMDVjMzEyMjYxNGRjIiwiaWF0IjoxNjAzMjg1NTQ0LCJleHAiOjE2MDMyODY0NDR9.37CdeqnUBCnOuPC75ICHlWOoBAu5x5hEQLGNQIokKJw",
 						"type": "text"
 					}
 				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"company_uid\": \"company-77482147-733a-4602-83e2-cc34a3d66d4f\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "localhost:5000/api/company/image/company-150be9db-7a32-4152-9d61-a01b30a55084",
+					"raw": "localhost:5000/api/company/image",
 					"host": [
 						"localhost"
 					],
@@ -690,15 +711,14 @@
 					"path": [
 						"api",
 						"company",
-						"image",
-						"company-150be9db-7a32-4152-9d61-a01b30a55084"
+						"image"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "GET ALL COMPANIES",
+			"name": "COMPANIES - GET ALL COMPANIES",
 			"request": {
 				"method": "GET",
 				"header": [
