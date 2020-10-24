@@ -115,7 +115,7 @@ router.post(
 
 //@route    POST api/auth/new-access-token
 //@desc     Get new access token if expired (by supplying ID & expired access token and exchange it for a new token w/ the help of a refresh token)
-//@access   Private (as user needs to prove that they have the (expired) access token)
+//@access   Private (for frontend - as user needs to prove that they have the (expired) access token) - but not actually checked if token is expr via middleware
 router.post(
   "/new-access-token",
   [check("user_uid", "user_uid_fail").exists()],
@@ -170,7 +170,7 @@ router.post(
 
 //@route    POST api/auth/sign-out
 //@desc     Signs out currently logged in user
-//@access   Private (as user needs to prove that they have access token)
+//@access   Private  (for frontend - as user needs to prove that they have access token) - but not actually checked if token is expr via middleware
 router.post(
   "/sign-out",
   [check("user_uid", "user_uid_fail").exists()],
@@ -196,7 +196,7 @@ router.post(
       }
       pool.query(
         `DELETE FROM tokens WHERE user_uid='${user_uid}' AND access_token='${accessToken}'`,
-        (error, results) => {
+        (error, _) => {
           if (error) {
             return res.status(400).json(error);
           }
