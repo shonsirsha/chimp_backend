@@ -416,7 +416,7 @@ There are two types of endpoint, private and public.
      "last_name": "lastName",
      "phone": "+49000",
      "email": "mail@example.com",
-     "dob": "01.01.1990",
+     "dob": 1603636742, // this is epoch (integer)
      "note": "",
      "company_uids": [],
      "tags": []
@@ -463,7 +463,7 @@ There are two types of endpoint, private and public.
      "last_name": "lastName",
      "phone": "+49000",
      "email": "mail@example.com",
-     "dob": "01.01.1990",
+     "dob": 1603636742, // this is epoch (integer)
      "note": "",
      "company_uids": [],
      "tags": []
@@ -599,7 +599,7 @@ There are two types of endpoint, private and public.
      "last_name": "lastName",
      "phone": "+490000",
      "email": "mail@example.com",
-     "dob": "01.01.1990",
+     "dob": 1603636742, // this is epoch (integer)
      "note": "someNote",
      "picture": "pathToPicture/img.jpg",
      "tags": ["tag0", "tag1"],
