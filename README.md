@@ -552,7 +552,7 @@ There are two types of endpoint, private and public.
 
    **Upon successful request:** returns an **array** of (JSON) user objects `[userObject0, userObject1]` with the http status of `200`.
 
-   `userObject` is defined as `{id: someid, user_uid: "some user_uid", email: "mail@ex.com" }`
+   `userObject` is defined as `{id: "someid", user_uid: "some user_uid", email: "mail@ex.com" }`
 
    **Upon failed request:** Returns an error object (JSON).
 
@@ -574,7 +574,7 @@ There are two types of endpoint, private and public.
 
    ```json
    {
-     "id": someId,
+     "id": "someId",
      "user_uid": "someUserId",
      "company_uid": "someCompanyId",
      "company_name": "someCompanyName",
@@ -592,7 +592,7 @@ There are two types of endpoint, private and public.
 
    ```json
    {
-     "id": someId,
+     "id": "someId",
      "user_uid": "someUserId",
      "contact_uid": "someContactId",
      "first_name": "firstName",
