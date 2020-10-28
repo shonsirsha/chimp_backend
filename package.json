@@ -14,6 +14,7 @@
     "jsonwebtoken": "^8.5.1",
     "nodemon": "^2.0.4",
     "pg": "^8.3.3",
+    "pm2": "^4.5.0",
     "uuid": "^8.3.0"
   },
   "devDependencies": {},
@@ -21,7 +22,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run static & node server.js",
     "nodemon": "npm run static & nodemon server.js",
-    "static": "http-server --port 7500"
+    "static": "http-server --port 7500",
+    "prod": "pm2 start --name rest-api-server server.js & pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d false"
   },
   "keywords": [],
   "author": "",
