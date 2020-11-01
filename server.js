@@ -1,5 +1,8 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
+const dotenv = require("dotenv").config({
+  path: "../env/.env",
+});
 
 const app = express();
 
