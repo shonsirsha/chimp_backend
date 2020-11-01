@@ -1,4 +1,5 @@
-# CHIMP BACKEND 🦧
+# CHIMP BACKEND 🦧 
+![node.js.yml Actions Status](https://github.com/shonsirsha/chimp_backend/workflows/Node.js%20CI/badge.svg)  
 
 Developed by the best team out there 🍊🧡
 
