@@ -1,14 +1,14 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
 const app = express();
-console.log(`ENV IS: ${app.settings.env}`);
-require("dotenv").config({
-  path: `${app.settings.env === `development` ? `./.env` : `../env/.env`}`,
-});
 
 // Init Middleware
 app.use(express.json({ extended: false }));
 app.use(fileUpload());
+
+require("dotenv").config({
+  path: `${process.env.NODE_ENV === `development` ? `./.env` : `../env/.env`}`,
+});
 
 // Define Routes
 
@@ -22,6 +22,9 @@ app.use("/api/company", require("./routes/company"));
 app.use("/api/companies", require("./routes/companies"));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+  console.log(process.env.NODE_ENV);
+});
 
 module.exports = app;
