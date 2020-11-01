@@ -24,4 +24,4 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm i
-      - run: pm2 start --name rest-api-server server.js
+      - run: npm run start
