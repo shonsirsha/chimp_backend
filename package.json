@@ -24,7 +24,7 @@
     "nodemon": "npm run static & nodemon server.js",
     "static": "http-server --port 7500",
     "prodInit": "pm2 start --name rest-api-server server.js & pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d false",
-    "prodRestart": "pm2 restart rest-api-server & pm2 restart file-server"
+    "prodRestart": "pm2 stop all & pm2 restart rest-api-server & pm2 restart file-server"
   },
   "keywords": [],
   "author": "",
