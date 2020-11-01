@@ -1,10 +1,10 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
-const dotenv = require("dotenv").config({
-  path: "../env/.env",
-});
-
 const app = express();
+console.log(`ENV IS: ${app.settings.env}`);
+require("dotenv").config({
+  path: `${app.settings.env === `development` ? `./.env` : `../env/.env`}`,
+});
 
 // Init Middleware
 app.use(express.json({ extended: false }));
