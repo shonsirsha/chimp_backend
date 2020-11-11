@@ -1,3 +1,5 @@
 node_modules
 .env
+.sean.env
+.prod.env
 user_uploads

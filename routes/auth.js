@@ -8,6 +8,7 @@ const pool = require("../db/pool");
 const router = express.Router();
 const generateAccessToken = require("./utils/generateAccessToken");
 const checkIfExists = require("./utils/checkIfExists");
+const blacklistAccessToken = require("./utils/blacklistAccessToken");
 
 //@route    POST api/auth/sign-up
 //@desc     Register a user & get token + user id
@@ -194,6 +195,10 @@ router.post(
       if (!userExists) {
         return res.status(400).json({ msg: "invalid_credentials" });
       }
+      const blacklisted = await blacklistAccessToken(user_uid, accessToken);
+      if (!blacklisted) {
+        return res.status(500).json({ msg: "signout_bl_error" });
+      }
       pool.query(
         `DELETE FROM tokens WHERE user_uid='${user_uid}' AND access_token='${accessToken}'`,
         (error, _) => {
@@ -204,7 +209,7 @@ router.post(
         }
       );
     } catch (e) {
-      return res.status(500).send("Server error");
+      return res.status(500).json({ msg: "Server error", e });
     }
   }
 );
