@@ -4,7 +4,7 @@ const app = express();
 // Init Middleware
 app.use(express.json({ extended: false }));
 require("dotenv").config({
-  path: `${1 === `development` ? `./.env` : `../env/.env`}`,
+  path: `${process.env.NODE_ENV === `development` ? `./.env` : `../env/.env`}`,
 });
 
 // Define Routes
