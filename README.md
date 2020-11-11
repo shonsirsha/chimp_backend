@@ -1,5 +1,6 @@
-# CHIMP BACKEND 🦧 
-![node.js.yml Actions Status](https://github.com/shonsirsha/chimp_backend/workflows/Node.js%20CI/badge.svg)  
+# CHIMP BACKEND 🦧
+
+![node.js.yml Actions Status](https://github.com/shonsirsha/chimp_backend/workflows/Node.js%20CI/badge.svg)
 
 Developed by the best team out there 🍊🧡
 
@@ -17,20 +18,21 @@ Developed by the best team out there 🍊🧡
 
 ## Running The Server
 
-Run `npm run nodemon` or `npm run start` (please note that with the latter you have to restart your server if you do make changes in the file(s) to see effect) to run the **REST API SERVER**.
+Run `npm run nodemon` or `npm run start` (please note that with the latter you have to restart your server if you do make changes in the file(s) to see effect) to run the **RESOURCE (REST API) SERVER** & **AUTH SERVER**.
 
 Any of the command above will also automatically run the **FILE SEVER**.
 
 Default hostname is `localhost`.
 
-Default port is `5000` for **REST API SERVER**  
+Default port is `5000` for **RESOURCE (REST API) SERVER**  
+Default port is `4000` for **AUTH SERVER**  
 Default port is `7500` for **FILE SERVER**
 
 **FILE SERVER** is used to serve/host static files (mostly images, documents, and other user uploads). It is in default located at `./user_uploads`
 
 For example, to access a profile picture of a user from your application, make sure that the file server is running, and it should be located at `localhost:7500/user_uploads/somepath/profile_pic.jpg`.
 
-Default host to the REST API SERVER is `localhost:5000/api/`.  
+Default host to the RESOURCE (REST API) SERVER is `localhost:5000/api/`.  
 Default host to the FILE SERVER is `localhost:7500/` (the root directory of this repo).
 
 **Possible Error:**
@@ -61,18 +63,15 @@ After that, try to hit the endpoint that previously failed due to `token_expired
 
 On sign out, you should hit the sign out endpoint `/auth/sign-out` and then remove the `user_uid` and `token` that was saved locally in your application / client's device.
 
-## Available REST API Endpoints
+## Available Endpoints
 
 There are two types of endpoint, private and public.  
 **IMPORTANT: Private routes ALWAYS require JWT token to be sent as headers named `x-auth-token`.**  
 **JWT token can be obtained by signing in or signing up** (JWT authentication method).
 
-### /api/dev
+### **Auth Server | PORT: 4000**
 
-1. `/` - `GET` | **PUBLIC**  
-   If everything works normally, it should return A JSON object of `{"msg": "Hello World!"}` with the http status of `200`.
-
-### /api/auth
+### 1. /api/auth
 
 1. `/sign-up` - `POST` | **PUBLIC** | **USER SIGN UP**
 
@@ -151,7 +150,14 @@ There are two types of endpoint, private and public.
 
       The number of `errorObject` depends on how many data validation is present & how many is violated.
 
-### /api/user
+### **Resource Server | PORT: 5000**
+
+### 1. /api/dev
+
+1. `/` - `GET` | **PUBLIC**
+   If everything works normally, it should return A JSON object of `{"msg": "Hello World!"}` with the http status of `200`.
+
+### 2. /api/user
 
 1. `/` - `GET` | **PRIVATE** | **GET CURRENT USER DETAIL**
 
@@ -210,7 +216,7 @@ There are two types of endpoint, private and public.
    1. <a href="#err4">Query Error (#4) </a>
    2. <a href="#errors">Token Error (#2)</a>
 
-### /api/companies
+### 3. /api/companies
 
 1. `/` - `GET` | **PRIVATE** | **GET ALL COMPANIES**
 
@@ -225,7 +231,7 @@ There are two types of endpoint, private and public.
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Token Error (#2)</a>
 
-### /api/company
+### 4. /api/company
 
 1. `/` - `GET` | **PRIVATE** | **GET A SINGLE COMPANY**
 
@@ -369,7 +375,7 @@ There are two types of endpoint, private and public.
    3. `{"msg": "company_not_found"}` - when `company_uid` does not exist in the db.
    4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#companyDeleteDV">above</a> in the **Data Validation** sub-section.
 
-### /api/contacts
+### 5. /api/contacts
 
 1. `/` - `GET` | **PRIVATE** | **GET ALL CONTACTS**
 
@@ -384,7 +390,7 @@ There are two types of endpoint, private and public.
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Token Error (#2)</a>
 
-### /api/contact
+### 6. /api/contact
 
 1. `/` - `GET` | **PRIVATE** | **GET A SINGLE CONTACT**
 
@@ -546,16 +552,6 @@ There are two types of endpoint, private and public.
    2. <a href="#errors">Token Error (#2)</a>
    3. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
    4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#contactDeleteDV">above</a> in the **Data Validation** sub-section.
-
-### /api/admin
-
-1. `/all-users` - `GET` **PUBLIC** | DEPRECATED - PLEASE DON'T USE THIS ENDPOINT (Will change in the future - not usable / important for now)
-
-   **Upon successful request:** returns an **array** of (JSON) user objects `[userObject0, userObject1]` with the http status of `200`.
-
-   `userObject` is defined as `{id: "someid", user_uid: "some user_uid", email: "mail@ex.com" }`
-
-   **Upon failed request:** Returns an error object (JSON).
 
 ## Results
 
