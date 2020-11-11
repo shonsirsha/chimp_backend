@@ -21,11 +21,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run static & node server.js",
-    "nodemon": "npm run static & nodemon server.js",
+    "nodemon": "NODE_ENV=development npm run nodemon_f",
+    "nodemon_f": " npm run static & nodemon server.js & nodemon authServer",
     "static": "http-server --port 7500",
-    "prodInitLocal": "pm2 start --name rest-api-server server.js & pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d false",
-    "prodInit": "pm2 start --name rest-api-server server.js & pm2 start /usr/bin/http-server --name file-server -- -p 7500 -d false",
-    "prodRestart": "pm2 restart rest-api-server & pm2 restart file-server"
+    "prodInitLocal": "pm2 start --name rest-api-server server.js & pm2 start --name auth-server authServer.js & pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d false",
+    "prodInit": "pm2 start --name rest-api-server server.js & pm2 start --name auth-server authServer.js & pm2 start /usr/bin/http-server --name file-server -- -p 7500 -d false",
+    "prodRestart": "pm2 restart rest-api-server & pm2 restart auth-server & pm2 restart file-server"
   },
   "keywords": [],
   "author": "",
