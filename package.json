@@ -30,7 +30,7 @@
     "fileServer_DEV": "pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d",
     "authServerInit_PROD": "NODE_ENV=production pm2 start --name auth-server authServer.js",
     "restApiServerInit_PROD": "NODE_ENV=production pm2 start --name rest-api-server server.js",
-    "fileServer_PROD": "pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d",
+    "fileServer_PROD": "pm2 start /usr/bin/http-server --name file-server -- -p 7500 -d",
     "prodRestart": "pm2 restart all"
   },
   "keywords": [],
