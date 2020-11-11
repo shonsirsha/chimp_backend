@@ -113,7 +113,7 @@ There are two types of endpoint, private and public.
 
       The number of `errorObject` depends on how many data validation is present & how many is violated.
 
-3. `/new-access-token` - `POST` | **PRIVATE** | **GETTING NEW ACCESS TOKEN**
+3. `/new-access-token` - `POST` | **PRIVATE** | **GETTING NEW ACCESS TOKEN | This is the 'refresh token' endpoint**
 
    **Send from your application (`Content-Type`: `application/JSON`):** `{user_uid: "some user_uid"}`
 
