@@ -24,6 +24,7 @@ app.use("/api/companies", require("./routes/companies"));
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`REST API server started on port ${PORT}`);
+  console.log(process.env.NODE_ENV);
 });
 
 module.exports = app;
