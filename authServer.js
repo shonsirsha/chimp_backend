@@ -14,7 +14,6 @@ app.use("/api/auth", require("./routes/auth"));
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Auth server started on port ${PORT}`);
-  console.log(process.env);
 });
 
 module.exports = app;
