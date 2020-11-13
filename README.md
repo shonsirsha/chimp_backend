@@ -121,8 +121,8 @@ There are 2 types of endpoint:
 
    <span id="signUpDV">**Data validation:**</span>
 
-   1. `email` **required** & must be of correct format -> Error message: `email_fail`
-   2. `password` **required** & must be at least 6 characters long -> Error message: `password_fail`
+   1. `email` <kbd>**required**</kbd> & must be of correct format -> Error message: `email_fail`
+   2. `password` <kbd>**required**</kbd> & must be at least 6 characters long -> Error message: `password_fail`
 
    **Upon successful request:** returns `{"msg": "user registered", token: "randomJWTtoken", user_uid: "some user_uid"}` with the http status of `200`.
 
@@ -142,7 +142,7 @@ There are 2 types of endpoint:
 
    <span id="signInDV">**Data validation:**</span>
 
-   1. `email` **required** & must be of correct format -> Error message: `email_fail`
+   1. `email` <kbd>**required**</kbd> & must be of correct format -> Error message: `email_fail`
 
    **Upon successful request:** returns `{"msg": "user logged in", token: "randomJWTtoken", user_uid: "some user_uid"}` with the http status of `200`.
 
@@ -160,7 +160,7 @@ There are 2 types of endpoint:
 
    <span id="newAccTDV">**Data validation:**</span>
 
-   1. `user_uid` **required** & must not be empty -> Error message: `user_uid_fail`
+   1. `user_uid` <kbd>**required**</kbd> & must not be empty -> Error message: `user_uid_fail`
 
    **Upon successful request:** returns `{"msg": "signed_out"}` with the http status of `200`.
 
@@ -179,7 +179,7 @@ There are 2 types of endpoint:
 
    <span id="signOutDV">**Data validation:**</span>
 
-   1. `user_uid` **required** and must not be empty -> Error message: `user_uid_fail`
+   1. `user_uid` <kbd>**required**</kbd> and must not be empty -> Error message: `user_uid_fail`
 
    **Upon successful request:** returns `{"msg": "signed_out"}` with the http status of `200`.
 
@@ -222,8 +222,8 @@ There are 2 types of endpoint:
 
    <span id="updateUserProfileDV">**Data validation:**</span>
 
-   1. `first_name` **required**-> Error message: `first_name_fail`
-   2. `last_name` **required**-> Error message: `last_name_fail`
+   1. `first_name` <kbd>**required**</kbd>-> Error message: `first_name_fail`
+   2. `last_name` <kbd>**required**</kbd>-> Error message: `last_name_fail`
 
    **Upon successful request:** returns `{ "msg": "profile_detail_updated"}` with the http status of `200`.
 
@@ -281,7 +281,7 @@ There are 2 types of endpoint:
 
    <span id="getCompanyDV">**Data validation:**</span>
 
-   1. `company_uid` **required**-> On error: `{"msg": "company_uid_fail"}`
+   1. `company_uid` <kbd>**required**</kbd>-> On error: `{"msg": "company_uid_fail"}`
 
    **Upon successful request:** returns `{company: companyObject, "msg": "success"}` with the http status of `200`.
 
@@ -315,10 +315,10 @@ There are 2 types of endpoint:
 
    <span id="createCompanyDV">**Data validation:**</span>
 
-   1. `company_name` **required**-> Error message: `company_name_fail`
-   2. `company_email` **required**-> Error message: `company_email_fail`
-   3. `company_website` **required**-> Error message: `company_website_fail`
-   4. `company_phone` **required**-> Error message: `company_phone_fail`
+   1. `company_name` <kbd>**required**</kbd>-> Error message: `company_name_fail`
+   2. `company_email` <kbd>**required**</kbd>-> Error message: `company_email_fail`
+   3. `company_website` <kbd>**required**</kbd>-> Error message: `company_website_fail`
+   4. `company_phone` <kbd>**required**</kbd>-> Error message: `company_phone_fail`
 
    **Upon successful request:** returns `{ "msg": "company_created", company_uid: "someCompanyId"}` with the http status of `200`.
 
@@ -348,11 +348,11 @@ There are 2 types of endpoint:
 
    <span id="editCompanyDV">**Data validation:**</span>
 
-   1. `company_uid` **required**-> Error message: `company_name_fail`
-   2. `company_name` **required**-> Error message: `company_name_fail`
-   3. `company_email` **required**-> Error message: `company_email_fail`
-   4. `company_website` **required**-> Error message: `company_website_fail`
-   5. `company_phone` **required**-> Error message: `company_phone_fail`
+   1. `company_uid` <kbd>**required**</kbd>-> Error message: `company_name_fail`
+   2. `company_name` <kbd>**required**</kbd>-> Error message: `company_name_fail`
+   3. `company_email` <kbd>**required**</kbd>-> Error message: `company_email_fail`
+   4. `company_website` <kbd>**required**</kbd>-> Error message: `company_website_fail`
+   5. `company_phone` <kbd>**required**</kbd>-> Error message: `company_phone_fail`
 
    **Upon successful request:** returns `{ "msg": "company_created", company_uid: "someCompanyId"}` with the http status of `200`.
 
@@ -389,7 +389,7 @@ There are 2 types of endpoint:
 
    <span id="companyImageDeleteDV">**Data validation:**</span>
 
-   1. `company_uid` **required**-> Error message: `company_uid_fail`
+   1. `company_uid` <kbd>**required**</kbd>-> Error message: `company_uid_fail`
 
    **Upon successful request:** returns `{"msg": "picture_removed"}` with the http status of `200`.
 
@@ -406,7 +406,7 @@ There are 2 types of endpoint:
 
    <span id="companyDeleteDV">**Data validation:**</span>
 
-   1. `company_uid` **required**-> Error message: `company_uid_fail`
+   1. `company_uid` <kbd>**required**</kbd>-> Error message: `company_uid_fail`
 
    **Upon successful request:** returns `{"msg": "company_deleted"}` with the http status of `200`.
 
@@ -440,7 +440,7 @@ There are 2 types of endpoint:
 
    <span id="getContactDV">**Data validation:**</span>
 
-   1. `contact_uid` **required**-> On error: `{"msg": "contact_uid_fail"}`
+   1. `contact_uid` <kbd>**required**</kbd>-> On error: `{"msg": "contact_uid_fail"}`
 
    **Upon successful request:** returns `{company: contactObject, "msg": "success"}` with the http status of `200`.
 
@@ -480,14 +480,14 @@ There are 2 types of endpoint:
 
    <span id="createContactDV">**Data validation:**</span>
 
-   1. `first_name` **required**-> Error message: `first_name_fail`
-   2. `last_name` **required**-> Error message: `last_name_fail`
-   3. `phone` **required**-> Error message: `phone_fail`
-   4. `email` **required**-> Error message: `email_fail`
-   5. `dob` **required**-> Error message: `dob_fail`
-   6. `note` **required**-> Error message: `note_fail`
-   7. `company_uids` **required**-> Error message: `company_uids_fail`
-   8. `tags` **required**-> Error message: `tags_fail`
+   1. `first_name` <kbd>**required**</kbd>-> Error message: `first_name_fail`
+   2. `last_name` <kbd>**required**</kbd>-> Error message: `last_name_fail`
+   3. `phone` <kbd>**required**</kbd>-> Error message: `phone_fail`
+   4. `email` <kbd>**required**</kbd>-> Error message: `email_fail`
+   5. `dob` <kbd>**required**</kbd>-> Error message: `dob_fail`
+   6. `note` <kbd>**required**</kbd>-> Error message: `note_fail`
+   7. `company_uids` <kbd>**required**</kbd>-> Error message: `company_uids_fail`
+   8. `tags` <kbd>**required**</kbd>-> Error message: `tags_fail`
 
    **Upon successful request:** returns `{ "msg": "contact_created", contact_uid: "someContactUid"}` with the http status of `200`.
 
@@ -523,14 +523,14 @@ There are 2 types of endpoint:
 
    <span id="updateSingleContactDV">**Data validation:**</span>
 
-   1. `first_name` **required**-> Error message: `first_name_fail`
-   2. `last_name` **required**-> Error message: `last_name_fail`
-   3. `phone` **required**-> Error message: `phone_fail`
-   4. `email` **required**-> Error message: `email_fail`
-   5. `dob` **required**-> Error message: `dob_fail`
-   6. `note` **required**-> Error message: `note_fail`
-   7. `company_uids` **required**-> Error message: `company_uids_fail`
-   8. `tags` **required**-> Error message: `tags_fail`
+   1. `first_name` <kbd>**required**</kbd>-> Error message: `first_name_fail`
+   2. `last_name` <kbd>**required**</kbd>-> Error message: `last_name_fail`
+   3. `phone` <kbd>**required**</kbd>-> Error message: `phone_fail`
+   4. `email` <kbd>**required**</kbd>-> Error message: `email_fail`
+   5. `dob` <kbd>**required**</kbd>-> Error message: `dob_fail`
+   6. `note` <kbd>**required**</kbd>-> Error message: `note_fail`
+   7. `company_uids` <kbd>**required**</kbd>-> Error message: `company_uids_fail`
+   8. `tags` <kbd>**required**</kbd>-> Error message: `tags_fail`
 
    **Upon successful request:** returns `{ "msg": "contact_updated", contact_uid: "someContactId"}` with the http status of `200`.
 
@@ -567,7 +567,7 @@ There are 2 types of endpoint:
 
    <span id="contactImageDeleteDV">**Data validation:**</span>
 
-   1. `contact_uid` **required**-> Error message: `contact_uid_failed`
+   1. `contact_uid` <kbd>**required**</kbd>-> Error message: `contact_uid_failed`
 
    **Upon successful request:** returns `{"msg": "picture_removed"}` with the http status of `200`.
 
@@ -584,7 +584,7 @@ There are 2 types of endpoint:
 
    <span id="contactDeleteDV">**Data validation:**</span>
 
-   1. `contact_uid` **required**-> Error message: `contact_uid_failed`
+   1. `contact_uid` <kbd>**required**</kbd>-> Error message: `contact_uid_failed`
 
    **Upon successful request:** returns `{"msg": "contact_deleted"}` with the http status of `200`.
 
@@ -652,7 +652,7 @@ There are 2 types of endpoint:
 
 1.  For ALL `PUT` endpoints</span> please enter the data that you want to be updated and saved to the DB along with other required data.
 
-    **For example**, for `/api/user/`, if you want `lastName` to be renamed to `newLastName`, then send the full request (with all **required** and unchanged fields), such as (here `first_name` is unchanged): `{"first_name": "firstName", "last_name": "newLastName"}`.
+    **For example**, for `/api/user/`, if you want `lastName` to be renamed to `newLastName`, then send the full request (with all <kbd>**required**</kbd> and unchanged fields), such as (here `first_name` is unchanged): `{"first_name": "firstName", "last_name": "newLastName"}`.
 
     **Leaving `"first_name"` as empty string will result to updating its value to empty string in the DB, essentially removing it. So please be very careful.**
 
