@@ -117,12 +117,12 @@ There are 2 types of endpoint:
 
 1. `/sign-up` - `POST` | **PUBLIC** | **USER SIGN UP**
 
-   **Send from your application (`Content-Type`: `application/JSON`):** `{email: "email@mail.com", password: "password"}`.
+   **Sample request (`Content-Type`: `application/JSON`):** `{email: "email@mail.com", password: "password"}`.
 
    <span id="signUpDV">**Data validation:**</span>
 
-   1. `email` must be of correct format -> Error message: `email_fail`
-   2. `password` must be at least 6 characters long -> Error message: `password_fail`
+   1. `email` **required** & must be of correct format -> Error message: `email_fail`
+   2. `password` **required** & must be at least 6 characters long -> Error message: `password_fail`
 
    **Upon successful request:** returns `{"msg": "user registered", token: "randomJWTtoken", user_uid: "some user_uid"}` with the http status of `200`.
 
@@ -138,11 +138,11 @@ There are 2 types of endpoint:
 
 2. `/sign-in` - `POST` | **PUBLIC** | **USER SIGN IN**
 
-   **Send from your application (`Content-Type`: `application/JSON`):** `{email: "email@mail.com", password: "password"}`
+   **Sample request (`Content-Type`: `application/JSON`):** `{email: "email@mail.com", password: "password"}`
 
    <span id="signInDV">**Data validation:**</span>
 
-   1. `email` must be of correct format -> Error message: `email_fail`
+   1. `email` **required** & must be of correct format -> Error message: `email_fail`
 
    **Upon successful request:** returns `{"msg": "user logged in", token: "randomJWTtoken", user_uid: "some user_uid"}` with the http status of `200`.
 
@@ -156,11 +156,11 @@ There are 2 types of endpoint:
 
 3. `/new-access-token` - `POST` | **PRIVATE** | **GETTING NEW ACCESS TOKEN | This is the 'refresh token' endpoint**
 
-   **Send from your application (`Content-Type`: `application/JSON`):** `{user_uid: "some user_uid"}`
+   **Sample request (`Content-Type`: `application/JSON`):** `{user_uid: "some user_uid"}`
 
    <span id="newAccTDV">**Data validation:**</span>
 
-   1. `user_uid` must not empty -> Error message: `user_uid_fail`
+   1. `user_uid` **required** & must not be empty -> Error message: `user_uid_fail`
 
    **Upon successful request:** returns `{"msg": "signed_out"}` with the http status of `200`.
 
@@ -175,11 +175,11 @@ There are 2 types of endpoint:
 
 4. `/sign-out` - `POST` | **PRIVATE** | **USER SIGN OUT**
 
-   **Send from your application (`Content-Type`: `application/JSON`):** `{user_uid: "some user_uid"}`
+   **Sample request (`Content-Type`: `application/JSON`):** `{user_uid: "some user_uid"}`
 
    <span id="signOutDV">**Data validation:**</span>
 
-   1. `user_uid` must not be empty -> Error message: `user_uid_fail`
+   1. `user_uid` **required** and must not be empty -> Error message: `user_uid_fail`
 
    **Upon successful request:** returns `{"msg": "signed_out"}` with the http status of `200`.
 
@@ -188,7 +188,7 @@ There are 2 types of endpoint:
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Token Error (#2)</a>
    3. `{"msg": "invalid_credentials"}` - when `user_uid` does not exist in the db
-   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#signOutDV">above</a> in the **Data Validation** sub-section..
+   4. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#signOutDV">above</a> in the **Data Validation** sub-section.
 
       The number of `errorObject` depends on how many data validation is present & how many is violated.
 
@@ -203,7 +203,7 @@ There are 2 types of endpoint:
 
 1. `/` - `GET` | **PRIVATE** | **GET CURRENT USER DETAIL**
 
-   **Send from your application :** none
+   **Sample request :** none
 
    **Upon successful request:** returns `{user: userObject, "msg": "success"}` with the http status of `200`.
 
@@ -216,14 +216,14 @@ There are 2 types of endpoint:
 
 2. `/` - `PUT` | **PRIVATE** | **EDIT CURRENT USER DETAIL**
 
-   **Send from your application (`Content-Type`: `application/JSON`):** `{"first_name": "firstName", "last_name": "lastName"}`.
+   **Sample request (`Content-Type`: `application/JSON`):** `{"first_name": "firstName", "last_name": "lastName"}`.
 
    **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB along with other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
 
    <span id="updateUserProfileDV">**Data validation:**</span>
 
-   1. `first_name` must exists in the JSON request from your app -> Error message: `first_name_fail`
-   2. `last_name` must exists in the JSON request from your app -> Error message: `last_name_fail`
+   1. `first_name` **required**-> Error message: `first_name_fail`
+   2. `last_name` **required**-> Error message: `last_name_fail`
 
    **Upon successful request:** returns `{ "msg": "profile_detail_updated"}` with the http status of `200`.
 
@@ -237,7 +237,7 @@ There are 2 types of endpoint:
 
 3. `/profile-picture` - `PUT` | **PRIVATE** | **UPLOAD/UPDATE CURRENT USER'S PROFILE PICTURE**
 
-   **Send from your application (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
+   **Sample request (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
 
    **Upon successful request:** returns `{"msg": "profile_pic_updated","filePath": "localhost:7500/user_uploads/public/images/profile_pictures/some_user_uid/image.jpg"}` with the http status of `200`.
 
@@ -249,7 +249,7 @@ There are 2 types of endpoint:
 
 4. `/profile-picture` - `DELETE` | **PRIVATE** | **DELETE CURRENT USER'S PROFILE PICTURE**
 
-   **Send from your application :** none
+   **Sample request :** none
 
    **Upon successful request:** returns `{"msg": "profile_pic_removed"}` with the http status of `200`.
 
@@ -262,7 +262,7 @@ There are 2 types of endpoint:
 
 1. `/` - `GET` | **PRIVATE** | **GET ALL COMPANIES**
 
-   **Send from your application :** none
+   **Sample request :** none
 
    **Upon successful request:** returns `{companies: [companyObject0,companyObject1], "msg": "success"}` with the http status of `200`.
 
@@ -277,11 +277,11 @@ There are 2 types of endpoint:
 
 1. `/` - `GET` | **PRIVATE** | **GET A SINGLE COMPANY**
 
-   **Send from your application :** `{"company_uid": "someCompanyId"}`.
+   **Sample request :** `{"company_uid": "someCompanyId"}`.
 
    <span id="getCompanyDV">**Data validation:**</span>
 
-   1. `company_uid` must exists in the JSON request from your app -> On error: `{"msg": "company_uid_fail"}`
+   1. `company_uid` **required**-> On error: `{"msg": "company_uid_fail"}`
 
    **Upon successful request:** returns `{company: companyObject, "msg": "success"}` with the http status of `200`.
 
@@ -298,7 +298,7 @@ There are 2 types of endpoint:
 
 2. `/` - `POST` | **PRIVATE** | **CREATE A SINGLE COMPANY**
 
-   **Send from your application (`Content-Type`: `application/JSON`):**
+   **Sample request (`Content-Type`: `application/JSON`):**
 
    ```json
    {
@@ -315,10 +315,10 @@ There are 2 types of endpoint:
 
    <span id="createCompanyDV">**Data validation:**</span>
 
-   1. `company_name` must exists in the JSON request from your app -> Error message: `company_name_fail`
-   2. `company_email` must exists in the JSON request from your app -> Error message: `company_email_fail`
-   3. `company_website` must exists in the JSON request from your app -> Error message: `company_website_fail`
-   4. `company_phone` must exists in the JSON request from your app -> Error message: `company_phone_fail`
+   1. `company_name` **required**-> Error message: `company_name_fail`
+   2. `company_email` **required**-> Error message: `company_email_fail`
+   3. `company_website` **required**-> Error message: `company_website_fail`
+   4. `company_phone` **required**-> Error message: `company_phone_fail`
 
    **Upon successful request:** returns `{ "msg": "company_created", company_uid: "someCompanyId"}` with the http status of `200`.
 
@@ -332,7 +332,7 @@ There are 2 types of endpoint:
 
 3. `/` - `PUT` | **PRIVATE** | **EDIT A SINGLE COMPANY**
 
-   **Send from your application (`Content-Type`: `application/JSON`):**
+   **Sample request (`Content-Type`: `application/JSON`):**
 
    ```json
    {
@@ -348,11 +348,11 @@ There are 2 types of endpoint:
 
    <span id="editCompanyDV">**Data validation:**</span>
 
-   1. `company_uid` must exists in the JSON request from your app -> Error message: `company_name_fail`
-   2. `company_name` must exists in the JSON request from your app -> Error message: `company_name_fail`
-   3. `company_email` must exists in the JSON request from your app -> Error message: `company_email_fail`
-   4. `company_website` must exists in the JSON request from your app -> Error message: `company_website_fail`
-   5. `company_phone` must exists in the JSON request from your app -> Error message: `company_phone_fail`
+   1. `company_uid` **required**-> Error message: `company_name_fail`
+   2. `company_name` **required**-> Error message: `company_name_fail`
+   3. `company_email` **required**-> Error message: `company_email_fail`
+   4. `company_website` **required**-> Error message: `company_website_fail`
+   5. `company_phone` **required**-> Error message: `company_phone_fail`
 
    **Upon successful request:** returns `{ "msg": "company_created", company_uid: "someCompanyId"}` with the http status of `200`.
 
@@ -372,7 +372,7 @@ There are 2 types of endpoint:
    1. <a href="#whyViaURL">**Why do some endpoints require passing id via URL and not JSON?**</a>
    2. <a href="#whyUpdateTwoEndpoints">**Why are some endpoints, such as this one separated from the 'main' edit/update endpoint?**</a>
 
-   **Send from your application (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
+   **Sample request (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
 
    **Upon successful request:** returns `{"msg": "picture_updated","filePath": "localhost:7500/user_uploads/public/images/company_image/someCompanyId/image.jpg"}` with the http status of `200`.
 
@@ -385,11 +385,11 @@ There are 2 types of endpoint:
 
 5. `/image` - `DELETE` | **PRIVATE** | **DELETE AN IMAGE OF A COMPANY**
 
-   **Send from your application :** `{"company_uid": "someCompanyId"}`
+   **Sample request :** `{"company_uid": "someCompanyId"}`
 
    <span id="companyImageDeleteDV">**Data validation:**</span>
 
-   1. `company_uid` must exists in the JSON request from your app -> Error message: `company_uid_fail`
+   1. `company_uid` **required**-> Error message: `company_uid_fail`
 
    **Upon successful request:** returns `{"msg": "picture_removed"}` with the http status of `200`.
 
@@ -402,11 +402,11 @@ There are 2 types of endpoint:
 
 6. `/` - `DELETE` | **PRIVATE** | **DELETE A COMPANY**
 
-   **Send from your application :** `{"company_uid": "someCompanyId"}`
+   **Sample request :** `{"company_uid": "someCompanyId"}`
 
    <span id="companyDeleteDV">**Data validation:**</span>
 
-   1. `company_uid` must exists in the JSON request from your app -> Error message: `company_uid_fail`
+   1. `company_uid` **required**-> Error message: `company_uid_fail`
 
    **Upon successful request:** returns `{"msg": "company_deleted"}` with the http status of `200`.
 
@@ -421,7 +421,7 @@ There are 2 types of endpoint:
 
 1. `/` - `GET` | **PRIVATE** | **GET ALL CONTACTS**
 
-   **Send from your application :** none
+   **Sample request :** none
 
    **Upon successful request:** returns `{contacts: [contactObject0,contactObject1], "msg": "success"}` with the http status of `200`.
 
@@ -436,11 +436,11 @@ There are 2 types of endpoint:
 
 1. `/` - `GET` | **PRIVATE** | **GET A SINGLE CONTACT**
 
-   **Send from your application :** `{"contact_uid": "someContactUid"}`.
+   **Sample request :** `{"contact_uid": "someContactUid"}`.
 
    <span id="getContactDV">**Data validation:**</span>
 
-   1. `contact_uid` must exists in the JSON request from your app -> On error: `{"msg": "contact_uid_fail"}`
+   1. `contact_uid` **required**-> On error: `{"msg": "contact_uid_fail"}`
 
    **Upon successful request:** returns `{company: contactObject, "msg": "success"}` with the http status of `200`.
 
@@ -457,7 +457,7 @@ There are 2 types of endpoint:
 
 2. `/` - `POST` | **PRIVATE** | **CREATE A SINGLE CONTACT**
 
-   **Send from your application (`Content-Type`: `application/JSON`):**
+   **Sample request (`Content-Type`: `application/JSON`):**
 
    ```json
    {
@@ -480,14 +480,14 @@ There are 2 types of endpoint:
 
    <span id="createContactDV">**Data validation:**</span>
 
-   1. `first_name` must exists in the JSON request from your app -> Error message: `first_name_fail`
-   2. `last_name` must exists in the JSON request from your app -> Error message: `last_name_fail`
-   3. `phone` must exists in the JSON request from your app -> Error message: `phone_fail`
-   4. `email` must exists in the JSON request from your app -> Error message: `email_fail`
-   5. `dob` must exists in the JSON request from your app -> Error message: `dob_fail`
-   6. `note` must exists in the JSON request from your app -> Error message: `note_fail`
-   7. `company_uids` must exists in the JSON request from your app -> Error message: `company_uids_fail`
-   8. `tags` must exists in the JSON request from your app -> Error message: `tags_fail`
+   1. `first_name` **required**-> Error message: `first_name_fail`
+   2. `last_name` **required**-> Error message: `last_name_fail`
+   3. `phone` **required**-> Error message: `phone_fail`
+   4. `email` **required**-> Error message: `email_fail`
+   5. `dob` **required**-> Error message: `dob_fail`
+   6. `note` **required**-> Error message: `note_fail`
+   7. `company_uids` **required**-> Error message: `company_uids_fail`
+   8. `tags` **required**-> Error message: `tags_fail`
 
    **Upon successful request:** returns `{ "msg": "contact_created", contact_uid: "someContactUid"}` with the http status of `200`.
 
@@ -504,7 +504,7 @@ There are 2 types of endpoint:
 
 3. `/` - `PUT` | **PRIVATE** | **EDIT A SINGLE CONTACT**
 
-   **Send from your application (`Content-Type`: `application/JSON`):**
+   **Sample request (`Content-Type`: `application/JSON`):**
 
    ```json
    {
@@ -523,14 +523,14 @@ There are 2 types of endpoint:
 
    <span id="updateSingleContactDV">**Data validation:**</span>
 
-   1. `first_name` must exists in the JSON request from your app -> Error message: `first_name_fail`
-   2. `last_name` must exists in the JSON request from your app -> Error message: `last_name_fail`
-   3. `phone` must exists in the JSON request from your app -> Error message: `phone_fail`
-   4. `email` must exists in the JSON request from your app -> Error message: `email_fail`
-   5. `dob` must exists in the JSON request from your app -> Error message: `dob_fail`
-   6. `note` must exists in the JSON request from your app -> Error message: `note_fail`
-   7. `company_uids` must exists in the JSON request from your app -> Error message: `company_uids_fail`
-   8. `tags` must exists in the JSON request from your app -> Error message: `tags_fail`
+   1. `first_name` **required**-> Error message: `first_name_fail`
+   2. `last_name` **required**-> Error message: `last_name_fail`
+   3. `phone` **required**-> Error message: `phone_fail`
+   4. `email` **required**-> Error message: `email_fail`
+   5. `dob` **required**-> Error message: `dob_fail`
+   6. `note` **required**-> Error message: `note_fail`
+   7. `company_uids` **required**-> Error message: `company_uids_fail`
+   8. `tags` **required**-> Error message: `tags_fail`
 
    **Upon successful request:** returns `{ "msg": "contact_updated", contact_uid: "someContactId"}` with the http status of `200`.
 
@@ -550,7 +550,7 @@ There are 2 types of endpoint:
    1. <a href="#whyViaURL">**Why do some endpoints require passing id via URL and not JSON?**</a>
    2. <a href="#whyUpdateTwoEndpoints">**Why are some endpoints, such as this one separated from the 'main' edit/update endpoint?**</a>
 
-   **Send from your application (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
+   **Sample request (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
 
    **Upon successful request:** returns `{"msg": "picture_updated", "filePath": "localhost:7500/user_uploads/public/images/contact_image/someContactID/image.jpg"}` with the http status of `200`.
 
@@ -563,11 +563,11 @@ There are 2 types of endpoint:
 
 5. `/image` - `DELETE` | **PRIVATE** | **DELETE AN IMAGE OF A CONTACT**
 
-   **Send from your application :** `{"contact_uid": "someCompanyId"}`
+   **Sample request :** `{"contact_uid": "someCompanyId"}`
 
    <span id="contactImageDeleteDV">**Data validation:**</span>
 
-   1. `contact_uid` must exists in the JSON request from your app -> Error message: `contact_uid_failed`
+   1. `contact_uid` **required**-> Error message: `contact_uid_failed`
 
    **Upon successful request:** returns `{"msg": "picture_removed"}` with the http status of `200`.
 
@@ -580,11 +580,11 @@ There are 2 types of endpoint:
 
 6. `/` - `DELETE` | **PRIVATE** | **DELETE A COMPANY**
 
-   **Send from your application :** `{"contact_uid": "someContactUID"}`
+   **Sample request :** `{"contact_uid": "someContactUID"}`
 
    <span id="contactDeleteDV">**Data validation:**</span>
 
-   1. `contact_uid` must exists in the JSON request from your app -> Error message: `contact_uid_failed`
+   1. `contact_uid` **required**-> Error message: `contact_uid_failed`
 
    **Upon successful request:** returns `{"msg": "contact_deleted"}` with the http status of `200`.
 
