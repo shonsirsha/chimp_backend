@@ -88,8 +88,8 @@ router.post(
       const company_uid = `company-${uuidv4()}`;
 
       pool.query(
-        `INSERT INTO companies(user_uid, company_uid, company_name, company_email, company_website, company_phone, picture) 
-        VALUES('${user_uid}','${company_uid}' ,'${company_name}', '${company_email}', '${company_website}', '${company_phone}' ,'')`,
+        `INSERT INTO companies(user_uid, company_uid, company_name, company_email, company_website, company_phone, picture, created_at) 
+        VALUES('${user_uid}','${company_uid}' ,'${company_name}', '${company_email}', '${company_website}', '${company_phone}' ,'', '${Date.now()}')`,
         (err) => {
           if (err) {
             return res.status(400).json(err);
