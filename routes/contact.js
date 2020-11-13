@@ -15,8 +15,7 @@ const router = express.Router();
 const generateAccessToken = require("./utils/generateAccessToken");
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
-const checkCacheExists = require("./utils/caching/checkCacheExists");
-
+const setLastCacheTime = require("./utils/caching/setLastCacheTime");
 //@route    GET api/contact
 //@desc     Get a contact for currently logged in user
 //@access   Private
@@ -150,45 +149,35 @@ router.post(
               } else {
                 pool.query(
                   `INSERT INTO company_contact(contact_uid,company_uid) VALUES( '${contact_uid}', '${uid}')`,
-                  (err) => {
+                  async (err) => {
                     if (err) {
                       return res.status(400).json(err);
                     }
-                    HSET_ASYNC("lastWrite", [user_uid, Date.now()]).then(
-                      (err) => {
-                        console.log(err);
-                        if (!err) {
-                          return res
-                            .status(200)
-                            .json({ msg: "contact_added", contact_uid });
-                        }
-                      }
+                    const setLastWriteContact = await setLastCacheTime(
+                      "lastWrite",
+                      user_uid
                     );
-
-                    return res
-                      .status(400)
-                      .json({ msg: "cache_error_contact_added" });
+                    if (setLastWriteContact) {
+                      return res
+                        .status(200)
+                        .json({ msg: "contact_added", contact_uid });
+                    }
+                    return res.status(400).json({ msg: "caching_error" });
                   }
                 );
               }
             });
           } else {
-            const cacheExists = await checkCacheExists(
-              "lastWriteContacts",
+            const setLastWriteContact = await setLastCacheTime(
+              "lastWrite",
               user_uid
             );
-            HSET_ASYNC("lastWriteContacts", [user_uid, Date.now()])
-              .then((result) => {
-                if (result) {
-                  return res
-                    .status(200)
-                    .json({ msg: "contact_added", contact_uid });
-                }
-                return res.status(200).json({ msg: "redis_error_value_avail" });
-              })
-              .catch((e) => {
-                return res.status(200).json({ msg: "redis_error_unexpected" });
-              });
+            if (setLastWriteContact) {
+              return res
+                .status(200)
+                .json({ msg: "contact_added", contact_uid });
+            }
+            return res.status(400).json({ msg: "caching_error" });
           }
         }
       );
