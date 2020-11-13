@@ -3,12 +3,19 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
+const { promisify } = require("util");
+const redis = require("redis");
+const redisClient = redis.createClient(process.env.REDIS_PORT);
+const HSET_ASYNC = promisify(redisClient.hset).bind(redisClient);
+const HGET_ASYNC = promisify(redisClient.hget).bind(redisClient);
+const DEL_ASYNC = promisify(redisClient.del).bind(redisClient);
 const auth = require("../middleware/auth");
 const pool = require("../db/pool");
 const router = express.Router();
 const generateAccessToken = require("./utils/generateAccessToken");
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
+const checkCacheExists = require("./utils/caching/checkCacheExists");
 
 //@route    GET api/contact
 //@desc     Get a contact for currently logged in user
@@ -112,7 +119,7 @@ router.post(
 
       pool.query(
         `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture, created_at) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '', '${Date.now()}')`,
-        (err) => {
+        async (err) => {
           if (err) {
             return res.status(400).json(err);
           }
@@ -147,15 +154,41 @@ router.post(
                     if (err) {
                       return res.status(400).json(err);
                     }
+                    HSET_ASYNC("lastWrite", [user_uid, Date.now()]).then(
+                      (err) => {
+                        console.log(err);
+                        if (!err) {
+                          return res
+                            .status(200)
+                            .json({ msg: "contact_added", contact_uid });
+                        }
+                      }
+                    );
+
                     return res
-                      .status(200)
-                      .json({ msg: "contact_added", contact_uid });
+                      .status(400)
+                      .json({ msg: "cache_error_contact_added" });
                   }
                 );
               }
             });
           } else {
-            return res.status(200).json({ msg: "contact_added", contact_uid });
+            const cacheExists = await checkCacheExists(
+              "lastWriteContacts",
+              user_uid
+            );
+            HSET_ASYNC("lastWriteContacts", [user_uid, Date.now()])
+              .then((result) => {
+                if (result) {
+                  return res
+                    .status(200)
+                    .json({ msg: "contact_added", contact_uid });
+                }
+                return res.status(200).json({ msg: "redis_error_value_avail" });
+              })
+              .catch((e) => {
+                return res.status(200).json({ msg: "redis_error_unexpected" });
+              });
           }
         }
       );
