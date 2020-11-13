@@ -2,37 +2,71 @@
 
 ![node.js.yml Actions Status](https://github.com/shonsirsha/chimp_backend/workflows/Node.js%20CI/badge.svg)
 
-Developed by the best team out there 🍊🧡
+## 🤔 What is this?
 
-## Before You Start
+This is a repository for the whole backend system of [Chimp](https://chimp.berlin).
 
-⭐ All JS commands should be ran inside the `root` directory.
+**Diagram of the architecture:** [here](https://drive.google.com/file/d/1-zBZvMvPhNoW6tBzohsQTM9wCHL3ufvc/view?usp=sharing)
+
+**Table of content:**
+
+[1. Technology Stack](#tech-stack)  
+[2. Get Started](#get-started)  
+[3. Authorisation & Authentication Method](#authmethod)  
+[4. Available Endpoints](#endpoints)  
+[5. Possible Errors](#errors)
+
+## Technology Stack <a id="tech-stack"></a>
+
+We are mainly powered by Javascript.
+These the 'main' technologies that we are currently using:
+
+[1. Node.JS](https://nodejs.org/en/) (API built using [ExpressJS](https://nodejs.org/en/))  
+[2. PostgreSQL](https://nodejs.org/en/) (primary DB)  
+[3. Redis](https://nodejs.org/en/) (mainly as a cache storage)  
+[4. pm2](https://nodejs.org/en/) (to monitor and manage our Node.JS apps - this is an optional module but we are using it in production)
+
+## Get Started <a id="get-started"></a>
+
+There are currently two possible ways to use our backend 'app':  
+[1. Run it on your own machine / locally](#locally). If it's your first time doing this, it's recommended to [read this first.](#locally-before)
+
+[2. Remotely from our server - basically using a live version of it.](#remotely)
+
+## Before Running The App Locally <a id="locally-before"></a>
+
+⭐ **To run and use the app locally**, please make sure to have everything on our tech stack installed.
+
+⭐ The pm2 module is not compulsory. However, it would be best to have it installed (globally in your machine) to be able to run all the scripts available in `package.json` & really simulate what we have up and running in our server within your own machine.
+
+⭐ All JS commands should be ran inside the `root` `(./)` directory.
 
 ⭐ After every `pull` (or the initial `clone`) to this repo, please run `npm install` (just in case some new module has been added) this is to make sure you have everything installed.
 
-⭐ Please edit the **database detail/config and other vars** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine (this secret is not going to be used in prod).
+⭐ Please edit the **database detail/config and other vars** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine.
 
-⭐ Database file (.sql) `chimp_db.sql` is included in the root folder. Feel free to restore / import it to your own machine/server. If you feel more comfortable creating one yourself (instead of importing), check out the file `db.text` included in the root folder.
+⭐ Database file (.sql) `chimp_db.sql` is included in the `root` directory. Feel free to restore / import it to your own machine/server.
 
-⭐ Please see how the authentication method works and the reccomended practice <a href="#authMethod">below</a>.
+## Running The App Locally <a id="locally"></a>
 
-## Running The Server
+Assuming you are inside the root directory of this app and:
 
-Run `npm run nodemon` or `npm run start` (please note that with the latter you have to restart your server if you do make changes in the file(s) to see effect) to run the **RESOURCE (REST API) SERVER** & **AUTH SERVER**.
+1. Have pm2 installed, execute the command: `npm run prodInitLocal`
+2. Don't have pm2 installed, execute the command: `npm run nodemon` or `npm run start`. Please note that with the latter you have to restart your server if you do any changess in the file(s) to see effect.
 
 Any of the command above will also automatically run the **FILE SEVER**.
 
 Default hostname is `localhost`.
 
-Default port is `5000` for **RESOURCE (REST API) SERVER**  
+Default port is `5000` for **RESOURCE SERVER**  
 Default port is `4000` for **AUTH SERVER**  
 Default port is `7500` for **FILE SERVER**
 
-**FILE SERVER** is used to serve/host static files (mostly images, documents, and other user uploads). It is in default located at `./user_uploads`
+**FILE SERVER** is used to serve/host static files (mostly images, documents, and other user uploads).
 
 For example, to access a profile picture of a user from your application, make sure that the file server is running, and it should be located at `localhost:7500/user_uploads/somepath/profile_pic.jpg`.
 
-Default host to the RESOURCE (REST API) SERVER is `localhost:5000/api/`.  
+Default host to the RESOURCE SERVER is `localhost:5000/api/`.  
 Default host to the FILE SERVER is `localhost:7500/` (the root directory of this repo).
 
 **Possible Error:**
@@ -41,17 +75,21 @@ Default host to the FILE SERVER is `localhost:7500/` (the root directory of this
 
 To make sure everything works normally, do a `GET` request to this endpoint `/api/dev` (full URL endpoint: `localhost:5000/api/dev`) - it should return JSON object `{"msg": "Hello World!"}` with the http status of `200`.
 
-## <span id="authMethod">Authentication</span>
+## Using the App Remotely <a id="remotely"></a>
 
-User signs up by hitting the `/api/auth/sign-up` endpoint. User is automatically authenticated (signed in) after this - OR - User signs in by hitting the `/api/auth/sign-in` endpoint. This returns (jwt) `token` and `user_uid`. Store these two in `localStorage` (web app) or (maybe) `Core Data` (in iOS).
+To use the app remotely, you can simply visit http://167.99.136.248/:PORT/ANY where `port` and `any` can be found on the [available endpoints section.](#endpoints)
 
-The reason for saving `user_uid` is because it is used on very few endpoints that does not require a fresh (not-expired) `token`. Read more on <a href="#authFlow">authentication flow</a>.
+## Authentication & Authorisation <a id="authmethod"></a>
+
+User signs up by hitting the `/api/auth/sign-up` endpoint. User is automatically authenticated and authorised (signed in) after this - OR - User signs in by hitting the `/api/auth/sign-in` endpoint. This returns (jwt) `token` and `user_uid`. Store these two in `Core Data` (in macOS/iOS).
+
+The reason for still saving `user_uid` while we already have an (access) `token`is because `user_uid` is used on endpoints (very few, currently) that does not require a fresh (not-expired) `token`. Read more on <a href="#authFlow">authentication flow</a>.
 
 Following the best practices of JWT authentication method, the access token (what is saved locally in the frontend) has a short expiration time (15 minutes).
 
 For testing/development purposes you may modify this expiration time to a different value - for seconds just put integer. E.g: 30 (this is 30 seconds).
 
-To modify it, please modify the `expiresIn` property in `./routes/utilsgenerateAccessToken.js` file.
+To modify it, you may edit the `expiresIn` property in `./routes/utilsgenerateAccessToken.js` file.
 
 ### <span id="authFlow">Authentication Flow</span>
 
@@ -63,9 +101,13 @@ After that, try to hit the endpoint that previously failed due to `token_expired
 
 On sign out, you should hit the sign out endpoint `/auth/sign-out` and then remove the `user_uid` and `token` that was saved locally in your application / client's device.
 
-## Available Endpoints
+## Available Endpoints <a id="endpoints"></a>
 
-There are two types of endpoint, private and public.  
+There are 2 types of endpoint:
+
+1. Private
+2. Public
+
 **IMPORTANT: Private routes ALWAYS require JWT token to be sent as headers named `x-auth-token`.**  
 **JWT token can be obtained by signing in or signing up** (JWT authentication method).
 
@@ -632,13 +674,13 @@ There are two types of endpoint, private and public.
 
     However, this means the client (your app) has to somehow turn the JSON request into a file first (.json). The two (or more) then are going to be separated in the backend.
 
-## Errors
+## Errors <a id="errors"></a>
 
 1. All non-invalid request errors (any error coming from the backend itself) such as: server error, query error, etc will result in http status of `500` with the msg of `Server Error`.
 
 2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{"msg": "token_invalid"}` (fake/wrong token) or `{"msg": "token_expired"}` (expired token) or `{"msg": "unauthorised"}` (no token sent) with the http status of `401`.
 
-3. <span id="err3">Error:</span> **`listen EADDRINUSE: address already in use 0.0.0.0:7500<`**
+3. <span id="err3">Error:</span> **`listen EADDRINUSE: address already in use 0.0.0.0:7500`**
 
    This means that the port 7500 is being used. Please close any program that uses that port.</span>
 
