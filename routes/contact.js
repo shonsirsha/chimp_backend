@@ -3,16 +3,9 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
-const { promisify } = require("util");
-const redis = require("redis");
-const redisClient = redis.createClient(process.env.REDIS_PORT);
-const HSET_ASYNC = promisify(redisClient.hset).bind(redisClient);
-const HGET_ASYNC = promisify(redisClient.hget).bind(redisClient);
-const DEL_ASYNC = promisify(redisClient.del).bind(redisClient);
 const auth = require("../middleware/auth");
 const pool = require("../db/pool");
 const router = express.Router();
-const generateAccessToken = require("./utils/generateAccessToken");
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
 const setLastCacheTime = require("./utils/caching/setLastCacheTime");
@@ -158,11 +151,11 @@ router.post(
                     if (err) {
                       return res.status(400).json(err);
                     }
-                    const setLastWriteContact = await setLastCacheTime(
-                      "lastWrite",
+                    const setLastWrite = await setLastCacheTime(
+                      "lastContactWriteToDb",
                       user_uid
                     );
-                    if (setLastWriteContact) {
+                    if (setLastWrite) {
                       return res
                         .status(200)
                         .json({ msg: "contact_added", contact_uid });
@@ -173,11 +166,11 @@ router.post(
               }
             });
           } else {
-            const setLastWriteContact = await setLastCacheTime(
-              "lastWrite",
+            const setLastWrite = await setLastCacheTime(
+              "lastContactWriteToDb",
               user_uid
             );
-            if (setLastWriteContact) {
+            if (setLastWrite) {
               return res
                 .status(200)
                 .json({ msg: "contact_added", contact_uid });
@@ -304,11 +297,11 @@ router.put(
                         }
 
                         if (processed === company_uids.length) {
-                          const setLastWriteContact = await setLastCacheTime(
-                            "lastWrite",
+                          const setLastWrite = await setLastCacheTime(
+                            "lastContactWriteToDb",
                             user_uid
                           );
-                          if (setLastWriteContact) {
+                          if (setLastWrite) {
                             return res
                               .status(200)
                               .json({ msg: "contact_updated", contact_uid });
@@ -320,11 +313,11 @@ router.put(
                   }
                 });
               } else {
-                const setLastWriteContact = await setLastCacheTime(
-                  "lastWrite",
+                const setLastWrite = await setLastCacheTime(
+                  "lastContactWriteToDb",
                   user_uid
                 );
-                if (setLastWriteContact) {
+                if (setLastWrite) {
                   return res
                     .status(200)
                     .json({ msg: "contact_updated", contact_uid });
@@ -384,11 +377,11 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
         `UPDATE contacts SET picture='${newFileName}' WHERE contact_uid='${contact_uid}'`,
         async (err) => {
           if (!err) {
-            const setLastWriteContact = await setLastCacheTime(
-              "lastWrite",
+            const setLastWrite = await setLastCacheTime(
+              "lastContactWriteToDb",
               user_uid
             );
-            if (setLastWriteContact) {
+            if (setLastWrite) {
               return res.status(200).json({
                 msg: "picture_updated",
                 picture: `${process.env.FILE_SERVER_HOST}/${dir}/${newFileName}`,
@@ -445,11 +438,11 @@ router.delete(
           "contact_uid"
         );
 
-        const setLastWriteContact = await setLastCacheTime(
-          "lastWrite",
+        const setLastWrite = await setLastCacheTime(
+          "lastContactWriteToDb",
           user_uid
         );
-        if (setLastWriteContact) {
+        if (setLastWrite) {
           return res.status(200).json({ msg: "picture_removed" });
         }
         return res.status(400).json({ msg: "caching_error" });
@@ -496,11 +489,11 @@ router.delete(
             return res.status(400).json(err);
           }
 
-          const setLastWriteContact = await setLastCacheTime(
-            "lastWrite",
+          const setLastWrite = await setLastCacheTime(
+            "lastContactWriteToDb",
             user_uid
           );
-          if (setLastWriteContact) {
+          if (setLastWrite) {
             return res.status(200).json({ msg: "contact_deleted" });
           }
           return res.status(400).json({ msg: "caching_error" });
