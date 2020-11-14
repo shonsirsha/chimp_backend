@@ -23,15 +23,20 @@ router.get("/", auth, async (req, res) => {
       return res.status(400).json({ msg: "user_not_found" });
     }
     let { rows } = await pool.query(
-      `SELECT * FROM contacts WHERE user_uid='${user_uid}' ORDER BY id ASC`
+      `SELECT * FROM contacts WHERE user_uid='${user_uid}' ORDER BY contacts.created_at ASC`
     );
     if (rows.length > 0) {
       let processed = 0;
 
       rows.forEach((contact, ix) => {
+        let { picture, contact_uid } = contact;
+        if (picture !== "") {
+          let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
+          contact.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${picture}`;
+        }
         pool.query(
           //get all tags for this person
-          `SELECT tag FROM tag_contact WHERE contact_uid='${contact.contact_uid}' AND user_uid='${user_uid}'`,
+          `SELECT tag FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
           (err, result) => {
             // result.rows gives the tag
 
