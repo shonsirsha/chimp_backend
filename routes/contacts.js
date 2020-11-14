@@ -103,7 +103,7 @@ router.get("/", auth, async (req, res) => {
         getAllContacts(user_uid, res);
       }
 
-      return res.status(200).json({ msg: "success_R", contacts });
+      return res.status(200).json({ msg: "success", contacts });
     } else {
       getAllContacts(user_uid, res);
     }
