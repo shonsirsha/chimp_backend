@@ -43,7 +43,7 @@ There are currently two possible ways to use our backend 'app':
 
 ⭐ After every `pull` (or the initial `clone`) to this repo, please run `npm install` (just in case some new module has been added) this is to make sure you have everything installed.
 
-⭐ Please edit the **database detail/config and other vars** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine.
+⭐ Please edit **ALL of the environment variables used in this app** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine.
 
 ⭐ Database file (.sql) `chimp_db.sql` is included in the `root` directory. Feel free to restore / import it to your own machine/server.
 
@@ -89,7 +89,7 @@ Following the best practices of JWT authentication method, the access token (wha
 
 For testing/development purposes you may modify this expiration time to a different value - for seconds just put integer. E.g: 30 (this is 30 seconds).
 
-To modify it, you may edit the `expiresIn` property in `./routes/utilsgenerateAccessToken.js` file.
+To modify it, you may edit `JWT_EXPR_TIME` in your `.env` file.
 
 ### <span id="authFlow">Authentication Flow</span>
 
