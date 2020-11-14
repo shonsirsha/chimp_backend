@@ -23,7 +23,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run static & node server.js",
-    "nodemon": "NODE_ENV=development && npm run static && nodemon server.js && nodemon authServer",
+    "nodemon": "npm run static & nodemon server.js & nodemon authServer",
     "static": "http-server --port 7500",
     "prodInitLocal": "pm2 kill && npm run authServerInit_DEV && npm run restApiServerInit_DEV && npm run fileServer_DEV",
     "prodInit": "pm2 kill && npm run authServerInit_PROD && npm run restApiServerInit_PROD && npm run fileServer_PROD",
