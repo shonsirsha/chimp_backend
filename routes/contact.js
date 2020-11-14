@@ -51,6 +51,11 @@ router.get(
         `SELECT * FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`
       );
 
+      if (rows[0].picture !== "") {
+        let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
+        rows[0].picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
+      }
+
       const tagsFromDb = await pool.query(
         `SELECT tag FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`
       );
