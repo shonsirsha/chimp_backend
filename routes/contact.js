@@ -271,7 +271,7 @@ router.put(
           }
           pool.query(
             `DELETE FROM company_contact WHERE contact_uid='${contact_uid}'`, // deleting all relation of company-contact
-            (err) => {
+            async (err) => {
               if (err) {
                 return res.status(400).json(err);
               }
@@ -292,25 +292,39 @@ router.put(
                   } else {
                     pool.query(
                       `INSERT INTO company_contact(contact_uid, company_uid) VALUES('${contact_uid}', '${uid}')`,
-                      (err) => {
+                      async (err) => {
                         // re inserting it back from the company_uid arr supplied by the user...
                         if (err) {
                           return res.status(400).json(err);
                         }
 
                         if (processed === company_uids.length) {
-                          return res
-                            .status(200)
-                            .json({ msg: "contact_updated", contact_uid });
+                          const setLastWriteContact = await setLastCacheTime(
+                            "lastWrite",
+                            user_uid
+                          );
+                          if (setLastWriteContact) {
+                            return res
+                              .status(200)
+                              .json({ msg: "contact_updated", contact_uid });
+                          }
+                          return res.status(400).json({ msg: "caching_error" });
                         }
                       }
                     );
                   }
                 });
               } else {
-                return res
-                  .status(200)
-                  .json({ msg: "contact_updated", contact_uid });
+                const setLastWriteContact = await setLastCacheTime(
+                  "lastWrite",
+                  user_uid
+                );
+                if (setLastWriteContact) {
+                  return res
+                    .status(200)
+                    .json({ msg: "contact_updated", contact_uid });
+                }
+                return res.status(400).json({ msg: "caching_error" });
               }
             }
           );

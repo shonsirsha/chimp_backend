@@ -6,7 +6,7 @@
 
 This is a repository for the whole backend system of [Chimp](https://chimp.berlin).
 
-**Diagram of the architecture:** [here](https://drive.google.com/file/d/1-zBZvMvPhNoW6tBzohsQTM9wCHL3ufvc/view?usp=sharing)
+**Diagram of the architecture:** [here](https://drive.google.com/file/d/1BM3qmFSrH6e16m6yVba5k6RmKyJ7f2fg/view?usp=sharing)
 
 **Table of content:**
 
