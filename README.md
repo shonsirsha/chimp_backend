@@ -20,12 +20,12 @@ This is a repository for the whole backend system of [Chimp](https://chimp.berli
 
 ## Technology Stack <a id="tech-stack"></a>
 
-We are mainly powered by Javascript.
-These the 'main' technologies that we are currently using:
+This backend app is mainly built in Javascript.
+These are the 'main' technologies that we are currently using:
 
 [1. Node.JS](https://nodejs.org/en/) (API built using [ExpressJS](https://nodejs.org/en/))  
-[2. PostgreSQL](https://nodejs.org/en/) (primary DB)  
-[3. Redis](https://nodejs.org/en/) (mainly as a cache storage)  
+[2. PostgreSQL](https://www.postgresql.org/) (primary DB)  
+[3. Redis](https://redis.io/) (mainly as a cache storage - [how we use redis](#how-redis))  
 [4. pm2](https://nodejs.org/en/) (to monitor and manage our Node.JS apps - this is an optional module but we are using it in production)
 
 ## Get Started <a id="get-started"></a>
@@ -48,6 +48,8 @@ There are currently two possible ways to use our backend 'app':
 ⭐ Please edit **ALL of the environment variables used in this app** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine.
 
 ⭐ Database file (.sql) `chimp_db.sql` is included in the `root` directory. Feel free to restore / import it to your own machine/server.
+
+⭐ To test our API using [Postman](https://www.postman.com/), a collection file (JSON) for all endpoints is available in the root directory.
 
 ## Running The App Locally <a id="locally"></a>
 
@@ -676,7 +678,7 @@ There are 2 types of endpoint:
 
     However, this means the client (your app) has to somehow turn the JSON request into a file first (.json). The two (or more) then are going to be separated in the backend.
 
-4.  **<span id="how-redis">How is Redis used in this app?</span>**  
+4.  **<span id="how-redis">How is Redis used in this app?</span>** <a id="how-redis"></a>
     Currently, we mainly use Redis for two "things":
 
     1. To store blacklisted tokens.
