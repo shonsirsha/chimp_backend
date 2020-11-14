@@ -377,12 +377,19 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
       //updates in in db
       pool.query(
         `UPDATE contacts SET picture='${newFileName}' WHERE contact_uid='${contact_uid}'`,
-        (err) => {
+        async (err) => {
           if (!err) {
-            return res.status(200).json({
-              msg: "picture_updated",
-              picture: `${process.env.FILE_SERVER_HOST}/${dir}/${newFileName}`,
-            });
+            const setLastWriteContact = await setLastCacheTime(
+              "lastWrite",
+              user_uid
+            );
+            if (setLastWriteContact) {
+              return res.status(200).json({
+                msg: "picture_updated",
+                picture: `${process.env.FILE_SERVER_HOST}/${dir}/${newFileName}`,
+              });
+            }
+            return res.status(400).json({ msg: "caching_error" });
           } else {
             return res.status(400).json(error);
           }
@@ -390,7 +397,7 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
       );
     });
   } catch (e) {
-    return res.status(500).send("Server error");
+    return res.status(500).json({ msg: "Server error", e });
   }
 });
 
@@ -432,7 +439,15 @@ router.delete(
           "picture",
           "contact_uid"
         );
-        return res.status(200).json({ msg: "picture_removed" });
+
+        const setLastWriteContact = await setLastCacheTime(
+          "lastWrite",
+          user_uid
+        );
+        if (setLastWriteContact) {
+          return res.status(200).json({ msg: "picture_removed" });
+        }
+        return res.status(400).json({ msg: "caching_error" });
       }
     } catch (e) {
       return res.status(500).send("Server error");
@@ -471,11 +486,19 @@ router.delete(
         DELETE FROM company_contact WHERE contact_uid='${contact_uid}';
         DELETE FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}';
         `,
-        (err) => {
+        async (err) => {
           if (err) {
             return res.status(400).json(err);
           }
-          return res.status(200).json({ msg: "contact_deleted" });
+
+          const setLastWriteContact = await setLastCacheTime(
+            "lastWrite",
+            user_uid
+          );
+          if (setLastWriteContact) {
+            return res.status(200).json({ msg: "contact_deleted" });
+          }
+          return res.status(400).json({ msg: "caching_error" });
         }
       );
     } catch (e) {
