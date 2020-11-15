@@ -14,16 +14,18 @@ This is a repository for the whole backend system of [Chimp](https://chimp.berli
 [2. Get Started](#get-started)  
 [3. Authorisation & Authentication Method](#authmethod)  
 [4. Available Endpoints](#endpoints)  
-[5. Possible Errors](#errors)
+[5. Result types](#results)  
+[6. General Knwoledge Board / Miscellaneous Infos](#general)  
+[7. Possible Errors](#errors)
 
 ## Technology Stack <a id="tech-stack"></a>
 
-We are mainly powered by Javascript.
-These the 'main' technologies that we are currently using:
+This backend app is mainly built in Javascript.
+These are the 'main' technologies that we are currently using:
 
 [1. Node.JS](https://nodejs.org/en/) (API built using [ExpressJS](https://nodejs.org/en/))  
-[2. PostgreSQL](https://nodejs.org/en/) (primary DB)  
-[3. Redis](https://nodejs.org/en/) (mainly as a cache storage)  
+[2. PostgreSQL](https://www.postgresql.org/) (primary DB)  
+[3. Redis](https://redis.io/) (mainly as a cache storage - [how we use redis](#how-redis))  
 [4. pm2](https://nodejs.org/en/) (to monitor and manage our Node.JS apps - this is an optional module but we are using it in production)
 
 ## Get Started <a id="get-started"></a>
@@ -46,6 +48,8 @@ There are currently two possible ways to use our backend 'app':
 ⭐ Please edit **ALL of the environment variables used in this app** by creating a new file in the root db called `.env`. Just copy the format from `.sample.env` and change the `xxx` to your own detail. Feel free to change the JWT secret to anything, as it will work just fine.
 
 ⭐ Database file (.sql) `chimp_db.sql` is included in the `root` directory. Feel free to restore / import it to your own machine/server.
+
+⭐ To test our API using [Postman](https://www.postman.com/), a collection file (JSON) for all endpoints is available in the root directory.
 
 ## Running The App Locally <a id="locally"></a>
 
@@ -91,15 +95,15 @@ For testing/development purposes you may modify this expiration time to a differ
 
 To modify it, you may edit `JWT_EXPR_TIME` in your `.env` file.
 
-### <span id="authFlow">Authentication Flow</span>
+### <span id="authFlow">Authentication Flow</span> <a id="auth-flow"></a>
 
-When a token has expired and an endpoint that requires a token (private endpoints), this token will no longer be valid and `{msg: token_expired}` will be returned.
+**When a token has expired** and an endpoint that requires a token (private endpoints), this token will no longer be valid and `{msg: token_expired}` will be returned.
 
 What is reccomended is to check any error. If it is equal to `token_expired`, then hit the `/auth/new-access-token`. This will return the new `{token: "sometoken"}` (that will, again, in default expire in 15 minutes). Replace the old (expired) `token` on your frontend with this newly returned `token`.
 
 After that, try to hit the endpoint that previously failed due to `token_expired`. This time it should succeed.
 
-On sign out, you should hit the sign out endpoint `/auth/sign-out` and then remove the `user_uid` and `token` that was saved locally in your application / client's device.
+**On sign out**, you should hit the sign out endpoint `/auth/sign-out` and then remove the `user_uid` and `token` that was saved locally in your application / client's device. **On the backend, this would put the `token` (access token) to a token blacklist db in Redis**, and also removes this `token`'s data saved in the tokens table in our PostgreSQL db.
 
 ## Available Endpoints <a id="endpoints"></a>
 
@@ -648,7 +652,7 @@ There are 2 types of endpoint:
 
    Any of these might be an empty string except: `id`, `user_uid`, `contact_uid`.
 
-## <span id="putExplanation">General Knwoledge Board</span>
+## <span id="putExplanation">General Knwoledge Board</span> <a id="general"></a>
 
 1.  For ALL `PUT` endpoints</span> please enter the data that you want to be updated and saved to the DB along with other required data.
 
@@ -674,11 +678,31 @@ There are 2 types of endpoint:
 
     However, this means the client (your app) has to somehow turn the JSON request into a file first (.json). The two (or more) then are going to be separated in the backend.
 
+4.  **<span id="how-redis">How is Redis used in this app?</span>** <a id="how-redis"></a>
+    Currently, we mainly use Redis for two "things":
+
+    1. To store blacklisted tokens.
+    2. To store data as cache.
+
+    By using redis, it allows us to dramatically reduce the number of calls/queries to the database, that also results in a more stable response time from our backend.
+
+    To see how redis is used for blacklisting access tokens, please see [authflow (on sign out)](#auth-flow)
+
+    To be more technical on how exactly we use redis for caching, let's use a real endpoint as an example. At the moment, only one endpoint uses redis for caching. That is the `:5000/api/contacts` `GET` endpoint. This endpoint returns all contacts of a user.
+
+    On each successful attempt of "writing" (creating, deleting, and editing/updating) a contact, a "last write time" (EPOCH) is stored in redis. Let's just call the write time as `lastWrite` time. To be clear, the act of saving this time to redis is done at their respective (create/delete/edit contact) endpoints. `lastWrite` is saved as hash with a key-value pair of `user_uid:time_in_epoch`
+
+    At the `:5000/api/contacts` `GET` endpoint, the same data structure as `lastWrite` is saved in Redis, with a different name called `lastRead`. The act of saving `lastRead` is done after all contacts have been retrieved from the database.
+
+    After saving last read, the whole contacts that just got retrieved from the database are also saved under a hash, and for simplicty's sake let's call it `contacts`. This hashmap contains many hashmaps with the a key-value pair as such `user_uid:contacts` where (as you might already know) `contacts` is the `contacts` from the database. **This is basically what we meant by caching**.
+
+    In order for us to decide whether we should take the data from the DB or from cache (redis), we could compare the two times (`lastWrite` & `lastRead`) and with a simple algorithm we could decide either we should do the one or the other.
+
 ## Errors <a id="errors"></a>
 
 1. All non-invalid request errors (any error coming from the backend itself) such as: server error, query error, etc will result in http status of `500` with the msg of `Server Error`.
 
-2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{"msg": "token_invalid"}` (fake/wrong token) or `{"msg": "token_expired"}` (expired token) or `{"msg": "unauthorised"}` (no token sent) with the http status of `401`.
+2. Upon failed request other than `Server Error`, ALL **PRIVATE** routes will return a JSON object `{"msg": "token_invalid"}` (fake/wrong token) or `{"msg": "token_expired"}` (expired token) or `{"msg": "unauthorised"}` (no token sent / token is blacklisted) with the http status of `401`.
 
 3. <span id="err3">Error:</span> **`listen EADDRINUSE: address already in use 0.0.0.0:7500`**
 

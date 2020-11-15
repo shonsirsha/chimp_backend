@@ -9,6 +9,14 @@ const router = express.Router();
 const generateAccessToken = require("./utils/generateAccessToken");
 const checkIfExists = require("./utils/checkIfExists");
 const blacklistAccessToken = require("./utils/blacklistAccessToken");
+const authFailed = require("../middleware/loggers/auth/failed");
+const authSucceeded = require("../middleware/loggers/auth/success");
+const {
+  NO_TOKEN,
+  REFRESH_TOKEN_ERROR,
+  INVALID_CREDENTIALS,
+  EMAIL_UNAVAILABLE,
+} = require("../middleware/loggers/auth/types");
 
 //@route    POST api/auth/sign-up
 //@desc     Register a user & get token + user id
@@ -28,6 +36,7 @@ router.post(
     const userExists = await checkIfExists("users", "email", email);
 
     if (userExists) {
+      authFailed(req, EMAIL_UNAVAILABLE);
       return res.status(400).json({ msg: "email_unavailable" });
     }
 
@@ -52,6 +61,7 @@ router.post(
         if (error) {
           return res.status(400).json(error);
         }
+        authSucceeded(req);
         return res.status(200).json({ msg: "signed_up", token, user_uid });
       }
     );
@@ -77,6 +87,7 @@ router.post(
 
     const userExists = await checkIfExists("users", "email", email);
     if (!userExists) {
+      authFailed(req, INVALID_CREDENTIALS);
       return res.status(400).json({ msg: "invalid_credentials" });
     }
 
@@ -89,6 +100,7 @@ router.post(
       const isMatch = await bcrypt.compare(password, passwordFromDb);
 
       if (!isMatch) {
+        authFailed(req, INVALID_CREDENTIALS);
         return res.status(400).json({ msg: "invalid_credentials" });
       }
       const user_uid = rows[0].user_uid;
@@ -105,6 +117,7 @@ router.post(
           if (error) {
             return res.status(400).json(error);
           }
+          authSucceeded(req);
           return res.status(200).json({ token, msg: "signed_in", user_uid });
         }
       );
@@ -129,8 +142,9 @@ router.post(
 
     const oldAccessToken = req.header("x-auth-token");
 
-    //check if theres token in the header
+    //check if theres no  token in the header
     if (!oldAccessToken) {
+      authFailed(req, NO_TOKEN);
       return res.status(401).json({ msg: "unauthorised" });
     }
 
@@ -151,7 +165,7 @@ router.post(
             const newAccessToken = generateAccessToken(user_uid); // a new access token (refreshed)
             pool.query(
               `UPDATE tokens SET access_token='${newAccessToken}' WHERE user_uid='${user_uid}' AND refresh_token='${rows[0].refresh_token}'`,
-              (error, results) => {
+              (error, _) => {
                 if (error) {
                   res.status(400).json(error);
                 }
@@ -161,6 +175,7 @@ router.post(
           }
         );
       } else {
+        authFailed(req, REFRESH_TOKEN_ERROR);
         return res.status(401).json({ msg: "unauthorised" });
       }
     } catch (e) {
@@ -184,8 +199,9 @@ router.post(
 
     const accessToken = req.header("x-auth-token");
 
-    //check if theres token in the header
+    //check if theres no  token in the header
     if (!accessToken) {
+      authFailed(req, NO_TOKEN);
       return res.status(401).json({ msg: "unauthorised" });
     }
 
@@ -193,6 +209,7 @@ router.post(
       const { user_uid } = req.body; // destructuring request body
       const userExists = await checkIfExists("users", "user_uid", user_uid);
       if (!userExists) {
+        authFailed(req, INVALID_CREDENTIALS);
         return res.status(400).json({ msg: "invalid_credentials" });
       }
       const blacklisted = await blacklistAccessToken(user_uid, accessToken);
