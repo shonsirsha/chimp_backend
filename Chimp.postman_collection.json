@@ -26,11 +26,11 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:5000/api/auth/sign-in",
+					"raw": "localhost:4000/api/auth/sign-in",
 					"host": [
 						"localhost"
 					],
-					"port": "5000",
+					"port": "4000",
 					"path": [
 						"api",
 						"auth",
@@ -55,11 +55,11 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:5000/api/auth/sign-up",
+					"raw": "localhost:4000/api/auth/sign-up",
 					"host": [
 						"localhost"
 					],
-					"port": "5000",
+					"port": "4000",
 					"path": [
 						"api",
 						"auth",
@@ -82,7 +82,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\"user_uid\": \"e0f26173-0fd9-4799-9421-05c3122614dc\"\n}",
+					"raw": "{\n\"user_uid\": \"\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -90,11 +90,11 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:5000/api/auth/new-access-token",
+					"raw": "localhost:4000/api/auth/new-access-token",
 					"host": [
 						"localhost"
 					],
-					"port": "5000",
+					"port": "4000",
 					"path": [
 						"api",
 						"auth",
@@ -117,7 +117,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"user_uid\": \"dbc6c582-2a14-43e9-8279-1e036df2eed6\"\n}",
+					"raw": "{\n    \"user_uid\": \"\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -125,11 +125,11 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:5000/api/auth/sign-out",
+					"raw": "localhost:4000/api/auth/sign-out",
 					"host": [
 						"localhost"
 					],
-					"port": "5000",
+					"port": "4000",
 					"path": [
 						"api",
 						"auth",
@@ -321,7 +321,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\n    \"first_name\": \"Martin\",\n    \"last_name\": \"Garry\",\n    \"phone\": \"+3123123\",\n    \"email\": \"garry@asdasd.com\",\n    \"dob\": \"1972-12-29\",\n    \"note\": \"Another fanboy\",\n    \"company_uids\": [],\n    \"tags\": [\"fanboy\", \"dj\"]\n}",
+					"raw": "{\n\n    \"first_name\": \"Martin\",\n    \"last_name\": \"Garry\",\n    \"phone\": \"+3123123\",\n    \"email\": \"garry@asdasd.com\",\n    \"dob\": 405863264,\n    \"note\": \"Another fanboy\",\n    \"company_uids\": [],\n    \"tags\": [\"fanboy\", \"dj\"]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
