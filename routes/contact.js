@@ -58,13 +58,23 @@ router.get(
         tags.push(tag);
       });
 
+      const companyUidsFromDb = await pool.query(
+        `SELECT company_uid FROM company_contact WHERE contact_uid='${contact_uid}'`
+      );
+
+      let companyUids = [];
+      companyUidsFromDb.rows.forEach(({ company_uid }) => {
+        companyUids.push(company_uid);
+      });
+
       let contactModel = rows[0];
       contactModel["tags"] = tags;
+      contactModel["companies"] = companyUids;
 
       return res.status(200).json({ msg: "success", contact: contactModel });
     } catch (e) {
       console.log(e);
-      return res.status(500).send("Server error");
+      return res.status(500).send(e);
     }
   }
 );
