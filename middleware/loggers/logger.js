@@ -3,14 +3,15 @@ const { transports, format, createLogger } = require("winston");
 const myCustomLevels = {
   levels: {
     info: 0,
-    token_error: 1,
+    auth_error: 1,
+    auth_success: 2,
   },
 };
 let filePathPrefix;
 
 if (process.env.NODE_ENV === "development") filePathPrefix = "./logs";
 else filePathPrefix = "../logs";
-const infoLog = createLogger({
+const serverInfo = createLogger({
   levels: myCustomLevels.levels,
   format: format.simple(),
   transports: [
@@ -21,15 +22,26 @@ const infoLog = createLogger({
   ],
 });
 
-const tokenErrorLog = createLogger({
+const authErrorLog = createLogger({
   levels: myCustomLevels.levels,
   format: format.simple(),
   transports: [
     new transports.File({
-      filename: `${filePathPrefix}/token_errors.log`,
-      level: "token_error",
+      filename: `${filePathPrefix}/auth_errors.log`,
+      level: "auth_error",
     }),
   ],
 });
 
-module.exports = { infoLog, tokenErrorLog };
+const authSuccessLog = createLogger({
+  levels: myCustomLevels.levels,
+  format: format.simple(),
+  transports: [
+    new transports.File({
+      filename: `${filePathPrefix}/auth_success.log`,
+      level: "auth_success",
+    }),
+  ],
+});
+
+module.exports = { serverInfo, authErrorLog, authSuccessLog };

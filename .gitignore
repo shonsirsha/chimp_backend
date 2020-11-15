@@ -4,3 +4,4 @@ node_modules
 .prod.env
 *.log
 user_uploads
+logs

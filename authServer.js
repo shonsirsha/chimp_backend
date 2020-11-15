@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { infoLog } = require("./middleware/loggers/logger");
+const { serverInfo } = require("./middleware/loggers/logger");
 
 // Init Middleware
 app.use(express.json({ extended: false }));
@@ -14,7 +14,7 @@ app.use("/api/auth", require("./routes/auth"));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  infoLog.info(`Auth server started on port ${PORT}`);
+  serverInfo.info(`Auth server started on port ${PORT}`);
 });
 
 module.exports = app;
