@@ -1,7 +1,7 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
 const app = express();
-
+const logger = require("./middleware/loggers/logger");
 // Init Middleware
 app.use(express.json({ extended: false }));
 app.use(fileUpload());
@@ -23,7 +23,7 @@ app.use("/api/companies", require("./routes/companies"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`REST API server started on port ${PORT}`);
+  logger.info(`REST API server started on port ${PORT}`);
 });
 
 module.exports = app;
