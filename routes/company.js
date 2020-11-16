@@ -8,6 +8,7 @@ const pool = require("../db/pool");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
+const setLastCacheTime = require("./utils/caching/setLastCacheTime");
 
 //@route    GET api/company
 //@desc     Get a contact for currently logged in user
@@ -41,6 +42,11 @@ router.get(
       let contacts = await pool.query(
         `SELECT company_uid FROM company_contact WHERE company_uid='${company_uid}'`
       );
+
+      if (rows[0].picture !== "") {
+        let dir = `${process.env.USER_UPLOAD_COMPANY_IMAGE}${company_uid}`;
+        rows[0].picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
+      }
 
       let company_uids = [];
       contacts.rows.forEach(({ company_uid }) => {
@@ -296,11 +302,18 @@ router.delete(
         `DELETE FROM company_contact WHERE company_uid='${company_uid}';
         DELETE FROM companies WHERE company_uid='${company_uid}' AND user_uid='${user_uid}';
         `,
-        (err) => {
+        async (err) => {
           if (err) {
             return res.status(400).json(err);
           }
-          return res.status(200).json({ msg: "company_deleted" });
+          const setLastWrite = await setLastCacheTime(
+            "lastContactWriteToDb",
+            user_uid
+          );
+          if (setLastWrite) {
+            return res.status(200).json({ msg: "company_deleted" });
+          }
+          return res.status(400).json({ msg: "caching_error" });
         }
       );
     } catch (e) {

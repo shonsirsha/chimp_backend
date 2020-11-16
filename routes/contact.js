@@ -44,27 +44,37 @@ router.get(
         `SELECT * FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`
       );
 
+      const tagsFromDb = await pool.query(
+        `SELECT tag FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`
+      );
+
+      const companyUidsFromDb = await pool.query(
+        `SELECT company_uid FROM company_contact WHERE contact_uid='${contact_uid}'`
+      );
+
       if (rows[0].picture !== "") {
         let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
         rows[0].picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
       }
-
-      const tagsFromDb = await pool.query(
-        `SELECT tag FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`
-      );
 
       let tags = [];
       tagsFromDb.rows.forEach(({ tag }) => {
         tags.push(tag);
       });
 
+      let companyUids = [];
+      companyUidsFromDb.rows.forEach(({ company_uid }) => {
+        companyUids.push(company_uid);
+      });
+
       let contactModel = rows[0];
       contactModel["tags"] = tags;
+      contactModel["companies"] = companyUids;
 
       return res.status(200).json({ msg: "success", contact: contactModel });
     } catch (e) {
       console.log(e);
-      return res.status(500).send("Server error");
+      return res.status(500).send(e);
     }
   }
 );

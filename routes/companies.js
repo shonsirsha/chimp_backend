@@ -23,6 +23,11 @@ router.get("/", auth, async (req, res) => {
     if (rows.length > 0) {
       let processed = 0;
       rows.forEach((company, ix) => {
+        const { company_uid, picture } = company;
+        if (picture !== "") {
+          let dir = `${process.env.USER_UPLOAD_COMPANY_IMAGE}${company_uid}`;
+          company.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${picture}`;
+        }
         pool.query(
           //get all people's (contacts) contact_uid that are working for this company
           `SELECT contact_uid FROM company_contact WHERE company_uid='${company.company_uid}'`,
