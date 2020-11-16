@@ -68,7 +68,7 @@ router.post(
       });
       await Tokens.create({
         user_uid,
-        refresh_tokesan: refreshToken,
+        refresh_token: refreshToken,
         access_token: token,
       });
       authSucceeded(req);
@@ -95,7 +95,7 @@ router.post(
     }
 
     const { email, password } = req.body; // destructuring request body
-
+    let passwordFromUser = password;
     const userExists = await checkIfExists("users", "email", email);
     if (!userExists) {
       authFailed(req, INVALID_CREDENTIALS);
@@ -103,18 +103,23 @@ router.post(
     }
 
     try {
-      const { rows } = await pool.query(
-        `SELECT * FROM users WHERE email='${email}'`
-      );
+      const user = await User.findOne({
+        where: {
+          email: email,
+        },
+      });
 
-      const passwordFromDb = rows[0].password;
-      const isMatch = await bcrypt.compare(password, passwordFromDb);
+      const {
+        dataValues: { password, user_uid },
+      } = user;
+
+      const passwordFromDb = password;
+      const isMatch = await bcrypt.compare(passwordFromUser, passwordFromDb);
 
       if (!isMatch) {
         authFailed(req, INVALID_CREDENTIALS);
         return res.status(400).json({ msg: "invalid_credentials" });
       }
-      const user_uid = rows[0].user_uid;
       const token = generateAccessToken(user_uid); // new access token
 
       const refreshToken = jwt.sign(
@@ -122,18 +127,15 @@ router.post(
         process.env.JWT_REFRESH_SECRET
       ); // refresh token
 
-      pool.query(
-        `INSERT INTO tokens(user_uid, refresh_token, access_token) VALUES ('${user_uid}', '${refreshToken}', '${token}')`,
-        (error, results) => {
-          if (error) {
-            return res.status(400).json(error);
-          }
-          authSucceeded(req);
-          return res.status(200).json({ token, msg: "signed_in", user_uid });
-        }
-      );
-    } catch {
-      return res.status(500).send("Server error");
+      await Tokens.create({
+        user_uid,
+        refresh_token: refreshToken,
+        access_token: token,
+      });
+      authSucceeded(req);
+      return res.status(200).json({ token, msg: "signed_in", user_uid });
+    } catch (e) {
+      return res.status(500).send(e);
     }
   }
 );
