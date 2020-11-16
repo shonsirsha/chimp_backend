@@ -165,33 +165,49 @@ router.post(
 
     try {
       const { user_uid } = req.body; // destructuring request body
+      try {
+        const tokenFromDb = await Tokens.findOne({
+          attributes: ["refresh_token"],
+          where: {
+            user_uid: user_uid,
+            access_token: oldAccessToken,
+          },
+        });
 
-      const { rows } = await pool.query(
-        `SELECT refresh_token FROM tokens WHERE user_uid='${user_uid}' AND access_token='${oldAccessToken}'`
-      );
-      if (rows[0] !== undefined) {
-        // if exists
-        jwt.verify(
-          rows[0].refresh_token,
-          process.env.JWT_REFRESH_SECRET,
-          (err) => {
-            if (err) res.status(401).json({ msg: "refresh_token_invalid" }); //token is not valid
+        if (tokenFromDb !== null) {
+          const {
+            dataValues: { refresh_token },
+          } = tokenFromDb;
+          // if exists
+          jwt.verify(
+            refresh_token,
+            process.env.JWT_REFRESH_SECRET,
+            async (err) => {
+              if (err) res.status(401).json({ msg: "refresh_token_invalid" }); //token is not valid
 
-            const newAccessToken = generateAccessToken(user_uid); // a new access token (refreshed)
-            pool.query(
-              `UPDATE tokens SET access_token='${newAccessToken}' WHERE user_uid='${user_uid}' AND refresh_token='${rows[0].refresh_token}'`,
-              (error, _) => {
-                if (error) {
-                  res.status(400).json(error);
-                }
-                res.status(200).json({ token: newAccessToken });
+              const newAccessToken = generateAccessToken(user_uid); // a new access token (refreshed)
+              try {
+                await Tokens.update(
+                  { access_token: newAccessToken },
+                  {
+                    where: {
+                      user_uid: user_uid,
+                      refresh_token: refresh_token,
+                    },
+                  }
+                );
+                return res.status(200).json({ token: newAccessToken });
+              } catch (e) {
+                return res.status(400).json({ msg: e.name });
               }
-            );
-          }
-        );
-      } else {
-        authFailed(req, REFRESH_TOKEN_ERROR);
-        return res.status(401).json({ msg: "unauthorised" });
+            }
+          );
+        } else {
+          authFailed(req, REFRESH_TOKEN_ERROR);
+          return res.status(401).json({ msg: "unauthorised" });
+        }
+      } catch (e) {
+        return res.status(400).json({ msg: e.name });
       }
     } catch (e) {
       return res.status(500).send("Server error");
