@@ -93,49 +93,51 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    const { email, password } = req.body; // destructuring request body
-    let passwordFromUser = password;
-    const userExists = await checkIfExists("users", "email", email);
-    if (!userExists) {
-      authFailed(req, INVALID_CREDENTIALS);
-      return res.status(400).json({ msg: "invalid_credentials" });
-    }
-
     try {
-      const user = await User.findOne({
-        where: {
-          email: email,
-        },
-      });
-
-      const {
-        dataValues: { password, user_uid },
-      } = user;
-
-      const passwordFromDb = password;
-      const isMatch = await bcrypt.compare(passwordFromUser, passwordFromDb);
-
-      if (!isMatch) {
+      const { email, password } = req.body; // destructuring request body
+      let passwordFromUser = password;
+      const userExists = await checkIfExists("users", "email", email);
+      if (!userExists) {
         authFailed(req, INVALID_CREDENTIALS);
         return res.status(400).json({ msg: "invalid_credentials" });
       }
-      const token = generateAccessToken(user_uid); // new access token
+      try {
+        const user = await User.findOne({
+          where: {
+            email: email,
+          },
+        });
 
-      const refreshToken = jwt.sign(
-        { payload: user_uid },
-        process.env.JWT_REFRESH_SECRET
-      ); // refresh token
+        const {
+          dataValues: { password, user_uid },
+        } = user;
 
-      await Tokens.create({
-        user_uid,
-        refresh_token: refreshToken,
-        access_token: token,
-      });
-      authSucceeded(req);
-      return res.status(200).json({ token, msg: "signed_in", user_uid });
-    } catch (e) {
-      return res.status(500).send(e);
+        const passwordFromDb = password;
+        const isMatch = await bcrypt.compare(passwordFromUser, passwordFromDb);
+
+        if (!isMatch) {
+          authFailed(req, INVALID_CREDENTIALS);
+          return res.status(400).json({ msg: "invalid_credentials" });
+        }
+        const token = generateAccessToken(user_uid); // new access token
+
+        const refreshToken = jwt.sign(
+          { payload: user_uid },
+          process.env.JWT_REFRESH_SECRET
+        ); // refresh token
+
+        await Tokens.create({
+          user_uid,
+          refresh_token: refreshToken,
+          access_token: token,
+        });
+        authSucceeded(req);
+        return res.status(200).json({ token, msg: "signed_in", user_uid });
+      } catch (e) {
+        return res.status(400).json({ msg: e.name });
+      }
+    } catch {
+      return res.status(500).send("Server error");
     }
   }
 );
@@ -209,16 +211,15 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    const accessToken = req.header("x-auth-token");
-
-    //check if theres no  token in the header
-    if (!accessToken) {
-      authFailed(req, NO_TOKEN);
-      return res.status(401).json({ msg: "unauthorised" });
-    }
-
     try {
+      const accessToken = req.header("x-auth-token");
+
+      //check if theres no  token in the header
+      if (!accessToken) {
+        authFailed(req, NO_TOKEN);
+        return res.status(401).json({ msg: "unauthorised" });
+      }
+
       const { user_uid } = req.body; // destructuring request body
       const userExists = await checkIfExists("users", "user_uid", user_uid);
       if (!userExists) {
@@ -229,17 +230,19 @@ router.post(
       if (!blacklisted) {
         return res.status(500).json({ msg: "signout_bl_error" });
       }
-      pool.query(
-        `DELETE FROM tokens WHERE user_uid='${user_uid}' AND access_token='${accessToken}'`,
-        (error, _) => {
-          if (error) {
-            return res.status(400).json(error);
-          }
-          return res.status(200).json({ msg: "signed_out" });
-        }
-      );
+      try {
+        await Tokens.destroy({
+          where: {
+            user_uid: user_uid,
+            access_token: accessToken,
+          },
+        });
+        return res.status(200).json({ msg: "signed_out" });
+      } catch (e) {
+        return res.status(400).json({ msg: e.name });
+      }
     } catch (e) {
-      return res.status(500).json({ msg: "Server error", e });
+      return res.status(500).send("Server Error");
     }
   }
 );
