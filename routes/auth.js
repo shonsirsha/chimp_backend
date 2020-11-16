@@ -6,6 +6,9 @@ const jwt = require("jsonwebtoken");
 const { check, validationResult } = require("express-validator");
 const pool = require("../db/pool");
 const router = express.Router();
+const User = require("../models/User");
+const UserProfile = require("../models/UserProfile");
+const Tokens = require("../models/Tokens");
 const generateAccessToken = require("./utils/generateAccessToken");
 const checkIfExists = require("./utils/checkIfExists");
 const blacklistAccessToken = require("./utils/blacklistAccessToken");
@@ -51,20 +54,28 @@ router.post(
       { payload: user_uid },
       process.env.JWT_REFRESH_SECRET
     ); // refresh token
-
-    pool.query(
-      `INSERT INTO users (user_uid, email, password) VALUES ('${user_uid}', '${email}', '${encryptedPassword}');
-      INSERT INTO user_profile(user_uid, first_name, last_name, picture) VALUES ('${user_uid}', '', '', '');
-      INSERT INTO tokens(user_uid, refresh_token, access_token) VALUES ('${user_uid}', '${refreshToken}', '${token}');
-      `,
-      (error, _) => {
-        if (error) {
-          return res.status(400).json(error);
-        }
-        authSucceeded(req);
-        return res.status(200).json({ msg: "signed_up", token, user_uid });
-      }
-    );
+    try {
+      await User.create({
+        user_uid,
+        email,
+        password: encryptedPassword,
+      });
+      await UserProfile.create({
+        user_uid,
+        first_name: "",
+        last_name: "",
+        picture: "",
+      });
+      await Tokens.create({
+        user_uid,
+        refresh_tokesan: refreshToken,
+        access_token: token,
+      });
+      authSucceeded(req);
+      return res.status(200).json({ msg: "signed_up", token, user_uid });
+    } catch (e) {
+      return res.status(400).json({ msg: e.name });
+    }
   }
 );
 
