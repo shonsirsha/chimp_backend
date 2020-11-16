@@ -57,7 +57,7 @@ router.post(
       INSERT INTO user_profile(user_uid, first_name, last_name, picture) VALUES ('${user_uid}', '', '', '');
       INSERT INTO tokens(user_uid, refresh_token, access_token) VALUES ('${user_uid}', '${refreshToken}', '${token}');
       `,
-      (error, results) => {
+      (error, _) => {
         if (error) {
           return res.status(400).json(error);
         }
