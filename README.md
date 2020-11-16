@@ -447,7 +447,7 @@ There are 2 types of endpoint:
 
    1. `contact_uid` <kbd>**required**</kbd>-> On error: `{"msg": "contact_uid_fail"}`
 
-   **Upon successful request:** returns `{company: contactObject, "msg": "success"}` with the http status of `200`.
+   **Upon successful request:** returns `{contact: contactObject, "msg": "success"}` with the http status of `200`.
 
    `contactObject` is defined <a href="#contactObjRes">here</a>
 
