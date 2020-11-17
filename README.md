@@ -81,7 +81,7 @@ To make sure everything works normally, do a `GET` request to this endpoint `/ap
 
 ## Using the App Remotely <a id="remotely"></a>
 
-To use the app remotely, you can simply visit http://167.99.136.248/:PORT/ANY where `port` and `any` can be found on the [available endpoints section.](#endpoints)
+To use the app remotely, you can simply visit http://167.99.136.248:PORT/api/ANY where `port` and `any` can be found on the [available endpoints section.](#endpoints)
 
 ## Authentication & Authorisation <a id="authmethod"></a>
 
