@@ -28,7 +28,7 @@ app.use("/api/contacts", require("./routes/contacts"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/companies", require("./routes/companies"));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.REST_PORT || 5000;
 app.listen(PORT, () => {
   serverInfo.info(`REST API server started on port ${PORT}`);
 });
