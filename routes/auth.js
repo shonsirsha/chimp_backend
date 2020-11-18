@@ -20,7 +20,9 @@ const {
   INVALID_CREDENTIALS,
   EMAIL_UNAVAILABLE,
 } = require("../middleware/loggers/auth/types");
-
+// router.get("/wow", (req, res) => {
+//   return res.status(200).json({ hello: "world" });
+// });
 //@route    POST api/auth/sign-up
 //@desc     Register a user & get token + user id
 //@access   Public
