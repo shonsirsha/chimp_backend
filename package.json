@@ -27,13 +27,11 @@
     "cross-env": "^7.0.2"
   },
   "scripts": {
-    "start": "npm run static & node server.js",
-    "nodemon": "npm run static & nodemon server.js & nodemon authServer.js",
+    "start": "cross-env NODE_ENV=development npm run static & node server.js & node authServer.js",
+    "nodemon": "cross-env NODE_ENV=development npm run static & nodemon server.js & nodemon authServer.js",
     "static": "http-server --port 7500",
-    "initDev": "cross-env NODE_ENV=development pm2 start process-dev.json && npm run fileServer_DEV",
-    "initProd": "cross-env NODE_ENV=production pm2 start process-production.json && npm run fileServer_PROD",
-    "dev": "pm2 stop file-server auth-server rest-api-server && npm run initDev",
-    "prod": "pm2 stop file-server auth-server rest-api-server && npm run initProd",
+    "dev": "pm2 kill && cross-env NODE_ENV=development pm2 start process-dev.json && npm run fileServer_DEV ",
+    "prod": "pm2 kill && cross-env NODE_ENV=production pm2 start process-prod.json && npm run fileServer_PROD",
     "fileServer_DEV": "pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d -i 4 --watch",
     "fileServer_PROD": "pm2 start /usr/bin/http-server --name file-server -- -p 7500 -d -i 4 ",
     "restart_PROD": "pm2 restart rest-api-server auth-server file-server"

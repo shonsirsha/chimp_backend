@@ -56,7 +56,7 @@ There are currently two possible ways to use our backend 'app':
 
 Assuming you are inside the root directory of this app and:
 
-1. Have pm2 installed, execute the command: `npm run prodInitLocal`
+1. Have pm2 installed, execute the command: `npm run dev`
 2. Don't have pm2 installed, execute the command: `npm run nodemon` or `npm run start`. Please note that with the latter you have to restart your server if you do any changess in the file(s) to see effect.
 
 Any of the command above will also automatically run the **FILE SEVER**.
