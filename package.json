@@ -12,6 +12,7 @@
     "express-fileupload": "^1.2.0",
     "express-validator": "^6.6.1",
     "http-server": "^0.12.3",
+    "jest": "^26.6.3",
     "jsonwebtoken": "^8.5.1",
     "nodemon": "^2.0.4",
     "pg": "^8.3.3",
@@ -22,21 +23,20 @@
     "uuid": "^8.3.0",
     "winston": "^3.3.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "cross-env": "^7.0.2"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run static & node server.js",
     "nodemon": "npm run static & nodemon server.js & nodemon authServer.js",
     "static": "http-server --port 7500",
-    "prodInitLocal": "pm2 kill && npm run authServerInit_DEV && npm run restApiServerInit_DEV && npm run fileServer_DEV",
-    "prodInit": "pm2 kill && npm run authServerInit_PROD && npm run restApiServerInit_PROD && npm run fileServer_PROD",
-    "authServerInit_DEV": "NODE_ENV=development pm2 start --name auth-server authServer.js  -i max --watch",
-    "restApiServerInit_DEV": "NODE_ENV=development  pm2 start --name rest-api-server server.js -i max --watch",
+    "initDev": "cross-env NODE_ENV=development pm2 start process-dev.json && npm run fileServer_DEV",
+    "initProd": "cross-env NODE_ENV=production pm2 start process-production.json && npm run fileServer_PROD",
+    "dev": "pm2 stop file-server auth-server rest-api-server && npm run initDev",
+    "prod": "pm2 stop file-server auth-server rest-api-server && npm run initProd",
     "fileServer_DEV": "pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d -i 4 --watch",
-    "authServerInit_PROD": "NODE_ENV=production pm2 start --name auth-server authServer.js -i 4",
-    "restApiServerInit_PROD": "NODE_ENV=production pm2 start --name rest-api-server server.js -i 4",
     "fileServer_PROD": "pm2 start /usr/bin/http-server --name file-server -- -p 7500 -d -i 4 ",
-    "prodRestart": "pm2 restart all"
+    "restart_PROD": "pm2 restart rest-api-server auth-server file-server"
   },
   "keywords": [],
   "author": "",
