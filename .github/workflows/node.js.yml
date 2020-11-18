@@ -24,4 +24,5 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm i
+      - run: npm test-production
       - run: npm run restart_PROD
