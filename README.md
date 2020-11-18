@@ -6,7 +6,8 @@
 
 This is a repository for the whole backend system of [Chimp](https://chimp.berlin).
 
-**Diagram of the architecture:** [here](https://drive.google.com/file/d/1BM3qmFSrH6e16m6yVba5k6RmKyJ7f2fg/view?usp=sharing)
+**Diagram of the architecture:** [here](https://drive.google.com/file/d/1BM3qmFSrH6e16m6yVba5k6RmKyJ7f2fg/view?usp=sharing)  
+**ERD Diagram of the Database:** [here](https://drive.google.com/file/d/1nZlTAdcQeIXwiQLGmzmU3Oa9kpKnVMd_/view?usp=sharing)
 
 **Table of content:**
 
@@ -55,7 +56,7 @@ There are currently two possible ways to use our backend 'app':
 
 Assuming you are inside the root directory of this app and:
 
-1. Have pm2 installed, execute the command: `npm run prodInitLocal`
+1. Have pm2 installed, execute the command: `npm run dev`
 2. Don't have pm2 installed, execute the command: `npm run nodemon` or `npm run start`. Please note that with the latter you have to restart your server if you do any changess in the file(s) to see effect.
 
 Any of the command above will also automatically run the **FILE SEVER**.
@@ -446,7 +447,7 @@ There are 2 types of endpoint:
 
    1. `contact_uid` <kbd>**required**</kbd>-> On error: `{"msg": "contact_uid_fail"}`
 
-   **Upon successful request:** returns `{company: contactObject, "msg": "success"}` with the http status of `200`.
+   **Upon successful request:** returns `{contact: contactObject, "msg": "success"}` with the http status of `200`.
 
    `contactObject` is defined <a href="#contactObjRes">here</a>
 

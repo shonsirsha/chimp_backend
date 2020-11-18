@@ -6,6 +6,9 @@ const jwt = require("jsonwebtoken");
 const { check, validationResult } = require("express-validator");
 const pool = require("../db/pool");
 const router = express.Router();
+const User = require("../models/User");
+const UserProfile = require("../models/UserProfile");
+const Tokens = require("../models/Tokens");
 const generateAccessToken = require("./utils/generateAccessToken");
 const checkIfExists = require("./utils/checkIfExists");
 const blacklistAccessToken = require("./utils/blacklistAccessToken");
@@ -18,9 +21,6 @@ const {
   EMAIL_UNAVAILABLE,
 } = require("../middleware/loggers/auth/types");
 
-//@route    POST api/auth/sign-up
-//@desc     Register a user & get token + user id
-//@access   Public
 router.post(
   "/sign-up",
   [
@@ -51,20 +51,28 @@ router.post(
       { payload: user_uid },
       process.env.JWT_REFRESH_SECRET
     ); // refresh token
-
-    pool.query(
-      `INSERT INTO users (user_uid, email, password) VALUES ('${user_uid}', '${email}', '${encryptedPassword}');
-      INSERT INTO user_profile(user_uid, first_name, last_name, picture) VALUES ('${user_uid}', '', '', '');
-      INSERT INTO tokens(user_uid, refresh_token, access_token) VALUES ('${user_uid}', '${refreshToken}', '${token}');
-      `,
-      (error, _) => {
-        if (error) {
-          return res.status(400).json(error);
-        }
-        authSucceeded(req);
-        return res.status(200).json({ msg: "signed_up", token, user_uid });
-      }
-    );
+    try {
+      await User.create({
+        user_uid,
+        email,
+        password: encryptedPassword,
+      });
+      await UserProfile.create({
+        user_uid,
+        first_name: "",
+        last_name: "",
+        picture: "",
+      });
+      await Tokens.create({
+        user_uid,
+        refresh_token: refreshToken,
+        access_token: token,
+      });
+      authSucceeded(req);
+      return res.status(200).json({ msg: "signed_up", token, user_uid });
+    } catch (e) {
+      return res.status(400).json({ msg: e.name });
+    }
   }
 );
 
@@ -82,45 +90,49 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    const { email, password } = req.body; // destructuring request body
-
-    const userExists = await checkIfExists("users", "email", email);
-    if (!userExists) {
-      authFailed(req, INVALID_CREDENTIALS);
-      return res.status(400).json({ msg: "invalid_credentials" });
-    }
-
     try {
-      const { rows } = await pool.query(
-        `SELECT * FROM users WHERE email='${email}'`
-      );
-
-      const passwordFromDb = rows[0].password;
-      const isMatch = await bcrypt.compare(password, passwordFromDb);
-
-      if (!isMatch) {
+      const { email, password } = req.body; // destructuring request body
+      let passwordFromUser = password;
+      const userExists = await checkIfExists("users", "email", email);
+      if (!userExists) {
         authFailed(req, INVALID_CREDENTIALS);
         return res.status(400).json({ msg: "invalid_credentials" });
       }
-      const user_uid = rows[0].user_uid;
-      const token = generateAccessToken(user_uid); // new access token
+      try {
+        const user = await User.findOne({
+          where: {
+            email: email,
+          },
+        });
 
-      const refreshToken = jwt.sign(
-        { payload: user_uid },
-        process.env.JWT_REFRESH_SECRET
-      ); // refresh token
+        const {
+          dataValues: { password, user_uid },
+        } = user;
 
-      pool.query(
-        `INSERT INTO tokens(user_uid, refresh_token, access_token) VALUES ('${user_uid}', '${refreshToken}', '${token}')`,
-        (error, results) => {
-          if (error) {
-            return res.status(400).json(error);
-          }
-          authSucceeded(req);
-          return res.status(200).json({ token, msg: "signed_in", user_uid });
+        const passwordFromDb = password;
+        const isMatch = await bcrypt.compare(passwordFromUser, passwordFromDb);
+
+        if (!isMatch) {
+          authFailed(req, INVALID_CREDENTIALS);
+          return res.status(400).json({ msg: "invalid_credentials" });
         }
-      );
+        const token = generateAccessToken(user_uid); // new access token
+
+        const refreshToken = jwt.sign(
+          { payload: user_uid },
+          process.env.JWT_REFRESH_SECRET
+        ); // refresh token
+
+        await Tokens.create({
+          user_uid,
+          refresh_token: refreshToken,
+          access_token: token,
+        });
+        authSucceeded(req);
+        return res.status(200).json({ token, msg: "signed_in", user_uid });
+      } catch (e) {
+        return res.status(400).json({ msg: e.name });
+      }
     } catch {
       return res.status(500).send("Server error");
     }
@@ -150,33 +162,49 @@ router.post(
 
     try {
       const { user_uid } = req.body; // destructuring request body
+      try {
+        const tokenFromDb = await Tokens.findOne({
+          attributes: ["refresh_token"],
+          where: {
+            user_uid: user_uid,
+            access_token: oldAccessToken,
+          },
+        });
 
-      const { rows } = await pool.query(
-        `SELECT refresh_token FROM tokens WHERE user_uid='${user_uid}' AND access_token='${oldAccessToken}'`
-      );
-      if (rows[0] !== undefined) {
-        // if exists
-        jwt.verify(
-          rows[0].refresh_token,
-          process.env.JWT_REFRESH_SECRET,
-          (err) => {
-            if (err) res.status(401).json({ msg: "refresh_token_invalid" }); //token is not valid
+        if (tokenFromDb !== null) {
+          const {
+            dataValues: { refresh_token },
+          } = tokenFromDb;
+          // if exists
+          jwt.verify(
+            refresh_token,
+            process.env.JWT_REFRESH_SECRET,
+            async (err) => {
+              if (err) res.status(401).json({ msg: "refresh_token_invalid" }); //token is not valid
 
-            const newAccessToken = generateAccessToken(user_uid); // a new access token (refreshed)
-            pool.query(
-              `UPDATE tokens SET access_token='${newAccessToken}' WHERE user_uid='${user_uid}' AND refresh_token='${rows[0].refresh_token}'`,
-              (error, _) => {
-                if (error) {
-                  res.status(400).json(error);
-                }
-                res.status(200).json({ token: newAccessToken });
+              const newAccessToken = generateAccessToken(user_uid); // a new access token (refreshed)
+              try {
+                await Tokens.update(
+                  { access_token: newAccessToken },
+                  {
+                    where: {
+                      user_uid: user_uid,
+                      refresh_token: refresh_token,
+                    },
+                  }
+                );
+                return res.status(200).json({ token: newAccessToken });
+              } catch (e) {
+                return res.status(400).json({ msg: e.name });
               }
-            );
-          }
-        );
-      } else {
-        authFailed(req, REFRESH_TOKEN_ERROR);
-        return res.status(401).json({ msg: "unauthorised" });
+            }
+          );
+        } else {
+          authFailed(req, REFRESH_TOKEN_ERROR);
+          return res.status(401).json({ msg: "unauthorised" });
+        }
+      } catch (e) {
+        return res.status(400).json({ msg: e.name });
       }
     } catch (e) {
       return res.status(500).send("Server error");
@@ -196,16 +224,15 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    const accessToken = req.header("x-auth-token");
-
-    //check if theres no  token in the header
-    if (!accessToken) {
-      authFailed(req, NO_TOKEN);
-      return res.status(401).json({ msg: "unauthorised" });
-    }
-
     try {
+      const accessToken = req.header("x-auth-token");
+
+      //check if theres no  token in the header
+      if (!accessToken) {
+        authFailed(req, NO_TOKEN);
+        return res.status(401).json({ msg: "unauthorised" });
+      }
+
       const { user_uid } = req.body; // destructuring request body
       const userExists = await checkIfExists("users", "user_uid", user_uid);
       if (!userExists) {
@@ -216,17 +243,19 @@ router.post(
       if (!blacklisted) {
         return res.status(500).json({ msg: "signout_bl_error" });
       }
-      pool.query(
-        `DELETE FROM tokens WHERE user_uid='${user_uid}' AND access_token='${accessToken}'`,
-        (error, _) => {
-          if (error) {
-            return res.status(400).json(error);
-          }
-          return res.status(200).json({ msg: "signed_out" });
-        }
-      );
+      try {
+        await Tokens.destroy({
+          where: {
+            user_uid: user_uid,
+            access_token: accessToken,
+          },
+        });
+        return res.status(200).json({ msg: "signed_out" });
+      } catch (e) {
+        return res.status(400).json({ msg: e.name });
+      }
     } catch (e) {
-      return res.status(500).json({ msg: "Server error", e });
+      return res.status(500).send("Server Error");
     }
   }
 );

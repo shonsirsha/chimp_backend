@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "jest": {
+    "testEnvironment": "node"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.2",
@@ -12,29 +15,33 @@
     "express-fileupload": "^1.2.0",
     "express-validator": "^6.6.1",
     "http-server": "^0.12.3",
+    "jest": "^26.6.3",
     "jsonwebtoken": "^8.5.1",
+    "mocha": "^8.2.1",
     "nodemon": "^2.0.4",
     "pg": "^8.3.3",
+    "pg-hstore": "^2.3.3",
     "pm2": "^4.5.0",
     "redis": "^3.0.2",
+    "sequelize": "^6.3.5",
     "uuid": "^8.3.0",
     "winston": "^3.3.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "cross-env": "^7.0.2",
+    "supertest": "^6.0.1"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run static & node server.js",
-    "nodemon": "npm run static & nodemon server.js & nodemon authServer.js",
+    "start": "cross-env NODE_ENV=development npm run static & node server.js & node authServer.js",
+    "nodemon": "cross-env NODE_ENV=development npm run static & nodemon server.js & nodemon authServer.js",
     "static": "http-server --port 7500",
-    "prodInitLocal": "pm2 kill && npm run authServerInit_DEV && npm run restApiServerInit_DEV && npm run fileServer_DEV",
-    "prodInit": "pm2 kill && npm run authServerInit_PROD && npm run restApiServerInit_PROD && npm run fileServer_PROD",
-    "authServerInit_DEV": "NODE_ENV=development pm2 start --name auth-server authServer.js  -i max --watch",
-    "restApiServerInit_DEV": "NODE_ENV=development  pm2 start --name rest-api-server server.js -i max --watch",
+    "dev": "pm2 kill && pm2 start process-dev.json && npm run fileServer_DEV",
+    "prod": "pm2 kill && pm2 start process-prod.json && npm run fileServer_PROD",
+    "test": "pm2 kill & NODE_ENV=test-development mocha './test'",
+    "test-production": "pm2 kill & NODE_ENV=test-production mocha './test'",
     "fileServer_DEV": "pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d -i 4 --watch",
-    "authServerInit_PROD": "NODE_ENV=production pm2 start --name auth-server authServer.js -i 4",
-    "restApiServerInit_PROD": "NODE_ENV=production pm2 start --name rest-api-server server.js -i 4",
     "fileServer_PROD": "pm2 start /usr/bin/http-server --name file-server -- -p 7500 -d -i 4 ",
-    "prodRestart": "pm2 restart all"
+    "restart_PROD": "pm2 restart rest-api-server auth-server file-server"
   },
   "keywords": [],
   "author": "",

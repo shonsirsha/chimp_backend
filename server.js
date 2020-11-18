@@ -5,16 +5,23 @@ const { serverInfo } = require("./middleware/loggers/logger");
 // Init Middleware
 app.use(express.json({ extended: false }));
 app.use(fileUpload());
-
+let envpath;
+if (process.env.NODE_ENV === "development") {
+  envpath = "./.env";
+} else if (process.env.NODE_ENV == "production") {
+  envpath = "../env/.env";
+} else if (process.env.NODE_ENV === "test-production") {
+  envpath = "../env/.test.env";
+} else if (process.env.NODE_ENV === "test-development") {
+  envpath = "../env/.test.env";
+}
 require("dotenv").config({
-  path: `${process.env.NODE_ENV === `development` ? `./.env` : `../env/.env`}`,
+  path: envpath,
 });
 
 // Define Routes
 
 app.use("/api/dev", require("./routes/dev"));
-app.use("/api/admin", require("./routes/admin"));
-// app.use("/api/auth", require("./routes/auth"));
 app.use("/api/user", require("./routes/user"));
 app.use("/api/contact", require("./routes/contact"));
 app.use("/api/contacts", require("./routes/contacts"));
