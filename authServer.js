@@ -1,8 +1,18 @@
 const express = require("express");
 const app = express();
 const { serverInfo } = require("./middleware/loggers/logger");
+let envpath;
+if (process.env.NODE_ENV === "development") {
+  envpath = "./.env";
+} else if (process.env.NODE_ENV == "production") {
+  envpath = "../env/.env";
+} else if (process.env.NODE_ENV === "test-production") {
+  envpath = "../env/.test.env";
+} else if (process.env.NODE_ENV === "test-development") {
+  envpath = "./.test.env";
+}
 require("dotenv").config({
-  path: `${process.env.NODE_ENV === `development` ? `./.env` : `../env/.env`}`,
+  path: envpath,
 });
 const sequelize = require("./db/db2");
 

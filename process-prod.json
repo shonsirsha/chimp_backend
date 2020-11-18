@@ -1,0 +1,24 @@
+{
+  "apps": [
+    {
+      "name": "rest-api-server",
+      "script": "./server.js",
+      "watch": true,
+      "exec_mode": "cluster",
+      "instances": "max",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    {
+      "name": "auth-server",
+      "script": "./authServer.js",
+      "watch": true,
+      "exec_mode": "cluster",
+      "instances": "max",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  ]
+}
