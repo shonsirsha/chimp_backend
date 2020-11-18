@@ -38,7 +38,7 @@
     "dev": "pm2 kill && pm2 start process-dev.json && npm run fileServer_DEV",
     "prod": "pm2 kill && pm2 start process-prod.json && npm run fileServer_PROD",
     "test": " NODE_ENV=test-development mocha './test' --exit",
-    "test-production": "pm2 kill & NODE_ENV=test-production mocha './test' --exit",
+    "test-production": "NODE_ENV=test-production mocha './test' --exit",
     "fileServer_DEV": "pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d -i 4 --watch",
     "fileServer_PROD": "pm2 start /usr/bin/http-server --name file-server -- -p 7500 -d -i 4 ",
     "restart_PROD": "pm2 restart rest-api-server auth-server file-server"
