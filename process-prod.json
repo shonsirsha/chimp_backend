@@ -5,7 +5,7 @@
       "script": "./server.js",
       "watch": true,
       "exec_mode": "cluster",
-      "instances": "max",
+      "instances": "4",
       "env": {
         "NODE_ENV": "production"
       }
@@ -15,7 +15,7 @@
       "script": "./authServer.js",
       "watch": true,
       "exec_mode": "cluster",
-      "instances": "max",
+      "instances": "4",
       "env": {
         "NODE_ENV": "production"
       }
