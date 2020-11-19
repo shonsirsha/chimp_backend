@@ -1,8 +1,0 @@
-create database named: chimp_db
-create a table named: users
-
-inside users, create 4 columns:
-1. id, type: serial (this is integer auto incremented), set it as PK
-2. user_uid, type: char varying, length: 265 (most likely will be FK later)
-3. email, type: char varying, length: 265
-4. password, type: char varying, length: 265
