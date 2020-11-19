@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const { serverInfo } = require("./middleware/loggers/logger");
+
 let envpath;
 if (process.env.NODE_ENV === "development") {
   envpath = "./.env";
@@ -9,11 +10,14 @@ if (process.env.NODE_ENV === "development") {
 } else if (process.env.NODE_ENV === "test-production") {
   envpath = "../env/.test.env";
 } else if (process.env.NODE_ENV === "test-development") {
-  envpath = "./.test.env";
+  envpath = "../env/.test.env";
+} else if (process.env.NODE_ENV === "dev-remote") {
+  envpath = "./.dev.env";
 }
 require("dotenv").config({
   path: envpath,
 });
+console.log(envpath);
 const sequelize = require("./db/db2");
 
 // Init Middleware

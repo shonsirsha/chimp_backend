@@ -14,7 +14,10 @@ if (process.env.NODE_ENV === "development") {
   envpath = "../env/.test.env";
 } else if (process.env.NODE_ENV === "test-development") {
   envpath = "../env/.test.env";
+} else if (process.env.NODE_ENV === "dev-remote") {
+  envpath = "./.dev.env";
 }
+
 require("dotenv").config({
   path: envpath,
 });
