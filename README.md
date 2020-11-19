@@ -6,9 +6,9 @@
 
 This is a repository for the whole backend system of [Chimp](https://chimp.berlin).
 
-**Diagram of the Chimp Backend:** [here](https://drive.google.com/file/d/1DTqbxWoLerY3wOG5RXmyrOR1gd06YG-o/view?usp=sharing)
-**Diagram of our CI/CD pipeline: ** [here](https://drive.google.com/file/d/1nZlTAdcQeIXwiQLGmzmU3Oa9kpKnVMd_/view?usp=sharing)
-**ERD Diagram of the Database:** [here](https://drive.google.com/file/d/1nZlTAdcQeIXwiQLGmzmU3Oa9kpKnVMd_/view?usp=sharing)
+**Diagram of the Chimp Backend:** [here](https://drive.google.com/file/d/1DTqbxWoLerY3wOG5RXmyrOR1gd06YG-o/view?usp=sharing)  
+**Diagram of our CI/CD pipeline:** [here](https://drive.google.com/file/d/1nZlTAdcQeIXwiQLGmzmU3Oa9kpKnVMd_/view?usp=sharing)  
+**ERD Diagram of the Database:** [here](https://drive.google.com/file/d/1nZlTAdcQeIXwiQLGmzmU3Oa9kpKnVMd_/view?usp=sharing)  
 
 **Table of content:**
 
