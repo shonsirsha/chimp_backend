@@ -126,10 +126,10 @@ router.post(
 
       const shapedArray = arrayShaper(company_uids);
 
-      if (await companyValidator(shapedArray)) {
+      if ((await companyValidator(shapedArray)) || shapedArray.length === 0) {
         // all company uid present in db
         const contact_uid = `cont-${uuidv4()}`;
-
+        console.log(shapedArray);
         pool.query(
           `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture, created_at) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '', '${Date.now()}')`,
           async (err) => {
@@ -149,37 +149,27 @@ router.post(
                 );
               });
             }
-            if (company_uids.length > 0) {
-              company_uids.forEach(async (uid) => {
-                const companyExists = await checkIfExists(
-                  "companies",
-                  "company_uid",
-                  uid
-                );
-                if (!companyExists) {
-                  return res
-                    .status(400)
-                    .json({ msg: "company_not_found", company_uid: uid });
-                } else {
-                  pool.query(
-                    `INSERT INTO company_contact(contact_uid,company_uid) VALUES( '${contact_uid}', '${uid}')`,
-                    async (err) => {
-                      if (err) {
-                        return res.status(400).json(err);
-                      }
-                      const setLastWrite = await setLastCacheTime(
-                        "lastContactWriteToDb",
-                        user_uid
-                      );
-                      if (setLastWrite) {
-                        return res
-                          .status(200)
-                          .json({ msg: "contact_added", contact_uid });
-                      }
+            if (shapedArray.length > 0) {
+              shapedArray.forEach(async (uid) => {
+                pool.query(
+                  `INSERT INTO company_contact(contact_uid,company_uid) VALUES( '${contact_uid}', '${uid}')`,
+                  async (err) => {
+                    if (err) {
+                      return res.status(400).json(err);
+                    }
+                    const setLastWrite = await setLastCacheTime(
+                      "lastContactWriteToDb",
+                      user_uid
+                    );
+                    if (setLastWrite) {
+                      return res
+                        .status(200)
+                        .json({ msg: "contact_added", contact_uid });
+                    } else {
                       return res.status(400).json({ msg: "caching_error" });
                     }
-                  );
-                }
+                  }
+                );
               });
             } else {
               const setLastWrite = await setLastCacheTime(
