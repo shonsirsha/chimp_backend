@@ -3,6 +3,7 @@ node_modules
 .sean.env
 .prod.env
 .test.env
+.dev.env
 *.log
 user_uploads
 logs
