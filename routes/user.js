@@ -27,6 +27,11 @@ router.get("/", auth, async (req, res) => {
         delete rows[0][property];
       }
     }
+
+    if (rows[0].picture !== "") {
+      let dir = `${process.env.USER_UPLOAD_PROFILE_PIC}${contact_uid}`;
+      rows[0].picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
+    }
     if (rows[0] === null || rows[0] === undefined) {
       // if token is valid but that uid not in db
       return res.status(401).json({ msg: "token_invalid" });
