@@ -43,7 +43,8 @@
     "fileServer_DEV": "pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d -i 4 --watch",
     "fileServer_DEV__REMOTE": "pm2 start /usr/bin/http-server --name file-server-dev -- -p 7599 -d -i 4 --watch",
     "fileServer_PROD": "pm2 start /usr/bin/http-server --name file-server -- -p 7500 -d -i 4 ",
-    "restart_PROD": "pm2 restart rest-api-server auth-server file-server"
+    "restart_PROD": "pm2 restart rest-api-server auth-server file-server",
+    "restart_DEV_REMOTE": "pm2 restart rest-api-server-dev auth-server-dev"
   },
   "keywords": [],
   "author": "",
