@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "rest-api-server",
+      "name": "rest-api-server-dev",
       "script": "./server.js",
       "watch": true,
       "exec_mode": "cluster",
@@ -11,7 +11,7 @@
       }
     },
     {
-      "name": "auth-server",
+      "name": "auth-server-dev",
       "script": "./authServer.js",
       "watch": true,
       "exec_mode": "cluster",
