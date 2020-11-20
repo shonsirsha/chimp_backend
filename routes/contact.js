@@ -9,6 +9,8 @@ const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
 const setLastCacheTime = require("./utils/caching/setLastCacheTime");
+const arrayShaper = require("./utils/arrayShaper");
+const companyValidator = require("./utils/companyValidator");
 //@route    GET api/contact
 //@desc     Get a contact for currently logged in user
 //@access   Private
@@ -122,73 +124,80 @@ router.post(
         return res.status(400).json({ msg: "company_uid_not_array" });
       }
 
-      const contact_uid = `cont-${uuidv4()}`;
+      const shapedArray = arrayShaper(company_uids);
 
-      pool.query(
-        `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture, created_at) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '', '${Date.now()}')`,
-        async (err) => {
-          if (err) {
-            return res.status(400).json(err);
-          }
+      if (await companyValidator(shapedArray)) {
+        // all company uid present in db
+        const contact_uid = `cont-${uuidv4()}`;
 
-          if (tags.length >= 1) {
-            tags.forEach((tag) => {
-              pool.query(
-                `INSERT INTO tag_contact(user_uid, contact_uid, tag) VALUES('${user_uid}', '${contact_uid}', '${tag}')`,
-                (err) => {
-                  if (err) {
-                    return res.status(400).json(err);
-                  }
-                }
-              );
-            });
-          }
-          if (company_uids.length > 0) {
-            company_uids.forEach(async (uid) => {
-              const companyExists = await checkIfExists(
-                "companies",
-                "company_uid",
-                uid
-              );
-              if (!companyExists) {
-                return res
-                  .status(400)
-                  .json({ msg: "company_not_found", company_uid: uid });
-              } else {
+        pool.query(
+          `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture, created_at) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '', '${Date.now()}')`,
+          async (err) => {
+            if (err) {
+              return res.status(400).json(err);
+            }
+
+            if (tags.length > 0) {
+              tags.forEach((tag) => {
                 pool.query(
-                  `INSERT INTO company_contact(contact_uid,company_uid) VALUES( '${contact_uid}', '${uid}')`,
-                  async (err) => {
+                  `INSERT INTO tag_contact(user_uid, contact_uid, tag) VALUES('${user_uid}', '${contact_uid}', '${tag}')`,
+                  (err) => {
                     if (err) {
                       return res.status(400).json(err);
                     }
-                    const setLastWrite = await setLastCacheTime(
-                      "lastContactWriteToDb",
-                      user_uid
-                    );
-                    if (setLastWrite) {
-                      return res
-                        .status(200)
-                        .json({ msg: "contact_added", contact_uid });
-                    }
-                    return res.status(400).json({ msg: "caching_error" });
                   }
                 );
-              }
-            });
-          } else {
-            const setLastWrite = await setLastCacheTime(
-              "lastContactWriteToDb",
-              user_uid
-            );
-            if (setLastWrite) {
-              return res
-                .status(200)
-                .json({ msg: "contact_added", contact_uid });
+              });
             }
-            return res.status(400).json({ msg: "caching_error" });
+            if (company_uids.length > 0) {
+              company_uids.forEach(async (uid) => {
+                const companyExists = await checkIfExists(
+                  "companies",
+                  "company_uid",
+                  uid
+                );
+                if (!companyExists) {
+                  return res
+                    .status(400)
+                    .json({ msg: "company_not_found", company_uid: uid });
+                } else {
+                  pool.query(
+                    `INSERT INTO company_contact(contact_uid,company_uid) VALUES( '${contact_uid}', '${uid}')`,
+                    async (err) => {
+                      if (err) {
+                        return res.status(400).json(err);
+                      }
+                      const setLastWrite = await setLastCacheTime(
+                        "lastContactWriteToDb",
+                        user_uid
+                      );
+                      if (setLastWrite) {
+                        return res
+                          .status(200)
+                          .json({ msg: "contact_added", contact_uid });
+                      }
+                      return res.status(400).json({ msg: "caching_error" });
+                    }
+                  );
+                }
+              });
+            } else {
+              const setLastWrite = await setLastCacheTime(
+                "lastContactWriteToDb",
+                user_uid
+              );
+              if (setLastWrite) {
+                return res
+                  .status(200)
+                  .json({ msg: "contact_added", contact_uid });
+              }
+              return res.status(400).json({ msg: "caching_error" });
+            }
           }
-        }
-      );
+        );
+      } else {
+        return res.status(400).json({ msg: "one_or_more_invalid_company" });
+      }
     } catch (e) {
       console.log(e);
       return res.status(500).send("Server error");
