@@ -124,12 +124,16 @@ router.post(
         return res.status(400).json({ msg: "company_uid_not_array" });
       }
 
-      const shapedArray = arrayShaper(company_uids);
+      const shapedCompanyUidArray = arrayShaper(company_uids);
+      const shapedTagsArray = arrayShaper(tags);
 
-      if ((await companyValidator(shapedArray)) || shapedArray.length === 0) {
+      if (
+        (await companyValidator(shapedCompanyUidArray)) ||
+        shapedCompanyUidArray.length === 0
+      ) {
         // all company uid present in db
         const contact_uid = `cont-${uuidv4()}`;
-        console.log(shapedArray);
+        console.log(shapedCompanyUidArray);
         pool.query(
           `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture, created_at) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '', '${Date.now()}')`,
           async (err) => {
@@ -137,8 +141,8 @@ router.post(
               return res.status(400).json(err);
             }
 
-            if (tags.length > 0) {
-              tags.forEach((tag) => {
+            if (shapedTagsArray.length > 0) {
+              shapedTagsArray.forEach((tag) => {
                 pool.query(
                   `INSERT INTO tag_contact(user_uid, contact_uid, tag) VALUES('${user_uid}', '${contact_uid}', '${tag}')`,
                   (err) => {
@@ -149,8 +153,8 @@ router.post(
                 );
               });
             }
-            if (shapedArray.length > 0) {
-              shapedArray.forEach(async (uid) => {
+            if (shapedCompanyUidArray.length > 0) {
+              shapedCompanyUidArray.forEach(async (uid) => {
                 pool.query(
                   `INSERT INTO company_contact(contact_uid,company_uid) VALUES( '${contact_uid}', '${uid}')`,
                   async (err) => {
