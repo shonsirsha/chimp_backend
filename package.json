@@ -36,6 +36,7 @@
     "nodemon": "cross-env NODE_ENV=development npm run static & nodemon server.js & nodemon authServer.js",
     "static": "http-server --port 7500",
     "dev": "pm2 kill && pm2 start process-dev.json && npm run fileServer_DEV",
+    "dev-remote": "pm2 kill && pm2 start dev-remote.json",
     "prod": "pm2 kill && pm2 start process-prod.json && npm run fileServer_PROD",
     "test": " NODE_ENV=test-development mocha './test' --exit",
     "test-production": "NODE_ENV=test-production mocha './test' --exit",
