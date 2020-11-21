@@ -117,7 +117,7 @@ There are 2 types of endpoint:
 **IMPORTANT: Private routes ALWAYS require JWT token to be sent as headers named `x-auth-token`.**  
 **JWT token can be obtained by signing in or signing up** (JWT authentication method).
 
-### **Auth Server | PORT: 4000**
+### **Auth Server | PORT: 4000 (or 4999 on remote development environment)**
 
 ### 1. /api/auth
 
@@ -198,7 +198,7 @@ There are 2 types of endpoint:
 
       The number of `errorObject` depends on how many data validation is present & how many is violated.
 
-### **Resource Server | PORT: 5000**
+### **Resource Server | PORT: 5000 (or 5999 on remote development environment)**
 
 ### 1. /api/dev
 
