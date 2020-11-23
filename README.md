@@ -83,7 +83,9 @@ To make sure everything works normally, do a `GET` request to this endpoint `/ap
 
 ## Using the App Remotely <a id="remotely"></a>
 
-To use the app remotely, you can simply visit http://167.99.136.248:PORT/api/ANY where `port` and `any` can be found on the [available endpoints section.](#endpoints)
+⭐ To use the app remotely, you can simply visit http://167.99.136.248:PORT/api/ANY where `port` and `any` can be found on the [available endpoints section.](#endpoints)
+
+⭐ To test our API using [Postman](https://www.postman.com/), a collection file (JSON) for all endpoints is available in the root directory. Just change `localhost` to our server IP addres `167.99.136.248`.
 
 ## Authentication & Authorisation <a id="authmethod"></a>
 
