@@ -59,7 +59,7 @@ router.get("/", auth, async (req, res) => {
         }
       });
     } catch (e) {
-      console.log(e);
+      return res.status(400).json({ msg: e.name });
     }
   } catch (e) {
     return res.status(500).send("Server error");
