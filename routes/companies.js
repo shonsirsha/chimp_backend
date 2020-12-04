@@ -1,6 +1,7 @@
 const express = require("express");
 const auth = require("../middleware/auth");
-const pool = require("../db/pool");
+const Companies = require("../models/Companies");
+const CompanyContact = require("../models/CompanyContact");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 
@@ -15,41 +16,39 @@ router.get("/", auth, async (req, res) => {
     if (!userExists) {
       return res.status(400).json({ msg: "invalid_credentials" });
     }
-
-    let { rows } = await pool.query(
-      `SELECT * FROM companies WHERE user_uid='${user_uid}' ORDER BY id ASC`
-    );
-
-    if (rows.length > 0) {
-      let processed = 0;
-      rows.forEach((company, ix) => {
-        const { company_uid, picture } = company;
-        if (picture !== "") {
-          let dir = `${process.env.USER_UPLOAD_COMPANY_IMAGE}${company_uid}`;
-          company.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${picture}`;
-        }
-        pool.query(
-          //get all people's (contacts) contact_uid that are working for this company
-          `SELECT contact_uid FROM company_contact WHERE company_uid='${company.company_uid}'`,
-          (err, result) => {
-            //result.rows gives ({contact_uid})
-            if (err) {
-              return res.status(400).json(error);
-            }
-            let contact_uids = [];
-            result.rows.forEach(({ contact_uid }) => {
-              contact_uids.push(contact_uid);
-            });
-            company["people"] = contact_uids;
-            processed++;
-            if (processed === rows.length) {
-              return res.status(200).json({ msg: "success", companies: rows });
-            }
-          }
-        );
+    let companiesArr = [];
+    try {
+      const companies = await Companies.findAll({
+        where: {
+          user_uid: user_uid,
+        },
       });
-    } else {
-      return res.status(200).json({ msg: "success", companies: rows });
+      companies.map(async (company, ix) => {
+        let company_contact_arr = [];
+        const company_contact = await CompanyContact.findAll({
+          where: {
+            company_uid: company.dataValues.company_uid,
+          },
+          attributes: ["contact_uid"],
+        });
+        company_contact.map((cc) => {
+          company_contact_arr.push(cc.dataValues.contact_uid);
+        });
+        let returned = company.dataValues;
+        returned["people"] = company_contact_arr;
+        if (returned.picture !== "") {
+          let dir = `${process.env.USER_UPLOAD_COMPANY_IMAGE}${company.dataValues.company_uid}`;
+          returned.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${returned.picture}`;
+        }
+        companiesArr.push(returned);
+        if (ix === companies.length - 1) {
+          return res
+            .status(200)
+            .json({ msg: "success_orm", companies: companiesArr });
+        }
+      });
+    } catch (e) {
+      console.log(e);
     }
   } catch (e) {
     return res.status(500).send("Server error");

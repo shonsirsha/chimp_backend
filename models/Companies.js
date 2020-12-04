@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 const db2 = require("../db/db2");
 
 const Companies = db2.define(
-  "comapnies",
+  "companies",
   {
     user_uid: {
       type: Sequelize.STRING,
