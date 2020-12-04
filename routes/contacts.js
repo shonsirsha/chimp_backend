@@ -2,6 +2,8 @@ const express = require("express");
 const auth = require("../middleware/auth");
 const pool = require("../db/pool");
 const Contacts = require("../models/Contacts");
+const TagContact = require("../models/TagContact");
+const CompanyContact = require("../models/CompanyContact");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const setLastCacheTime = require("./utils/caching/setLastCacheTime");
@@ -10,6 +12,67 @@ const shouldGetFromCache = require("./utils/caching/shouldGetFromCache");
 const getCache = require("./utils/caching/general/getCache");
 
 const getAllContacts = async (user_uid, res) => {
+  let contactsArr = [];
+
+  try {
+    const allContacts = await Contacts.findAll({
+      where: {
+        user_uid: user_uid,
+      },
+    });
+    allContacts.map(async (contact, ix) => {
+      let tagsArr = [];
+      let companyContactArr = [];
+
+      let contactObj = contact.dataValues;
+
+      //give picture a full url if exists
+      if (contactObj.picture !== "") {
+        let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contactObj.contact_uid}`;
+        contactObj.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${contactObj.picture}`;
+      }
+
+      //get all tags
+      const allTags = await TagContact.findAll({
+        attributes: ["tag"],
+        where: {
+          contact_uid: contactObj.contact_uid,
+          user_uid: contactObj.user_uid,
+        },
+      });
+
+      const allCompanyContact = await CompanyContact.findAll({
+        attributes: ["company_uid"],
+        where: {
+          contact_uid: contactObj.contact_uid,
+        },
+      });
+
+      contactsArr.push(contact.dataValues);
+
+      //loop thru the fetched tags
+      allTags.map((tagObj) => {
+        tagsArr.push(tagObj.dataValues.tag);
+      });
+      //setting all tags
+      contactObj["tags"] = tagsArr;
+
+      //loop thru the fetched companyContact
+      allCompanyContact.map((ccObj) => {
+        companyContactArr.push(ccObj.dataValues.company_uid);
+      });
+
+      //setting all cC
+      contactObj["companies"] = companyContactArr;
+
+      if (ix === allContacts.length - 1) {
+        console.log(contactsArr);
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
+
   let { rows } = await pool.query(
     `SELECT * FROM contacts WHERE user_uid='${user_uid}' ORDER BY contacts.created_at ASC`
   );
@@ -101,10 +164,10 @@ router.get("/", auth, async (req, res) => {
     if (shouldUseCachedData) {
       const contacts = JSON.parse(await getCache("contacts", user_uid));
       if (!contacts || contacts === null || contacts === undefined) {
-        getAllContacts(user_uid, res);
       }
+      getAllContacts(user_uid, res);
 
-      return res.status(200).json({ msg: "success", contacts });
+      // return res.status(200).json({ msg: "success", contacts });
     } else {
       getAllContacts(user_uid, res);
     }

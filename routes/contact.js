@@ -293,10 +293,8 @@ router.put(
                   return res.status(400).json(err);
                 }
                 if (shapedCompanyUidArray.length > 0) {
-                  let processed = 0;
                   // if all company uid is valid / present in db
                   shapedCompanyUidArray.forEach(async (uid, ix) => {
-                    processed++;
                     pool.query(
                       `INSERT INTO company_contact(contact_uid, company_uid) VALUES('${contact_uid}', '${uid}')`,
                       async (err) => {
@@ -305,7 +303,7 @@ router.put(
                           return res.status(400).json(err);
                         }
 
-                        if (processed === shapedCompanyUidArray.length) {
+                        if (ix === shapedCompanyUidArray.length - 1) {
                           const setLastWrite = await setLastCacheTime(
                             "lastContactWriteToDb",
                             user_uid
@@ -314,8 +312,11 @@ router.put(
                             return res
                               .status(200)
                               .json({ msg: "contact_updated", contact_uid });
+                          } else {
+                            return res
+                              .status(400)
+                              .json({ msg: "caching_erroxr" });
                           }
-                          return res.status(400).json({ msg: "caching_error" });
                         }
                       }
                     );
@@ -329,8 +330,9 @@ router.put(
                     return res
                       .status(200)
                       .json({ msg: "contact_updated", contact_uid });
+                  } else {
+                    return res.status(400).json({ msg: "caching_errozr" });
                   }
-                  return res.status(400).json({ msg: "caching_error" });
                 }
               }
             );
@@ -340,6 +342,7 @@ router.put(
         return res.status(400).json({ msg: "one_or_more_invalid_company" });
       }
     } catch (e) {
+      console.log(e);
       return res.status(500).send("Server error");
     }
   }

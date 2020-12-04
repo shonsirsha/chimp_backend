@@ -18,29 +18,40 @@ router.get("/", auth, async (req, res) => {
     }
     let companiesArr = [];
     try {
+      //get all companies
       const companies = await Companies.findAll({
         where: {
           user_uid: user_uid,
         },
       });
+      //loop thru fetched companies
       companies.map(async (company, ix) => {
         let company_contact_arr = [];
+        let companyObj = company.dataValues;
+
+        //give picture a full url if exists
+        if (companyObj.picture !== "") {
+          let dir = `${process.env.USER_UPLOAD_COMPANY_IMAGE}${company.dataValues.company_uid}`;
+          companyObj.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${companyObj.picture}`;
+        }
+
+        //get all company contact (getting all contacts for this company)
         const company_contact = await CompanyContact.findAll({
           where: {
             company_uid: company.dataValues.company_uid,
           },
           attributes: ["contact_uid"],
         });
+
+        //loop thru fetched cC
         company_contact.map((cc) => {
           company_contact_arr.push(cc.dataValues.contact_uid);
         });
-        let returned = company.dataValues;
-        returned["people"] = company_contact_arr;
-        if (returned.picture !== "") {
-          let dir = `${process.env.USER_UPLOAD_COMPANY_IMAGE}${company.dataValues.company_uid}`;
-          returned.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${returned.picture}`;
-        }
-        companiesArr.push(returned);
+
+        //setting all contacts that works for this company (cC)
+        companyObj["people"] = company_contact_arr;
+
+        companiesArr.push(companyObj);
         if (ix === companies.length - 1) {
           return res
             .status(200)
