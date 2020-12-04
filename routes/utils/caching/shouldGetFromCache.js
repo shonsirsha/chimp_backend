@@ -8,6 +8,7 @@ const shoudGetFromCache = async (lastWriteKey, lastReadKey, user_uid) => {
   // LR < LW -> get from db
   let lw = await getCache(lastWriteKey, user_uid);
   let lr = await getCache(lastReadKey, user_uid);
+
   if (lr === null || lw === null) return false;
 
   lw = parseInt(lw);

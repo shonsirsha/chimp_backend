@@ -1,29 +1,35 @@
 const Sequelize = require("sequelize");
 const db2 = require("../db/db2");
 
-const Companies = db2.define(
-  "companies",
+const Contacts = db2.define(
+  "contacts",
   {
     user_uid: {
       type: Sequelize.STRING,
     },
-    company_uid: {
+    contact_uid: {
       type: Sequelize.STRING,
     },
-    company_name: {
+    first_name: {
       type: Sequelize.STRING,
     },
-    company_email: {
+    last_name: {
       type: Sequelize.STRING,
     },
-    company_website: {
+    phone: {
+      type: Sequelize.STRING,
+    },
+    email: {
+      type: Sequelize.STRING,
+    },
+    note: {
       type: Sequelize.STRING,
     },
     picture: {
       type: Sequelize.STRING,
     },
-    company_phone: {
-      type: Sequelize.STRING,
+    dob: {
+      type: Sequelize.BIGINT,
     },
     created_at: {
       type: Sequelize.BIGINT,
@@ -35,4 +41,4 @@ const Companies = db2.define(
   }
 );
 
-module.exports = Companies;
+module.exports = Contacts;
