@@ -1,6 +1,7 @@
 const express = require("express");
 const auth = require("../middleware/auth");
 const pool = require("../db/pool");
+const Contacts = require("../models/Contacts");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const setLastCacheTime = require("./utils/caching/setLastCacheTime");

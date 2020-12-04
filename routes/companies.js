@@ -44,7 +44,7 @@ router.get("/", auth, async (req, res) => {
         if (ix === companies.length - 1) {
           return res
             .status(200)
-            .json({ msg: "success_orm", companies: companiesArr });
+            .json({ msg: "success", companies: companiesArr });
         }
       });
     } catch (e) {
