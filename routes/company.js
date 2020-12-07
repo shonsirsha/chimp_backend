@@ -220,7 +220,7 @@ router.put("/image/:company_uid", auth, async (req, res) => {
       );
     });
   } catch (e) {
-    return res.status(500).send("Server error");
+    return res.status(500).send("Server error" + e);
   }
 });
 
