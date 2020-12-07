@@ -7,3 +7,4 @@ node_modules
 *.log
 user_uploads
 logs
+.DS_Store
