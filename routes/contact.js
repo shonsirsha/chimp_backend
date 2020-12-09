@@ -5,6 +5,9 @@ const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
 const pool = require("../db/pool");
+const Contacts = require("../models/Contacts");
+const TagContact = require("../models/TagContact");
+const CompanyContact = require("../models/CompanyContact");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
@@ -131,49 +134,44 @@ router.post(
         shapedCompanyUidArray.length === 0
       ) {
         // all company uid present in db
-        const contact_uid = `cont-${uuidv4()}`;
-        pool.query(
-          `INSERT INTO contacts(user_uid, contact_uid, first_name, last_name, phone, email, dob, note, picture, created_at) VALUES('${user_uid}', '${contact_uid}', '${first_name}', '${last_name}', '${phone}', '${email}', '${dob}', '${note}',  '', '${Date.now()}')`,
-          async (err) => {
-            if (err) {
-              return res.status(400).json(err);
-            }
 
-            if (shapedTagsArray.length > 0) {
-              shapedTagsArray.forEach((tag) => {
-                pool.query(
-                  `INSERT INTO tag_contact(user_uid, contact_uid, tag) VALUES('${user_uid}', '${contact_uid}', '${tag}')`,
-                  (err) => {
-                    if (err) {
-                      return res.status(400).json(err);
-                    }
-                  }
-                );
+        const contact_uid = `cont-${uuidv4()}`;
+        try {
+          await Contacts.create({
+            user_uid,
+            contact_uid,
+            first_name,
+            last_name,
+            phone,
+            email,
+            dob,
+            note,
+            picture: "",
+            created_at: Date.now(),
+          });
+
+          //if there's a tag for this contact
+          if (shapedTagsArray.length > 0) {
+            shapedTagsArray.forEach(async (tag) => {
+              try {
+                await TagContact.create({
+                  user_uid,
+                  contact_uid,
+                  tag,
+                });
+              } catch (e) {
+                return res.status(500).send("Server error");
+              }
+            });
+          }
+
+          //if this contact works for any company
+          if (shapedCompanyUidArray.length > 0) {
+            shapedCompanyUidArray.forEach(async (uid) => {
+              await CompanyContact.create({
+                contact_uid,
+                company_uid: uid,
               });
-            }
-            if (shapedCompanyUidArray.length > 0) {
-              shapedCompanyUidArray.forEach(async (uid) => {
-                pool.query(
-                  `INSERT INTO company_contact(contact_uid,company_uid) VALUES( '${contact_uid}', '${uid}')`,
-                  async (err) => {
-                    if (err) {
-                      return res.status(400).json(err);
-                    }
-                    const setLastWrite = await setLastCacheTime(
-                      "lastContactWriteToDb",
-                      user_uid
-                    );
-                    if (setLastWrite) {
-                      return res
-                        .status(200)
-                        .json({ msg: "contact_added", contact_uid });
-                    } else {
-                      return res.status(400).json({ msg: "caching_error" });
-                    }
-                  }
-                );
-              });
-            } else {
               const setLastWrite = await setLastCacheTime(
                 "lastContactWriteToDb",
                 user_uid
@@ -182,16 +180,31 @@ router.post(
                 return res
                   .status(200)
                   .json({ msg: "contact_added", contact_uid });
+              } else {
+                return res.status(400).json({ msg: "caching_error" });
               }
+            });
+          } else {
+            const setLastWrite = await setLastCacheTime(
+              "lastContactWriteToDb",
+              user_uid
+            );
+            if (setLastWrite) {
+              return res
+                .status(200)
+                .json({ msg: "contact_added", contact_uid });
+            } else {
               return res.status(400).json({ msg: "caching_error" });
             }
           }
-        );
+        } catch (e) {
+          return res.status(500).send("Server error");
+        }
       } else {
         return res.status(400).json({ msg: "one_or_more_invalid_company" });
       }
     } catch (e) {
-      return res.status(500).send("Server error");
+      return res.status(500).send("Server error" + e);
     }
   }
 );
