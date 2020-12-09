@@ -45,40 +45,50 @@ router.get(
       if (contact_uid.length === 0 || !contactExists) {
         return res.status(400).json({ msg: "contact_not_found" });
       }
-      let { rows } = await pool.query(
-        `SELECT * FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`
-      );
+      const allContacts = await Contacts.findAll({
+        where: {
+          contact_uid,
+          user_uid,
+        },
+      });
 
-      const tagsFromDb = await pool.query(
-        `SELECT tag FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`
-      );
+      const tagsFromDb = await TagContact.findAll({
+        attributes: ["tag"],
+        where: {
+          contact_uid,
+          user_uid,
+        },
+      });
 
-      const companyUidsFromDb = await pool.query(
-        `SELECT company_uid FROM company_contact WHERE contact_uid='${contact_uid}'`
-      );
+      const companyUidsFromDb = await CompanyContact.findAll({
+        field: ["company_uid"],
+        where: {
+          contact_uid,
+        },
+      });
+      let contactModel = allContacts[0].dataValues;
 
-      if (rows[0].picture !== "") {
+      if (contactModel.picture !== "") {
         let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
-        rows[0].picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
+        contactModel.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
       }
 
       let tags = [];
-      tagsFromDb.rows.forEach(({ tag }) => {
+      tagsFromDb.forEach(({ tag }) => {
         tags.push(tag);
       });
 
       let companyUids = [];
-      companyUidsFromDb.rows.forEach(({ company_uid }) => {
+      companyUidsFromDb.forEach(({ company_uid }) => {
         companyUids.push(company_uid);
       });
 
-      let contactModel = rows[0];
       contactModel["tags"] = tags;
       contactModel["companies"] = companyUids;
 
       return res.status(200).json({ msg: "success", contact: contactModel });
     } catch (e) {
-      return res.status(500).send(e);
+      return res.status(500).send("Server error");
     }
   }
 );
@@ -506,27 +516,36 @@ router.delete(
       if (contact_uid.length === 0 || !contactExists) {
         return res.status(400).json({ msg: "contact_not_found" });
       }
-
-      pool.query(
-        `DELETE FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}';
-        DELETE FROM company_contact WHERE contact_uid='${contact_uid}';
-        DELETE FROM contacts WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}';
-        `,
-        async (err) => {
-          if (err) {
-            return res.status(400).json(err);
-          }
-
-          const setLastWrite = await setLastCacheTime(
-            "lastContactWriteToDb",
-            user_uid
-          );
-          if (setLastWrite) {
-            return res.status(200).json({ msg: "contact_deleted" });
-          }
+      try {
+        await TagContact.destroy({
+          where: {
+            contact_uid,
+            user_uid,
+          },
+        });
+        await CompanyContact.destroy({
+          where: {
+            contact_uid,
+          },
+        });
+        await Contacts.destroy({
+          where: {
+            contact_uid,
+            user_uid,
+          },
+        });
+        const setLastWrite = await setLastCacheTime(
+          "lastContactWriteToDb",
+          user_uid
+        );
+        if (setLastWrite) {
+          return res.status(200).json({ msg: "contact_deleted" });
+        } else {
           return res.status(400).json({ msg: "caching_error" });
         }
-      );
+      } catch (e) {
+        return res.status(500).send("Server error");
+      }
     } catch (e) {
       return res.status(500).send("Server error");
     }
