@@ -1,7 +1,6 @@
 const pool = require("../../db/pool");
 
 const checkIfExists = async (table, field, data) => {
-  let p = "";
   try {
     const { rows } = await pool.query(
       `SELECT count(1) FROM ${table} WHERE ${field}='${data}'`

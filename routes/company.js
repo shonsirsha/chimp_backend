@@ -313,24 +313,26 @@ router.delete(
         return res.status(400).json({ msg: "company_not_found" });
       }
 
-      pool.query(
-        `DELETE FROM company_contact WHERE company_uid='${company_uid}';
-        DELETE FROM companies WHERE company_uid='${company_uid}' AND user_uid='${user_uid}';
-        `,
-        async (err) => {
-          if (err) {
-            return res.status(400).json(err);
-          }
-          const setLastWrite = await setLastCacheTime(
-            "lastContactWriteToDb",
-            user_uid
-          );
-          if (setLastWrite) {
-            return res.status(200).json({ msg: "company_deleted" });
-          }
-          return res.status(400).json({ msg: "caching_error" });
-        }
+      await CompanyContact.destroy({
+        where: {
+          company_uid,
+        },
+      });
+      await Companies.destroy({
+        where: {
+          company_uid,
+          user_uid,
+        },
+      });
+      const setLastWrite = await setLastCacheTime(
+        "lastContactWriteToDb",
+        user_uid
       );
+      if (setLastWrite) {
+        return res.status(200).json({ msg: "company_deleted" });
+      } else {
+        return res.status(400).json({ msg: "caching_error" });
+      }
     } catch (e) {
       return res.status(500).send("Server error");
     }
