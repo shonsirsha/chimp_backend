@@ -1,5 +1,4 @@
 const pool = require("../../db/pool");
-
 const checkIfExists = async (table, field, data) => {
   try {
     const { rows } = await pool.query(
