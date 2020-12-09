@@ -4,6 +4,8 @@ const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
 const pool = require("../db/pool");
+const User = require("../models/User");
+const UserProfile = require("../models/UserProfile");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
@@ -18,28 +20,32 @@ router.get("/", auth, async (req, res) => {
     return res.status(400).json({ msg: "invalid_credentials" });
   }
   try {
-    let { rows } = await pool.query(
-      `SELECT user_profile.*, users.* FROM user_profile, users WHERE users.user_uid='${user_uid}'`
-    );
-    for (const property in rows[0]) {
-      if (property === "password" || property === "id") {
-        // not including password and id
-        delete rows[0][property];
-      }
-    }
+    const user = await User.findOne({
+      attributes: ["user_uid", "email"],
+      where: {
+        user_uid,
+      },
+    });
+    const userProfile = await UserProfile.findOne({
+      attributes: ["first_name", "last_name", "picture"],
+      where: {
+        user_uid,
+      },
+    });
+    let userProfileObj = { ...user.dataValues, ...userProfile.dataValues };
 
-    if (rows[0].picture !== "") {
+    if (userProfileObj.picture !== "") {
       let dir = `${process.env.USER_UPLOAD_PROFILE_PIC}${contact_uid}`;
-      rows[0].picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
+      userProfileObj.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
     }
-    if (rows[0] === null || rows[0] === undefined) {
+    if (userProfileObj === null || userProfileObj === undefined) {
       // if token is valid but that uid not in db
       return res.status(401).json({ msg: "token_invalid" });
     } else {
-      return res.status(200).json({ user: rows[0], msg: "success" });
+      return res.status(200).json({ user: userProfileObj, msg: "success" });
     }
-  } catch {
-    return res.status(500).send("Server error");
+  } catch (e) {
+    return res.status(500).send("Server error " + e);
   }
 });
 
