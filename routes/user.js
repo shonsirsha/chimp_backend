@@ -71,16 +71,15 @@ router.put(
     }
     const { first_name, last_name } = req.body;
     try {
-      pool.query(
-        `UPDATE user_profile SET first_name='${first_name}', last_name='${last_name}' WHERE user_uid='${user_uid}'`,
-        (err) => {
-          if (!err) {
-            return res.status(200).json({ msg: "profile_detail_updated" });
-          } else {
-            return res.status(400).json(error);
-          }
+      const x = await UserProfile.update(
+        { first_name, last_name },
+        {
+          where: {
+            user_uid,
+          },
         }
       );
+      return res.status(200).json({ msg: "profile_detail_updated" });
     } catch (e) {
       return res.status(500).send("Server error");
     }
@@ -116,24 +115,23 @@ router.put("/profile-picture", auth, async (req, res) => {
       "user_uid"
     );
     fs.mkdirSync(dir, { recursive: true });
-    file.mv(`${dir}/${newFileName}`, (err) => {
+    file.mv(`${dir}/${newFileName}`, async (err) => {
       if (err) {
         return res.status(400).json({ msg: `mv_file_failed` });
       }
       //updates in in db
-      pool.query(
-        `UPDATE user_profile SET picture='${newFileName}' WHERE user_uid='${user_uid}'`,
-        (err) => {
-          if (!err) {
-            return res.status(200).json({
-              msg: "picture_updated",
-              picture: `${process.env.FILE_SERVER_HOST}/${dir}/${newFileName}`,
-            });
-          } else {
-            return res.status(400).json(error);
-          }
+      await UserProfile.update(
+        { picture: newFileName },
+        {
+          where: {
+            user_uid,
+          },
         }
       );
+      return res.status(200).json({
+        msg: "picture_updated",
+        picture: `${process.env.FILE_SERVER_HOST}/${dir}/${newFileName}`,
+      });
     });
   } catch (e) {
     return res.status(500).send("Server error");

@@ -3,7 +3,6 @@
     {
       "name": "rest-api-server-dev",
       "script": "./server.js",
-      "watch": true,
       "exec_mode": "cluster",
       "instances": "max",
       "env": {
@@ -13,7 +12,6 @@
     {
       "name": "auth-server-dev",
       "script": "./authServer.js",
-      "watch": true,
       "exec_mode": "cluster",
       "instances": "max",
       "env": {
