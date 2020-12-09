@@ -21,7 +21,7 @@ describe("Auth tests", function () {
         email: "sean@2mail.com",
         password: "123456",
       })
-      .expect(200, done);
+      .expect(400, done);
   });
 
   it("failed signing in", function (done) {
