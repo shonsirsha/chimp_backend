@@ -3,7 +3,6 @@ const fs = require("fs");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
-const pool = require("../db/pool");
 const User = require("../models/User");
 const UserProfile = require("../models/UserProfile");
 const router = express.Router();
