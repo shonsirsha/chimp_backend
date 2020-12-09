@@ -4,7 +4,6 @@ const fs = require("fs");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
-const pool = require("../db/pool");
 const Contacts = require("../models/Contacts");
 const TagContact = require("../models/TagContact");
 const CompanyContact = require("../models/CompanyContact");
