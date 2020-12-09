@@ -271,86 +271,82 @@ router.put(
         (await companyValidator(shapedCompanyUidArray)) ||
         shapedCompanyUidArray.length === 0
       ) {
-        pool.query(
-          `DELETE FROM tag_contact WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
-          (err) => {
-            // delete all tags
-            if (err) {
-              return res.status(400).json(err);
-            }
-            if (shapedTagsArray.length > 0) {
-              shapedTagsArray.forEach((tag) => {
-                pool.query(
-                  `INSERT INTO tag_contact(user_uid, contact_uid, tag) VALUES('${user_uid}', '${contact_uid}', '${tag}')`,
-                  (err) => {
-                    if (err) {
-                      return res.status(400).json(err);
-                    }
-                  }
-                );
-              }); // insert all tags
-            }
+        try {
+          // readjusting tags (deleting and re-inserting):
+          await TagContact.destroy({
+            where: {
+              user_uid,
+              contact_uid,
+            },
+          }); // delete all tags
+
+          if (shapedTagsArray.length > 0) {
+            shapedTagsArray.forEach(async (tag) => {
+              await TagContact.create({
+                user_uid,
+                contact_uid,
+                tag,
+              });
+            }); // insert all tags
           }
-        ); // readjust tags
-
-        pool.query(
-          `UPDATE contacts SET first_name='${first_name}', last_name='${last_name}', phone='${phone}', email='${email}', dob='${dob}', note='${note}' WHERE contact_uid='${contact_uid}' AND user_uid='${user_uid}'`,
-          (err) => {
-            if (err) {
-              return res.status(400).json(err);
+          await Contacts.update(
+            {
+              first_name,
+              last_name,
+              phone,
+              email,
+              dob,
+              note,
+            },
+            {
+              where: {
+                user_uid,
+                contact_uid,
+              },
             }
-            pool.query(
-              `DELETE FROM company_contact WHERE contact_uid='${contact_uid}'`, // deleting all relation of company-contact
-              async (err) => {
-                if (err) {
-                  return res.status(400).json(err);
-                }
-                if (shapedCompanyUidArray.length > 0) {
-                  // if all company uid is valid / present in db
-                  shapedCompanyUidArray.forEach(async (uid, ix) => {
-                    pool.query(
-                      `INSERT INTO company_contact(contact_uid, company_uid) VALUES('${contact_uid}', '${uid}')`,
-                      async (err) => {
-                        // re inserting it back from the company_uid arr supplied by the user...
-                        if (err) {
-                          return res.status(400).json(err);
-                        }
-
-                        if (ix === shapedCompanyUidArray.length - 1) {
-                          const setLastWrite = await setLastCacheTime(
-                            "lastContactWriteToDb",
-                            user_uid
-                          );
-                          if (setLastWrite) {
-                            return res
-                              .status(200)
-                              .json({ msg: "contact_updated", contact_uid });
-                          } else {
-                            return res
-                              .status(400)
-                              .json({ msg: "caching_erroxr" });
-                          }
-                        }
-                      }
-                    );
-                  });
+          );
+          await CompanyContact.destroy({
+            where: {
+              contact_uid,
+            },
+          });
+          if (shapedCompanyUidArray.length > 0) {
+            // if all company uid is valid / present in db
+            shapedCompanyUidArray.forEach(async (uid, ix) => {
+              await CompanyContact.create({
+                contact_uid,
+                company_uid: uid,
+              });
+              if (ix === shapedCompanyUidArray.length - 1) {
+                const setLastWrite = await setLastCacheTime(
+                  "lastContactWriteToDb",
+                  user_uid
+                );
+                if (setLastWrite) {
+                  return res
+                    .status(200)
+                    .json({ msg: "contact_updated", contact_uid });
                 } else {
-                  const setLastWrite = await setLastCacheTime(
-                    "lastContactWriteToDb",
-                    user_uid
-                  );
-                  if (setLastWrite) {
-                    return res
-                      .status(200)
-                      .json({ msg: "contact_updated", contact_uid });
-                  } else {
-                    return res.status(400).json({ msg: "caching_errozr" });
-                  }
+                  return res.status(400).json({ msg: "caching_error" });
                 }
               }
+            });
+          } else {
+            const setLastWrite = await setLastCacheTime(
+              "lastContactWriteToDb",
+              user_uid
             );
+            if (setLastWrite) {
+              return res
+                .status(200)
+                .json({ msg: "contact_updated", contact_uid });
+            } else {
+              return res.status(400).json({ msg: "caching_error" });
+            }
           }
-        );
+        } catch (e) {
+          return res.status(500).send("Server error" + e);
+        }
       } else {
         return res.status(400).json({ msg: "one_or_more_invalid_company" });
       }
