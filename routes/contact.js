@@ -391,34 +391,39 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
       "contact_uid"
     );
     fs.mkdirSync(dir, { recursive: true });
-    file.mv(`${dir}/${newFileName}`, (err) => {
+    file.mv(`${dir}/${newFileName}`, async (err) => {
       if (err) {
         return res.status(400).json({ msg: `mv_file_failed` });
       }
       //updates in in db
-      pool.query(
-        `UPDATE contacts SET picture='${newFileName}' WHERE contact_uid='${contact_uid}'`,
-        async (err) => {
-          if (!err) {
-            const setLastWrite = await setLastCacheTime(
-              "lastContactWriteToDb",
-              user_uid
-            );
-            if (setLastWrite) {
-              return res.status(200).json({
-                msg: "picture_updated",
-                picture: `${process.env.FILE_SERVER_HOST}/${dir}/${newFileName}`,
-              });
-            }
-            return res.status(400).json({ msg: "caching_error" });
-          } else {
-            return res.status(400).json(error);
+      try {
+        await Contacts.update(
+          {
+            picture: newFileName,
+          },
+          {
+            where: {
+              contact_uid,
+            },
           }
+        );
+        const setLastWrite = await setLastCacheTime(
+          "lastContactWriteToDb",
+          user_uid
+        );
+        if (setLastWrite) {
+          return res.status(200).json({
+            msg: "picture_updated",
+            picture: `${process.env.FILE_SERVER_HOST}/${dir}/${newFileName}`,
+          });
         }
-      );
+        return res.status(400).json({ msg: "caching_error" });
+      } catch (e) {
+        return res.status(500).send("Server error");
+      }
     });
   } catch (e) {
-    return res.status(500).json({ msg: "Server error", e });
+    return res.status(500).send("Server error");
   }
 });
 
