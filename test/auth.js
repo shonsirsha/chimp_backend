@@ -13,7 +13,6 @@ if (process.env.NODE_ENV === "development") {
 require("dotenv").config({
   path: envpath,
 });
-const pool = require("../db/pool");
 describe("Auth tests", function () {
   it("failed signing up", function (done) {
     request(authapp)
