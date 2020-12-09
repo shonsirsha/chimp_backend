@@ -14,7 +14,7 @@ require("dotenv").config({
   path: envpath,
 });
 describe("Auth tests", function () {
-  it("succeed signing up", function (done) {
+  it("failed signing up", function (done) {
     request(authapp)
       .post("/api/auth/sign-up")
       .send({
