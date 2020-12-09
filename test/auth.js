@@ -14,14 +14,14 @@ require("dotenv").config({
   path: envpath,
 });
 describe("Auth tests", function () {
-  it("failed signing up", function (done) {
+  it("succeed signing up", function (done) {
     request(authapp)
       .post("/api/auth/sign-up")
       .send({
         email: "sean@2mail.com",
         password: "123456",
       })
-      .expect(400, done);
+      .expect(200, done);
   });
 
   it("failed signing in", function (done) {
