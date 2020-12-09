@@ -90,7 +90,7 @@ const getAllContacts = async (user_uid, res) => {
       // }
     }
   } catch (e) {
-    console.log(e);
+    return res.status(500).send("Server error");
   }
 };
 

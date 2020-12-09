@@ -5,6 +5,8 @@ const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
 const pool = require("../db/pool");
+const Companies = require("../models/Companies");
+const CompanyContact = require("../models/CompanyContact");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
@@ -35,30 +37,37 @@ router.get(
       if (company_uid.length === 0 || !companyExists) {
         return res.status(400).json({ msg: "company_not_found" });
       }
-      let { rows } = await pool.query(
-        `SELECT * FROM companies WHERE company_uid='${company_uid}' AND user_uid='${user_uid}'`
-      );
-
-      let contacts = await pool.query(
-        `SELECT company_uid FROM company_contact WHERE company_uid='${company_uid}'`
-      );
-
-      if (rows[0].picture !== "") {
-        let dir = `${process.env.USER_UPLOAD_COMPANY_IMAGE}${company_uid}`;
-        rows[0].picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
-      }
-
-      let company_uids = [];
-      contacts.rows.forEach(({ company_uid }) => {
-        company_uids.push(company_uid);
+      const allCompanies = await Companies.findAll({
+        where: {
+          company_uid,
+          user_uid,
+        },
       });
 
-      let companyModel = rows[0];
-      companyModel["people"] = company_uids;
+      const contacts = await CompanyContact.findAll({
+        attributes: ["contact_uid"],
+        where: {
+          company_uid,
+        },
+      });
+
+      let companyModel = allCompanies[0].dataValues;
+
+      if (companyModel.picture !== "") {
+        let dir = `${process.env.USER_UPLOAD_COMPANY_IMAGE}${company_uid}`;
+        companyModel.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${companyModel.picture}`;
+      }
+
+      let contact_uids = [];
+      contacts.forEach(({ contact_uid }) => {
+        contact_uids.push(contact_uid);
+      });
+
+      companyModel["people"] = contact_uids;
 
       return res.status(200).json({ msg: "success", contact: companyModel });
     } catch (e) {
-      return res.status(500).send("Server error");
+      return res.status(500).send("Server error " + e);
     }
   }
 );
@@ -93,19 +102,19 @@ router.post(
 
       const company_uid = `company-${uuidv4()}`;
 
-      pool.query(
-        `INSERT INTO companies(user_uid, company_uid, company_name, company_email, company_website, company_phone, picture, created_at) 
-        VALUES('${user_uid}','${company_uid}' ,'${company_name}', '${company_email}', '${company_website}', '${company_phone}' ,'', '${Date.now()}')`,
-        (err) => {
-          if (err) {
-            return res.status(400).json(err);
-          }
-
-          return res.status(200).json({ msg: "company_created", company_uid });
-        }
-      );
+      await Companies.create({
+        user_uid,
+        company_uid,
+        company_name,
+        company_email,
+        company_website,
+        company_phone,
+        picture: "",
+        created_at: Date.now(),
+      });
+      return res.status(200).json({ msg: "company_created", company_uid });
     } catch (e) {
-      return res.status(500).send("Server error");
+      return res.status(500).send("Server error" + e);
     }
   }
 );
@@ -150,16 +159,21 @@ router.put(
         return res.status(400).json({ msg: "company_not_found" });
       }
 
-      pool.query(
-        `UPDATE companies SET company_name='${company_name}', company_email='${company_email}',
-         company_website='${company_website}', company_phone='${company_phone}' WHERE user_uid='${user_uid}' AND company_uid='${company_uid}' `,
-        (err) => {
-          if (err) {
-            return res.status(400).json(err);
-          }
-          return res.status(200).json({ msg: "company_updated", company_uid });
+      await Companies.update(
+        {
+          company_name,
+          company_email,
+          company_website,
+          company_phone,
+        },
+        {
+          where: {
+            user_uid,
+            company_uid,
+          },
         }
       );
+      return res.status(200).json({ msg: "company_updated", company_uid });
     } catch (e) {
       return res.status(500).send("Server error");
     }
@@ -200,24 +214,25 @@ router.put("/image/:company_uid", auth, async (req, res) => {
       "company_uid"
     );
     fs.mkdirSync(dir, { recursive: true });
-    file.mv(`${dir}/${newFileName}`, (err) => {
+    file.mv(`${dir}/${newFileName}`, async (err) => {
       if (err) {
         return res.status(400).json({ msg: `mv_file_failed` });
       }
       //updates in in db
-      pool.query(
-        `UPDATE companies SET picture='${newFileName}' WHERE company_uid='${company_uid}'`,
-        (err) => {
-          if (!err) {
-            return res.status(200).json({
-              msg: "picture_updated",
-              picture: `${process.env.FILE_SERVER_HOST}/${dir}/${newFileName}`,
-            });
-          } else {
-            return res.status(400).json(error);
-          }
+      await Companies.update(
+        {
+          picture: newFileName,
+        },
+        {
+          where: {
+            company_uid,
+          },
         }
       );
+      return res.status(200).json({
+        msg: "picture_updated",
+        picture: `${process.env.FILE_SERVER_HOST}/${dir}/${newFileName}`,
+      });
     });
   } catch (e) {
     return res.status(500).send("Server error" + e);
@@ -298,24 +313,26 @@ router.delete(
         return res.status(400).json({ msg: "company_not_found" });
       }
 
-      pool.query(
-        `DELETE FROM company_contact WHERE company_uid='${company_uid}';
-        DELETE FROM companies WHERE company_uid='${company_uid}' AND user_uid='${user_uid}';
-        `,
-        async (err) => {
-          if (err) {
-            return res.status(400).json(err);
-          }
-          const setLastWrite = await setLastCacheTime(
-            "lastContactWriteToDb",
-            user_uid
-          );
-          if (setLastWrite) {
-            return res.status(200).json({ msg: "company_deleted" });
-          }
-          return res.status(400).json({ msg: "caching_error" });
-        }
+      await CompanyContact.destroy({
+        where: {
+          company_uid,
+        },
+      });
+      await Companies.destroy({
+        where: {
+          company_uid,
+          user_uid,
+        },
+      });
+      const setLastWrite = await setLastCacheTime(
+        "lastContactWriteToDb",
+        user_uid
       );
+      if (setLastWrite) {
+        return res.status(200).json({ msg: "company_deleted" });
+      } else {
+        return res.status(400).json({ msg: "caching_error" });
+      }
     } catch (e) {
       return res.status(500).send("Server error");
     }
