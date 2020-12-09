@@ -69,7 +69,7 @@ router.get(
 
       if (contactModel.picture !== "") {
         let dir = `${process.env.USER_UPLOAD_CONTACT_IMAGE}${contact_uid}`;
-        contactModel.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
+        contactModel.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${companyModel.picture}`;
       }
 
       let tags = [];

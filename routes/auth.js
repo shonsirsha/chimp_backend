@@ -70,7 +70,7 @@ router.post(
       authSucceeded(req);
       return res.status(200).json({ msg: "signed_up", token, user_uid });
     } catch (e) {
-      return res.status(400).json({ msg: e.name });
+      return res.status(500).send("Server error");
     }
   }
 );
@@ -130,7 +130,7 @@ router.post(
         authSucceeded(req);
         return res.status(200).json({ token, msg: "signed_in", user_uid });
       } catch (e) {
-        return res.status(400).json({ msg: e.name });
+        return res.status(500).send("Server error");
       }
     } catch {
       return res.status(500).send("Server error");
@@ -194,7 +194,7 @@ router.post(
                 );
                 return res.status(200).json({ token: newAccessToken });
               } catch (e) {
-                return res.status(400).json({ msg: e.name });
+                return res.status(500).send("Server error");
               }
             }
           );
@@ -203,7 +203,7 @@ router.post(
           return res.status(401).json({ msg: "unauthorised" });
         }
       } catch (e) {
-        return res.status(400).json({ msg: e.name });
+        return res.status(500).send("Server error");
       }
     } catch (e) {
       return res.status(500).send("Server error");
@@ -251,7 +251,7 @@ router.post(
         });
         return res.status(200).json({ msg: "signed_out" });
       } catch (e) {
-        return res.status(400).json({ msg: e.name });
+        return res.status(500).send("Server error");
       }
     } catch (e) {
       return res.status(500).send("Server Error");

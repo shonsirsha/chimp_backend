@@ -35,7 +35,7 @@ router.get("/", auth, async (req, res) => {
 
     if (userProfileObj.picture !== "") {
       let dir = `${process.env.USER_UPLOAD_PROFILE_PIC}${contact_uid}`;
-      userProfileObj.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${rows[0].picture}`;
+      userProfileObj.picture = `${process.env.FILE_SERVER_HOST}/${dir}/${companyModel.picture}`;
     }
     if (userProfileObj === null || userProfileObj === undefined) {
       // if token is valid but that uid not in db
