@@ -63,7 +63,7 @@ router.get("/", auth, async (req, res) => {
         return res.status(200).json({ msg: "success", companies: [] });
       }
     } catch (e) {
-      return res.status(400).json({ msg: e.name });
+      return res.status(500).send("Server error");
     }
   } catch (e) {
     return res.status(500).send("Server error");
