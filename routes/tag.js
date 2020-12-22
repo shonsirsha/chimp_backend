@@ -77,7 +77,6 @@ router.put(
 		}
 
 		try {
-			const { user_uid } = req;
 			const { tag_uid, tag_name } = req.body;
 			const tagExists = await checkIfExists("tags", "tag_uid", tag_uid);
 			if (!tagExists || tag_uid.length === 0) {
@@ -113,65 +112,40 @@ router.put(
 	}
 );
 
-// //@route    PUT api/company
-// //@desc     Edit a company for currently logged in user
+// //@route    PUT api/tag
+// //@desc     Delete a tag for currently logged in user
 // //@access   Private
-// router.put(
-//   "/",
-//   [
-//     check("company_name", "company_name_fail").exists(),
-//     check("company_email", "company_email_fail").exists(),
-//     check("company_website", "company_website_fail").exists(),
-//     check("company_phone", "company_phone_fail").exists(),
-//     check("company_uid", "company_uid_fail").exists(),
-//   ],
-//   auth,
-//   async (req, res) => {
-//     const errors = validationResult(req);
+router.delete(
+	"/",
+	[check("tag_uid", "tag_uid_fail").exists()],
+	auth,
+	async (req, res) => {
+		const errors = validationResult(req);
 
-//     if (!errors.isEmpty()) {
-//       return res.status(400).json({ errors: errors.array() });
-//     }
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
 
-//     try {
-//       const { user_uid } = req;
-//       const {
-//         company_name,
-//         company_email,
-//         company_website,
-//         company_phone,
-//         company_uid,
-//       } = req.body;
+		try {
+			const { user_uid } = req;
+			const { tag_uid } = req.body;
 
-//       const companyExists = await checkIfExists(
-//         "companies",
-//         "company_uid",
-//         company_uid
-//       );
+			const tagExists = await checkIfExists("tags", "tag_uid", tag_uid);
+			if (!tagExists || tag_uid.length === 0) {
+				return res.status(400).json({ msg: "tag_not_found" });
+			}
 
-//       if (company_uid.length === 0 || !companyExists) {
-//         return res.status(400).json({ msg: "company_not_found" });
-//       }
+			await Tag.destroy({
+				where: {
+					tag_uid,
+					user_uid,
+				},
+			}); // delete all tags
 
-//       await Companies.update(
-//         {
-//           company_name,
-//           company_email,
-//           company_website,
-//           company_phone,
-//         },
-//         {
-//           where: {
-//             user_uid,
-//             company_uid,
-//           },
-//         }
-//       );
-//       return res.status(200).json({ msg: "company_updated", company_uid });
-//     } catch (e) {
-//       return res.status(500).send("Server error");
-//     }
-//   }
-// );
-
+			return res.status(200).json({ msg: "tag_deleted" });
+		} catch (e) {
+			return res.status(500).send("Server error" + e);
+		}
+	}
+);
 module.exports = router;
