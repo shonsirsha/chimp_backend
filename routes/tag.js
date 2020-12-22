@@ -14,6 +14,42 @@ const checkIfExistsUnique = require("./utils/checkIfExistsUnique");
 const deleteFile = require("./utils/deleteFile");
 const setLastCacheTime = require("./utils/caching/setLastCacheTime");
 
+// //@route    GET api/tag
+// //@desc     Get a single tag for currently logged in user
+// //@access   Private
+router.get(
+	"/",
+	[check("tag_uid", "tag_uid_fail").exists()],
+	auth,
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		try {
+			const { user_uid } = req;
+			const { tag_uid } = req.body;
+
+			const tagExists = await checkIfExists("tags", "tag_uid", tag_uid);
+			if (!tagExists || tag_uid.length === 0) {
+				return res.status(400).json({ msg: "tag_not_found" });
+			}
+
+			const tag = await Tag.findOne({
+				where: {
+					tag_uid,
+					user_uid,
+				},
+			});
+			return res.status(200).json({ msg: "success", tag: tag.dataValues });
+		} catch (e) {
+			return res.status(500).send("Server error" + e);
+		}
+	}
+);
+
 //@route    POST api/tag
 //@desc     Create a new tag
 //@access   Private
