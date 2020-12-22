@@ -1,11 +1,7 @@
 const express = require("express");
-const { check, validationResult } = require("express-validator");
 const auth = require("../middleware/auth");
 const Tag = require("../models/Tag");
-const { Op } = require("sequelize");
 const router = express.Router();
-const checkIfExists = require("./utils/checkIfExists");
-const checkIfExistsUnique = require("./utils/checkIfExistsUnique");
 
 // //@route    GET api/tags
 // //@desc     Get all tags for currently logged in user
