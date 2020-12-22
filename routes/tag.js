@@ -1,18 +1,11 @@
 const express = require("express");
-const { v4: uuidv4 } = require("uuid");
-const fs = require("fs");
 const { check, validationResult } = require("express-validator");
-const path = require("path");
 const auth = require("../middleware/auth");
-const pool = require("../db/pool");
 const Tag = require("../models/Tag");
 const { Op } = require("sequelize");
-const CompanyContact = require("../models/CompanyContact");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const checkIfExistsUnique = require("./utils/checkIfExistsUnique");
-const deleteFile = require("./utils/deleteFile");
-const setLastCacheTime = require("./utils/caching/setLastCacheTime");
 
 // //@route    GET api/tag
 // //@desc     Get a single tag for currently logged in user
