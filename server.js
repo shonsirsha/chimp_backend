@@ -30,6 +30,7 @@ app.use("/api/contact", require("./routes/contact"));
 app.use("/api/contacts", require("./routes/contacts"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/companies", require("./routes/companies"));
+app.use("/api/tag", require("./routes/tag"));
 
 const PORT = process.env.REST_PORT || 5000;
 app.listen(PORT, () => {
