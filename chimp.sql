@@ -83,6 +83,17 @@ CREATE TABLE IF NOT EXISTS company_contact (
     CONSTRAINT company_contact_company_uid_fkey FOREIGN KEY (company_uid) REFERENCES companies(company_uid)
 );
 
+CREATE TABLE IF NOT EXISTS tags (
+    id SERIAL NOT NULL,
+    user_uid VARCHAR (256) NOT NULL,
+    tag_uid VARCHAR(256) NOT NULL,
+    tag_name VARCHAR(256) NOT NULL,
+    CONSTRAINT tags_pkey PRIMARY KEY (id),
+    CONSTRAINT tags_tag_uid_unique UNIQUE (tag_uid),
+    CONSTRAINT tags_tag_name_unique UNIQUE (tag_name),
+    CONSTRAINT tags_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid),
+);
+
 --Indexes for table `users`
 CREATE INDEX users_user_uid_idx ON users(user_uid);
 
