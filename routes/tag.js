@@ -9,6 +9,7 @@ const Tag = require("../models/Tag");
 const { Op } = require("sequelize");
 const CompanyContact = require("../models/CompanyContact");
 const router = express.Router();
+const checkIfExists = require("./utils/checkIfExists");
 const checkIfExistsUnique = require("./utils/checkIfExistsUnique");
 const deleteFile = require("./utils/deleteFile");
 const setLastCacheTime = require("./utils/caching/setLastCacheTime");
@@ -78,6 +79,10 @@ router.put(
 		try {
 			const { user_uid } = req;
 			const { tag_uid, tag_name } = req.body;
+			const tagExists = await checkIfExists("tags", "tag_uid", tag_uid);
+			if (!tagExists || tag_uid.length === 0) {
+				return res.status(400).json({ msg: "tag_not_found" });
+			}
 			const tagInDb = await Tag.findOne({
 				where: {
 					tag_uid: {
