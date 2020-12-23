@@ -5,7 +5,6 @@ const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
 const Contacts = require("../models/Contacts");
-const TagContact = require("../models/TagContact");
 const TagContactX = require("../models/TagContactX");
 const CompanyContact = require("../models/CompanyContact");
 const router = express.Router();
@@ -54,13 +53,23 @@ router.get(
 				},
 			});
 
-			const tagsFromDb = await TagContact.findAll({
-				attributes: ["tag"],
+			// const tagsFromDb = await TagContact.findAll({
+			// 	attributes: ["tag"],
+			// 	where: {
+			// 		contact_uid,
+			// 		user_uid,
+			// 	},
+			// });
+
+			const tagUids = await TagContactX.findAll({
+				attributes: ["tag_uid"],
 				where: {
 					contact_uid,
 					user_uid,
 				},
 			});
+
+			console.log(tagUids);
 
 			const companyUidsFromDb = await CompanyContact.findAll({
 				field: ["company_uid"],
@@ -76,13 +85,18 @@ router.get(
 			}
 
 			let tags = [];
-			tagsFromDb.forEach(({ tag }) => {
-				tags.push(tag);
+			// tagsFromDb.forEach(({ tag }) => {
+			// 	tags.push(tag);
+			// });
+
+			tagUids.forEach(({ tag_uid }) => {
+				tags.push(tag_uid);
 			});
 
 			let companyUids = [];
 			companyUidsFromDb.forEach(({ company_uid }) => {
 				companyUids.push(company_uid);
+				console.log(company_uid);
 			});
 
 			contactModel["tags"] = tags;
@@ -291,87 +305,112 @@ router.put(
 			}
 
 			if (
-				(await companyValidator(shapedCompanyUidArray)) ||
-				shapedCompanyUidArray.length === 0
+				(await tagValidator(shapedTagsArray)) ||
+				shapedTagsArray.length === 0
 			) {
-				try {
-					// readjusting tags (deleting and re-inserting):
-					await TagContact.destroy({
-						where: {
-							user_uid,
-							contact_uid,
-						},
-					}); // delete all tags
+				//all tags uid are ok
+				if (
+					(await companyValidator(shapedCompanyUidArray)) ||
+					shapedCompanyUidArray.length === 0
+				) {
+					//all company uids are ok
+					try {
+						// // readjusting tags (deleting and re-inserting):
+						// await TagContact.destroy({
+						// 	where: {
+						// 		user_uid,
+						// 		contact_uid,
+						// 	},
+						// }); // delete all tags
 
-					if (shapedTagsArray.length > 0) {
-						shapedTagsArray.forEach(async (tag) => {
-							await TagContact.create({
-								user_uid,
-								contact_uid,
-								tag,
-							});
-						}); // insert all tags
-					}
-					await Contacts.update(
-						{
-							first_name,
-							last_name,
-							phone,
-							email,
-							dob,
-							note,
-						},
-						{
+						// readjusting tags (deleting and re-inserting):
+						await TagContactX.destroy({
 							where: {
 								user_uid,
 								contact_uid,
 							},
+						}); // delete all tags
+
+						if (shapedTagsArray.length > 0) {
+							shapedTagsArray.forEach(async (tag_uid) => {
+								await TagContactX.create({
+									user_uid,
+									contact_uid,
+									tag_uid,
+								});
+								// await TagContact.create({
+								// 	user_uid,
+								// 	contact_uid,
+								// 	tag,
+								// });
+							}); // insert all tags
 						}
-					);
-					await CompanyContact.destroy({
-						where: {
-							contact_uid,
-						},
-					});
-					if (shapedCompanyUidArray.length > 0) {
-						// if all company uid is valid / present in db
-						shapedCompanyUidArray.forEach(async (uid, ix) => {
-							await CompanyContact.create({
-								contact_uid,
-								company_uid: uid,
-							});
-							if (ix === shapedCompanyUidArray.length - 1) {
-								const setLastWrite = await setLastCacheTime(
-									"lastContactWriteToDb",
-									user_uid
-								);
-								if (setLastWrite) {
-									return res
-										.status(200)
-										.json({ msg: "contact_updated", contact_uid });
-								} else {
-									return res.status(400).json({ msg: "caching_error" });
-								}
+						await Contacts.update(
+							{
+								first_name,
+								last_name,
+								phone,
+								email,
+								dob,
+								note,
+							},
+							{
+								where: {
+									user_uid,
+									contact_uid,
+								},
 							}
-						});
-					} else {
-						const setLastWrite = await setLastCacheTime(
-							"lastContactWriteToDb",
-							user_uid
 						);
-						if (setLastWrite) {
-							return res
-								.status(200)
-								.json({ msg: "contact_updated", contact_uid });
+						await CompanyContact.destroy({
+							where: {
+								contact_uid,
+							},
+						});
+						if (shapedCompanyUidArray.length > 0) {
+							// if all company uid is valid / present in db
+							shapedCompanyUidArray.forEach(async (uid, ix) => {
+								await CompanyContact.create({
+									contact_uid,
+									company_uid: uid,
+								});
+								if (ix === shapedCompanyUidArray.length - 1) {
+									const setLastWrite = await setLastCacheTime(
+										"lastContactWriteToDb",
+										user_uid
+									);
+									if (setLastWrite) {
+										return res
+											.status(200)
+											.json({ msg: "contact_updated", contact_uid });
+									} else {
+										return res.status(400).json({ msg: "caching_error" });
+									}
+								}
+							});
 						} else {
-							return res.status(400).json({ msg: "caching_error" });
+							const setLastWrite = await setLastCacheTime(
+								"lastContactWriteToDb",
+								user_uid
+							);
+							if (setLastWrite) {
+								return res
+									.status(200)
+									.json({ msg: "contact_updated", contact_uid });
+							} else {
+								return res.status(400).json({ msg: "caching_error" });
+							}
 						}
+					} catch (e) {
+						return res.status(500).send("Server error" + e);
 					}
-				} catch (e) {
-					return res.status(500).send("Server error" + e);
+				} else {
+					return res
+						.status(400)
+						.json({ msg: "one_or_more_invalid_company_uid" });
 				}
 			} else {
-				return res.status(400).json({ msg: "one_or_more_invalid_company_uid" });
+				//something wrong with the tags uid
+				return res.status(400).json({ msg: "one_or_more_invalid_tag_uid" });
 			}
 		} catch (e) {
 			console.log(e);
@@ -530,12 +569,18 @@ router.delete(
 				return res.status(400).json({ msg: "contact_not_found" });
 			}
 			try {
-				await TagContact.destroy({
+				await TagContactX.destroy({
 					where: {
-						contact_uid,
 						user_uid,
+						contact_uid,
 					},
 				});
+				// await TagContact.destroy({
+				// 	where: {
+				// 		contact_uid,
+				// 		user_uid,
+				// 	},
+				// });
 				await CompanyContact.destroy({
 					where: {
 						contact_uid,
