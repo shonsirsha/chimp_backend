@@ -1,7 +1,7 @@
 const express = require("express");
 const auth = require("../middleware/auth");
 const Contacts = require("../models/Contacts");
-const TagContactX = require("../models/TagContactX");
+const TagContact = require("../models/TagContact");
 const CompanyContact = require("../models/CompanyContact");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
@@ -33,7 +33,7 @@ const getAllContacts = async (user_uid, res) => {
 				}
 
 				//get all tag uids
-				const allTagUids = await TagContactX.findAll({
+				const allTagUids = await TagContact.findAll({
 					attributes: ["tag_uid"],
 					where: {
 						contact_uid: contactObj.contact_uid,

@@ -5,7 +5,7 @@ const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
 const Contacts = require("../models/Contacts");
-const TagContactX = require("../models/TagContactX");
+const TagContact = require("../models/TagContact");
 const CompanyContact = require("../models/CompanyContact");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
@@ -61,7 +61,7 @@ router.get(
 			// 	},
 			// });
 
-			const tagUids = await TagContactX.findAll({
+			const tagUids = await TagContact.findAll({
 				attributes: ["tag_uid"],
 				where: {
 					contact_uid,
@@ -185,7 +185,7 @@ router.post(
 						if (shapedTagsArray.length > 0) {
 							shapedTagsArray.forEach(async (tag_uid) => {
 								try {
-									await TagContactX.create({
+									await TagContact.create({
 										tag_uid,
 										contact_uid,
 										user_uid,
@@ -324,7 +324,7 @@ router.put(
 						// }); // delete all tags
 
 						// readjusting tags (deleting and re-inserting):
-						await TagContactX.destroy({
+						await TagContact.destroy({
 							where: {
 								user_uid,
 								contact_uid,
@@ -333,7 +333,7 @@ router.put(
 
 						if (shapedTagsArray.length > 0) {
 							shapedTagsArray.forEach(async (tag_uid) => {
-								await TagContactX.create({
+								await TagContact.create({
 									user_uid,
 									contact_uid,
 									tag_uid,
@@ -569,7 +569,7 @@ router.delete(
 				return res.status(400).json({ msg: "contact_not_found" });
 			}
 			try {
-				await TagContactX.destroy({
+				await TagContact.destroy({
 					where: {
 						user_uid,
 						contact_uid,

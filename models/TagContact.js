@@ -1,8 +1,8 @@
 const Sequelize = require("sequelize");
 const db2 = require("../db/db2");
 
-const TagContactX = db2.define(
-	"tag_contact_x",
+const TagContact = db2.define(
+	"tag_contact",
 	{
 		tag_uid: {
 			type: Sequelize.STRING,
@@ -20,4 +20,4 @@ const TagContactX = db2.define(
 	}
 );
 
-module.exports = TagContactX;
+module.exports = TagContact;

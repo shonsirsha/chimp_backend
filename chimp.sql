@@ -78,24 +78,16 @@ CREATE TABLE IF NOT EXISTS tags (
     CONSTRAINT tags_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid)
 );
 
+
 CREATE TABLE IF NOT EXISTS tag_contact (
     id SERIAL NOT NULL,
     user_uid VARCHAR (256) NOT NULL,
     contact_uid VARCHAR(256) NOT NULL,
-    tag VARCHAR (256) NOT NULL,
-    CONSTRAINT tag_contact_pkey PRIMARY KEY (id),
-    CONSTRAINT tag_contact_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users (user_uid)
-);
-
-CREATE TABLE IF NOT EXISTS tag_contact_x (
-    id SERIAL NOT NULL,
-    user_uid VARCHAR (256) NOT NULL,
-    contact_uid VARCHAR(256) NOT NULL,
     tag_uid VARCHAR (256) NOT NULL,
-    CONSTRAINT tag_contact_x_pkey PRIMARY KEY (id),
-    CONSTRAINT tag_contact_x_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users (user_uid),
-    CONSTRAINT tag_contact_x_contact_uid_fkey FOREIGN KEY (contact_uid) REFERENCES contacts (contact_uid),
-    CONSTRAINT tag_contact_x_tag_uid_fkey FOREIGN KEY (tag_uid) REFERENCES tags (tag_uid)
+    CONSTRAINT tag_contact_pkey PRIMARY KEY (id),
+    CONSTRAINT tag_contact_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users (user_uid),
+    CONSTRAINT tag_contact_contact_uid_fkey FOREIGN KEY (contact_uid) REFERENCES contacts (contact_uid),
+    CONSTRAINT tag_contact_tag_uid_fkey FOREIGN KEY (tag_uid) REFERENCES tags (tag_uid)
 );
 
 CREATE TABLE IF NOT EXISTS company_contact (
@@ -122,6 +114,7 @@ CREATE INDEX contacts_user_uid_idx ON contacts(user_uid);
 
 --Indexes for table `tag-contact`
 CREATE INDEX tag_contact_contact_uid_idx ON tag_contact(contact_uid);
+CREATE INDEX tag_contact_user_uid_idx ON tag_contact(user_uid);
 
 --Indexes for table `companies`
 CREATE INDEX companies_company_uid_idx ON companies(company_uid);
