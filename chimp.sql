@@ -79,6 +79,22 @@ CREATE TABLE IF NOT EXISTS tags (
 );
 
 
+CREATE TABLE IF NOT EXISTS projects (
+    id SERIAL NOT NULL,
+    user_uid VARCHAR (256) NOT NULL,
+    project_uid VARCHAR(256) NOT NULL,
+    project_name VARCHAR(256) NOT NULL,
+    project_starts bigint NOT NULL,
+    project_ends bigint NOT NULL,
+    created_at bigint,
+    updated_at bigint,
+    CONSTRAINT projects_pkey PRIMARY KEY (id),
+    CONSTRAINT projects_project_uid_unique UNIQUE (project_uid),
+    CONSTRAINT projects_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid)
+);
+
+-- "Connector" tables:
+
 CREATE TABLE IF NOT EXISTS tag_contact (
     id SERIAL NOT NULL,
     user_uid VARCHAR (256) NOT NULL,
@@ -88,6 +104,26 @@ CREATE TABLE IF NOT EXISTS tag_contact (
     CONSTRAINT tag_contact_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users (user_uid),
     CONSTRAINT tag_contact_contact_uid_fkey FOREIGN KEY (contact_uid) REFERENCES contacts (contact_uid),
     CONSTRAINT tag_contact_tag_uid_fkey FOREIGN KEY (tag_uid) REFERENCES tags (tag_uid)
+);
+
+CREATE TABLE IF NOT EXISTS tag_project (
+    id SERIAL NOT NULL,
+    user_uid VARCHAR (256) NOT NULL,
+    project_uid VARCHAR (256) NOT NULL,
+    tag_uid VARCHAR(256) NOT NULL,
+    CONSTRAINT tag_project_pkey PRIMARY KEY (id),
+    CONSTRAINT tag_project_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid),
+    CONSTRAINT tag_project_project_uid_fkey FOREIGN KEY (project_uid) REFERENCES projects(project_uid),
+    CONSTRAINT tag_project_tag_uid_fkey FOREIGN KEY (tag_uid) REFERENCES tags(tag_uid)
+);
+
+CREATE TABLE IF NOT EXISTS project_contact (
+    id SERIAL NOT NULL,
+    contact_uid VARCHAR (256) NOT NULL,
+    project_uid VARCHAR(256) NOT NULL,
+    CONSTRAINT project_contact_pkey PRIMARY KEY (id),
+    CONSTRAINT project_contact_contact_uid_fkey FOREIGN KEY (contact_uid) REFERENCES contacts(contact_uid),
+    CONSTRAINT project_contact_project_uid_fkey FOREIGN KEY (project_uid) REFERENCES projects(project_uid)
 );
 
 CREATE TABLE IF NOT EXISTS company_contact (
