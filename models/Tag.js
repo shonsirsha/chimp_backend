@@ -1,17 +1,23 @@
 const Sequelize = require("sequelize");
 const db2 = require("../db/db2");
 
-const TagContact = db2.define(
-	"tag_contact",
+const Tag = db2.define(
+	"tags",
 	{
 		tag_uid: {
 			type: Sequelize.STRING,
 		},
-		contact_uid: {
+		tag_name: {
+			type: Sequelize.STRING,
+		},
+		tag_name_lc: {
 			type: Sequelize.STRING,
 		},
 		user_uid: {
 			type: Sequelize.STRING,
+		},
+		created_at: {
+			type: Sequelize.BIGINT,
 		},
 	},
 	{
@@ -20,4 +26,4 @@ const TagContact = db2.define(
 	}
 );
 
-module.exports = TagContact;
+module.exports = Tag;
