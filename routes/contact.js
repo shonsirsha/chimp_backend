@@ -53,14 +53,6 @@ router.get(
 				},
 			});
 
-			// const tagsFromDb = await TagContact.findAll({
-			// 	attributes: ["tag"],
-			// 	where: {
-			// 		contact_uid,
-			// 		user_uid,
-			// 	},
-			// });
-
 			const tagUids = await TagContact.findAll({
 				attributes: ["tag_uid"],
 				where: {
@@ -68,8 +60,6 @@ router.get(
 					user_uid,
 				},
 			});
-
-			console.log(tagUids);
 
 			const companyUidsFromDb = await CompanyContact.findAll({
 				field: ["company_uid"],
@@ -134,6 +124,10 @@ router.post(
 
 		try {
 			const { user_uid } = req;
+			const userExists = checkIfExists("users", "user_uid", user_uid);
+			if (!userExists) {
+				return res.status(400).json({ msg: "invalid_credentials" });
+			}
 			const {
 				first_name,
 				last_name,
@@ -272,6 +266,10 @@ router.put(
 
 		try {
 			const { user_uid } = req;
+			const userExists = checkIfExists("users", "user_uid", user_uid);
+			if (!userExists) {
+				return res.status(400).json({ msg: "invalid_credentials" });
+			}
 			const {
 				contact_uid,
 				first_name,
@@ -315,14 +313,6 @@ router.put(
 				) {
 					//all company uids are ok
 					try {
-						// // readjusting tags (deleting and re-inserting):
-						// await TagContact.destroy({
-						// 	where: {
-						// 		user_uid,
-						// 		contact_uid,
-						// 	},
-						// }); // delete all tags
-
 						// readjusting tags (deleting and re-inserting):
 						await TagContact.destroy({
 							where: {
@@ -338,11 +328,6 @@ router.put(
 									contact_uid,
 									tag_uid,
 								});
-								// await TagContact.create({
-								// 	user_uid,
-								// 	contact_uid,
-								// 	tag,
-								// });
 							}); // insert all tags
 						}
 						await Contacts.update(
@@ -424,13 +409,17 @@ router.put(
 //@access   Private
 router.put("/image/:contact_uid", auth, async (req, res) => {
 	const { user_uid } = req;
-	const { contact_uid } = req.params;
-	let thisExists = await checkIfExists("users", "user_uid", user_uid);
-	if (!thisExists) {
+	const userExists = checkIfExists("users", "user_uid", user_uid);
+	if (!userExists) {
 		return res.status(400).json({ msg: "invalid_credentials" });
 	}
-	thisExists = await checkIfExists("contacts", "contact_uid", contact_uid);
-	if (!thisExists || contact_uid.length.length === 0) {
+	const { contact_uid } = req.params;
+	const contactExists = await checkIfExists(
+		"contacts",
+		"contact_uid",
+		contact_uid
+	);
+	if (!contactExists || contact_uid.length.length === 0) {
 		return res.status(400).json({ msg: "contact_not_found" });
 	}
 	if (req.files === null || req.files === undefined) {
@@ -504,14 +493,18 @@ router.delete(
 		}
 
 		const { user_uid } = req;
-		const { contact_uid } = req.body;
-
-		let thisExists = await checkIfExists("users", "user_uid", user_uid);
-		if (!thisExists) {
+		const userExists = checkIfExists("users", "user_uid", user_uid);
+		if (!userExists) {
 			return res.status(400).json({ msg: "invalid_credentials" });
 		}
-		thisExists = await checkIfExists("contacts", "contact_uid", contact_uid);
-		if (!thisExists || contact_uid.length.length === 0) {
+		const { contact_uid } = req.body;
+
+		const contactExists = await checkIfExists(
+			"contacts",
+			"contact_uid",
+			contact_uid
+		);
+		if (!contactExists || contact_uid.length.length === 0) {
 			return res.status(400).json({ msg: "contact_not_found" });
 		}
 		try {
@@ -559,6 +552,10 @@ router.delete(
 
 		try {
 			const { user_uid } = req;
+			const userExists = checkIfExists("users", "user_uid", user_uid);
+			if (!userExists) {
+				return res.status(400).json({ msg: "invalid_credentials" });
+			}
 			const { contact_uid } = req.body;
 			const contactExists = await checkIfExists(
 				"contacts",

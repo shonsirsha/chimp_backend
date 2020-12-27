@@ -101,7 +101,7 @@ router.get("/", auth, async (req, res) => {
 		const { user_uid } = req;
 		const userExists = checkIfExists("users", "user_uid", user_uid);
 		if (!userExists) {
-			return res.status(400).json({ msg: "user_not_found" });
+			return res.status(400).json({ msg: "invalid_credentials" });
 		}
 		const shouldUseCachedData = await shouldGetFromCache(
 			"lastContactWriteToDb",

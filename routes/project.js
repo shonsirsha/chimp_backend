@@ -7,6 +7,7 @@ const router = express.Router();
 const checkIfExistsUnique = require("./utils/checkIfExistsUnique");
 const arrayShaper = require("./utils/arrayShaper");
 const tagValidator = require("./utils/tagValidator");
+const checkIfExists = require("./utils/checkIfExists");
 
 //@route    POST api/project
 //@desc     Create a new project
@@ -30,6 +31,10 @@ router.post(
 
 		try {
 			const { user_uid } = req;
+			const userExists = checkIfExists("users", "user_uid", user_uid);
+			if (!userExists) {
+				return res.status(400).json({ msg: "invalid_credentials" });
+			}
 			const {
 				project_uid,
 				project_name,
@@ -93,6 +98,69 @@ router.post(
 			}
 		} catch (e) {
 			return res.status(500).send("Server error" + e);
+		}
+	}
+);
+
+//@route    GET api/project
+//@desc     Get a project for currently logged in user
+//@access   Private
+router.get(
+	"/",
+	[check("project_uid", "project_uid_fail").exists()],
+	auth,
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		try {
+			const { user_uid } = req;
+
+			const userExists = checkIfExists("users", "user_uid", user_uid);
+			if (!userExists) {
+				return res.status(400).json({ msg: "invalid_credentials" });
+			}
+
+			const { project_uid } = req.body;
+			const projectExists = await checkIfExists(
+				"projects",
+				"project_uid",
+				project_uid
+			);
+			if (project_uid.length === 0 || !projectExists) {
+				return res.status(400).json({ msg: "project_not_found" });
+			}
+			const allProjects = await Projects.findAll({
+				where: {
+					project_uid,
+					user_uid,
+				},
+			});
+
+			const tagUids = await TagProject.findAll({
+				attributes: ["tag_uid"],
+				where: {
+					project_uid,
+					user_uid,
+				},
+			});
+
+			let tags = [];
+
+			tagUids.forEach(({ tag_uid }) => {
+				tags.push(tag_uid);
+			});
+
+			let projectModel = allProjects[0].dataValues;
+
+			projectModel["tags"] = tags;
+
+			return res.status(200).json({ msg: "success", project: projectModel });
+		} catch (e) {
+			return res.status(500).send("Server error " + e);
 		}
 	}
 );
