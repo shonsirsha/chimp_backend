@@ -572,12 +572,7 @@ router.delete(
 						contact_uid,
 					},
 				});
-				// await TagContact.destroy({
-				// 	where: {
-				// 		contact_uid,
-				// 		user_uid,
-				// 	},
-				// });
+
 				await CompanyContact.destroy({
 					where: {
 						contact_uid,
