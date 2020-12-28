@@ -50,7 +50,7 @@ router.get("/", auth, async (req, res) => {
 					});
 
 					//setting all contacts that works for this company (cC)
-					companyObj["people"] = company_contact_arr;
+					companyObj["contact_uids"] = company_contact_arr;
 
 					companiesArr.push(companyObj);
 					if (ix === companies.length - 1) {

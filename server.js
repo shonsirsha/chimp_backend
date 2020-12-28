@@ -33,6 +33,7 @@ app.use("/api/companies", require("./routes/companies"));
 app.use("/api/tag", require("./routes/tag"));
 app.use("/api/tags", require("./routes/tags"));
 app.use("/api/project", require("./routes/project"));
+app.use("/api/projects", require("./routes/projects"));
 
 const PORT = process.env.REST_PORT || 5000;
 app.listen(PORT, () => {
