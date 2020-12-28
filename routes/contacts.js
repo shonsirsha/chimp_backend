@@ -99,7 +99,7 @@ const getAllContacts = async (user_uid, res) => {
 router.get("/", auth, async (req, res) => {
 	try {
 		const { user_uid } = req;
-		const userExists = checkIfExists("users", "user_uid", user_uid);
+		const userExists = await checkIfExists("users", "user_uid", user_uid);
 		if (!userExists) {
 			return res.status(400).json({ msg: "invalid_credentials" });
 		}

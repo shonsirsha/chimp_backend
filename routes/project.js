@@ -9,6 +9,69 @@ const arrayShaper = require("./utils/arrayShaper");
 const tagValidator = require("./utils/tagValidator");
 const checkIfExists = require("./utils/checkIfExists");
 
+//@route    GET api/project
+//@desc     Get a project for currently logged in user
+//@access   Private
+router.get(
+	"/",
+	[check("project_uid", "project_uid_fail").exists()],
+	auth,
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		try {
+			const { user_uid } = req;
+
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
+			if (!userExists) {
+				return res.status(400).json({ msg: "invalid_credentials" });
+			}
+
+			const { project_uid } = req.body;
+			const projectExists = await checkIfExists(
+				"projects",
+				"project_uid",
+				project_uid
+			);
+			if (project_uid.length === 0 || !projectExists) {
+				return res.status(400).json({ msg: "project_not_found" });
+			}
+			const allProjects = await Projects.findAll({
+				where: {
+					project_uid,
+					user_uid,
+				},
+			});
+
+			const tagUids = await TagProject.findAll({
+				attributes: ["tag_uid"],
+				where: {
+					project_uid,
+					user_uid,
+				},
+			});
+
+			let tags = [];
+
+			tagUids.forEach(({ tag_uid }) => {
+				tags.push(tag_uid);
+			});
+
+			let projectModel = allProjects[0].dataValues;
+
+			projectModel["tag_uids"] = tags;
+
+			return res.status(200).json({ msg: "success", project: projectModel });
+		} catch (e) {
+			return res.status(500).send("Server error " + e);
+		}
+	}
+);
+
 //@route    POST api/project
 //@desc     Create a new project
 //@access   Private
@@ -19,7 +82,7 @@ router.post(
 		check("project_name", "project_name_fail").exists(),
 		check("project_starts", "project_starts_fail").exists(),
 		check("project_ends", "project_ends_fail").exists(),
-		check("tags", "tags_fail").exists(),
+		check("tag_uids", "tag_uids_fail").exists(),
 	],
 	auth,
 	async (req, res) => {
@@ -31,7 +94,7 @@ router.post(
 
 		try {
 			const { user_uid } = req;
-			const userExists = checkIfExists("users", "user_uid", user_uid);
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
@@ -40,10 +103,10 @@ router.post(
 				project_name,
 				project_starts,
 				project_ends,
-				tags,
+				tag_uids,
 			} = req.body;
 
-			if (!Array.isArray(tags)) {
+			if (!Array.isArray(tag_uids)) {
 				return res.status(400).json({ msg: "tags_not_array" });
 			}
 
@@ -58,7 +121,7 @@ router.post(
 				return res.status(400).json({ msg: "project_already_exists" });
 			}
 
-			const shapedTagsArray = arrayShaper(tags);
+			const shapedTagsArray = arrayShaper(tag_uids);
 
 			if (
 				(await tagValidator(shapedTagsArray)) ||
@@ -102,12 +165,18 @@ router.post(
 	}
 );
 
-//@route    GET api/project
-//@desc     Get a project for currently logged in user
+//@route    PUT api/project
+//@desc     Edit / update a single project
 //@access   Private
-router.get(
+router.put(
 	"/",
-	[check("project_uid", "project_uid_fail").exists()],
+	[
+		check("project_uid", "project_uid_fail").exists(),
+		check("project_name", "project_name_fail").exists(),
+		check("project_starts", "project_starts_fail").exists(),
+		check("project_ends", "project_ends_fail").exists(),
+		check("tag_uids", "tag_uids_fail").exists(),
+	],
 	auth,
 	async (req, res) => {
 		const errors = validationResult(req);
@@ -118,49 +187,87 @@ router.get(
 
 		try {
 			const { user_uid } = req;
-
-			const userExists = checkIfExists("users", "user_uid", user_uid);
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
+			const {
+				project_uid,
+				project_name,
+				project_starts,
+				project_ends,
+				tag_uids,
+			} = req.body;
 
-			const { project_uid } = req.body;
 			const projectExists = await checkIfExists(
 				"projects",
 				"project_uid",
 				project_uid
 			);
+
 			if (project_uid.length === 0 || !projectExists) {
 				return res.status(400).json({ msg: "project_not_found" });
 			}
-			const allProjects = await Projects.findAll({
-				where: {
-					project_uid,
-					user_uid,
-				},
-			});
 
-			const tagUids = await TagProject.findAll({
-				attributes: ["tag_uid"],
-				where: {
-					project_uid,
-					user_uid,
-				},
-			});
+			if (!Array.isArray(tag_uids)) {
+				return res.status(400).json({ msg: "tags_not_array" });
+			}
 
-			let tags = [];
+			const shapedTagsArray = arrayShaper(tag_uids);
 
-			tagUids.forEach(({ tag_uid }) => {
-				tags.push(tag_uid);
-			});
+			if (
+				(await tagValidator(shapedTagsArray)) ||
+				shapedTagsArray.length === 0
+			) {
+				// all tag uid present in db
+				try {
+					// readjusting tags (deleting and re-inserting):
+					await TagProject.destroy({
+						where: {
+							user_uid,
+							project_uid,
+						},
+					}); // delete all tags
 
-			let projectModel = allProjects[0].dataValues;
+					await Projects.update(
+						{
+							project_name,
+							project_starts,
+							project_ends,
+							updated_at: Date.now(),
+						},
+						{
+							where: {
+								project_uid,
+								user_uid,
+							},
+						}
+					);
 
-			projectModel["tags"] = tags;
+					if (shapedTagsArray.length > 0) {
+						shapedTagsArray.forEach(async (tag_uid) => {
+							try {
+								await TagProject.create({
+									user_uid,
+									project_uid,
+									tag_uid,
+								}); // insert all tags
+							} catch (e) {
+								return res.status(500).send("Server error");
+							}
+						});
+					}
 
-			return res.status(200).json({ msg: "success", project: projectModel });
+					return res.status(200).json({ msg: "project_updated", project_uid });
+				} catch {
+					return res.status(500).send("Server error");
+				}
+			} else {
+				//something wrong with the tags uid
+				return res.status(400).json({ msg: "one_or_more_invalid_tag_uid" });
+			}
 		} catch (e) {
-			return res.status(500).send("Server error " + e);
+			return res.status(500).send("Server error" + e);
 		}
 	}
 );

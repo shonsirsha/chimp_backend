@@ -32,7 +32,7 @@ router.get(
 		try {
 			const { user_uid } = req;
 
-			const userExists = checkIfExists("users", "user_uid", user_uid);
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
@@ -122,7 +122,7 @@ router.post(
 
 		try {
 			const { user_uid } = req;
-			const userExists = checkIfExists("users", "user_uid", user_uid);
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
@@ -264,7 +264,7 @@ router.put(
 
 		try {
 			const { user_uid } = req;
-			const userExists = checkIfExists("users", "user_uid", user_uid);
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
@@ -280,6 +280,15 @@ router.put(
 				company_uids,
 			} = req.body;
 
+			const contactExists = await checkIfExists(
+				"contacts",
+				"contact_uid",
+				contact_uid
+			);
+			if (contact_uid.length === 0 || !contactExists) {
+				return res.status(400).json({ msg: "contact_not_found" });
+			}
+
 			if (!Array.isArray(tags)) {
 				return res.status(400).json({ msg: "tags_not_array" });
 			}
@@ -290,15 +299,6 @@ router.put(
 
 			const shapedCompanyUidArray = arrayShaper(company_uids);
 			const shapedTagsArray = arrayShaper(tag_uids);
-
-			const contactExists = await checkIfExists(
-				"contacts",
-				"contact_uid",
-				contact_uid
-			);
-			if (contact_uid.length === 0 || !contactExists) {
-				return res.status(400).json({ msg: "contact_not_found" });
-			}
 
 			if (
 				(await tagValidator(shapedTagsArray)) ||
@@ -407,7 +407,7 @@ router.put(
 //@access   Private
 router.put("/image/:contact_uid", auth, async (req, res) => {
 	const { user_uid } = req;
-	const userExists = checkIfExists("users", "user_uid", user_uid);
+	const userExists = await checkIfExists("users", "user_uid", user_uid);
 	if (!userExists) {
 		return res.status(400).json({ msg: "invalid_credentials" });
 	}
@@ -491,7 +491,7 @@ router.delete(
 		}
 
 		const { user_uid } = req;
-		const userExists = checkIfExists("users", "user_uid", user_uid);
+		const userExists = await checkIfExists("users", "user_uid", user_uid);
 		if (!userExists) {
 			return res.status(400).json({ msg: "invalid_credentials" });
 		}
@@ -550,7 +550,7 @@ router.delete(
 
 		try {
 			const { user_uid } = req;
-			const userExists = checkIfExists("users", "user_uid", user_uid);
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}

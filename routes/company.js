@@ -27,7 +27,7 @@ router.get(
 
 		try {
 			const { user_uid } = req;
-			const userExists = checkIfExists("users", "user_uid", user_uid);
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
@@ -97,7 +97,7 @@ router.post(
 
 		try {
 			const { user_uid } = req;
-			const userExists = checkIfExists("users", "user_uid", user_uid);
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
@@ -148,7 +148,7 @@ router.put(
 
 		try {
 			const { user_uid } = req;
-			const userExists = checkIfExists("users", "user_uid", user_uid);
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
@@ -196,7 +196,7 @@ router.put(
 //@access   Private
 router.put("/image/:company_uid", auth, async (req, res) => {
 	const { user_uid } = req;
-	const userExists = checkIfExists("users", "user_uid", user_uid);
+	const userExists = await checkIfExists("users", "user_uid", user_uid);
 	if (!userExists) {
 		return res.status(400).json({ msg: "invalid_credentials" });
 	}
@@ -270,7 +270,7 @@ router.delete(
 		}
 
 		const { user_uid } = req;
-		const userExists = checkIfExists("users", "user_uid", user_uid);
+		const userExists = await checkIfExists("users", "user_uid", user_uid);
 		if (!userExists) {
 			return res.status(400).json({ msg: "invalid_credentials" });
 		}
@@ -321,7 +321,7 @@ router.delete(
 
 		try {
 			const { user_uid } = req;
-			const userExists = checkIfExists("users", "user_uid", user_uid);
+			const userExists = await checkIfExists("users", "user_uid", user_uid);
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
