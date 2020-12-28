@@ -4,7 +4,6 @@ const fs = require("fs");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
-const pool = require("../db/pool");
 const Companies = require("../models/Companies");
 const CompanyContact = require("../models/CompanyContact");
 const router = express.Router();
@@ -67,7 +66,7 @@ router.get(
 				contact_uids.push(contact_uid);
 			});
 
-			companyModel["people"] = contact_uids;
+			companyModel["contact_uids"] = contact_uids;
 
 			return res.status(200).json({ msg: "success", contact: companyModel });
 		} catch (e) {
@@ -82,6 +81,7 @@ router.get(
 router.post(
 	"/",
 	[
+		check("company_uid", "company_uid_fail").exists(),
 		check("company_name", "company_name_fail").exists(),
 		check("company_email", "company_email_fail").exists(),
 		check("company_website", "company_website_fail").exists(),
@@ -102,13 +102,12 @@ router.post(
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
 			const {
+				company_uid,
 				company_name,
 				company_email,
 				company_website,
 				company_phone,
 			} = req.body;
-
-			const company_uid = `company-${uuidv4()}`;
 
 			await Companies.create({
 				user_uid,

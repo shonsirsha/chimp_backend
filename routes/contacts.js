@@ -54,7 +54,7 @@ const getAllContacts = async (user_uid, res) => {
 					tagsArr.push(tag_uid);
 				});
 				//setting all tags
-				contactObj["tags"] = tagsArr;
+				contactObj["tag_uids"] = tagsArr;
 
 				//loop thru the fetched companyContact
 				allCompanyContact.map((ccObj) => {
@@ -62,7 +62,7 @@ const getAllContacts = async (user_uid, res) => {
 				});
 
 				//setting all cC
-				contactObj["companies"] = companyContactArr;
+				contactObj["company_uids"] = companyContactArr;
 
 				if (ix === allContacts.length - 1) {
 					const setLastRead = await setLastCacheTime(

@@ -143,7 +143,7 @@ router.put(
 	}
 );
 
-// //@route    PUT api/tag
+// //@route    DELETE api/tag
 // //@desc     Delete a tag for currently logged in user
 // //@access   Private
 router.delete(

@@ -75,9 +75,6 @@ router.get(
 			}
 
 			let tags = [];
-			// tagsFromDb.forEach(({ tag }) => {
-			// 	tags.push(tag);
-			// });
 
 			tagUids.forEach(({ tag_uid }) => {
 				tags.push(tag_uid);
@@ -89,8 +86,8 @@ router.get(
 				console.log(company_uid);
 			});
 
-			contactModel["tags"] = tags;
-			contactModel["companies"] = companyUids;
+			contactModel["tag_uids"] = tags;
+			contactModel["company_uids"] = companyUids;
 
 			return res.status(200).json({ msg: "success", contact: contactModel });
 		} catch (e) {
@@ -105,6 +102,7 @@ router.get(
 router.post(
 	"/",
 	[
+		check("contact_uid", "contact_uid_fail").exists(),
 		check("first_name", "first_name_fail").exists(),
 		check("last_name", "last_name_fail").exists(),
 		check("phone", "phone_fail").exists(),
@@ -112,7 +110,7 @@ router.post(
 		check("dob", "dob_fail").exists(),
 		check("note", "note_fail").exists(),
 		check("company_uids", "company_uids_fail").exists(),
-		check("tags", "tags_fail").exists(),
+		check("tag_uids", "tag_uids_fail").exists(),
 	],
 	auth,
 	async (req, res) => {
@@ -136,7 +134,8 @@ router.post(
 				dob,
 				note,
 				company_uids,
-				tags,
+				tag_uids,
+				contact_uid,
 			} = req.body;
 			if (!Array.isArray(tags)) {
 				return res.status(400).json({ msg: "tags_not_array" });
@@ -147,7 +146,7 @@ router.post(
 			}
 
 			const shapedCompanyUidArray = arrayShaper(company_uids);
-			const shapedTagsArray = arrayShaper(tags);
+			const shapedTagsArray = arrayShaper(tag_uids);
 
 			if (
 				(await tagValidator(shapedTagsArray)) ||
@@ -160,7 +159,6 @@ router.post(
 				) {
 					// all company uid present in db
 
-					const contact_uid = `cont-${uuidv4()}`;
 					try {
 						await Contacts.create({
 							user_uid,
@@ -254,7 +252,7 @@ router.put(
 		check("dob", "dob_fail").exists(),
 		check("note", "note_fail").exists(),
 		check("company_uids", "company_uids_fail").exists(),
-		check("tags", "tags_fail").exists(),
+		check("tag_uids", "tag_uids_fail").exists(),
 	],
 	auth,
 	async (req, res) => {
@@ -278,7 +276,7 @@ router.put(
 				email,
 				dob,
 				note,
-				tags,
+				tag_uids,
 				company_uids,
 			} = req.body;
 
@@ -291,7 +289,7 @@ router.put(
 			}
 
 			const shapedCompanyUidArray = arrayShaper(company_uids);
-			const shapedTagsArray = arrayShaper(tags);
+			const shapedTagsArray = arrayShaper(tag_uids);
 
 			const contactExists = await checkIfExists(
 				"contacts",

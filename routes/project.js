@@ -165,4 +165,51 @@ router.get(
 	}
 );
 
+// //@route    DELETE api/project
+// //@desc     Delete a project for currently logged in user
+// //@access   Private
+router.delete(
+	"/",
+	[check("project_uid", "project_uid_fail").exists()],
+	auth,
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		try {
+			const { user_uid } = req;
+			const { project_uid } = req.body;
+
+			const projectExists = await checkIfExists(
+				"projects",
+				"project_uid",
+				project_uid
+			);
+			if (!projectExists || project_uid.length === 0) {
+				return res.status(400).json({ msg: "project_not_found" });
+			}
+			await TagProject.destroy({
+				where: {
+					project_uid,
+					user_uid,
+				},
+			}); //delete all relationship between this project and its tag(s)
+
+			await Projects.destroy({
+				where: {
+					project_uid,
+					user_uid,
+				},
+			}); // delete the project
+
+			return res.status(200).json({ msg: "project_deleted" });
+		} catch (e) {
+			return res.status(500).send("Server error" + e);
+		}
+	}
+);
+
 module.exports = router;
