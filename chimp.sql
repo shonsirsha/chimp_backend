@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS projects (
     user_uid VARCHAR (256) NOT NULL,
     project_uid VARCHAR(256) NOT NULL,
     project_name VARCHAR(256) NOT NULL,
+    project_note VARCHAR(256) NOT NULL,
     project_starts bigint NOT NULL,
     project_ends bigint NOT NULL,
     created_at bigint,

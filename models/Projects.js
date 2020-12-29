@@ -13,6 +13,12 @@ const Projects = db2.define(
 		project_name: {
 			type: Sequelize.STRING,
 		},
+		project_note: {
+			type: Sequelize.STRING,
+		},
+		project_status: {
+			type: Sequelize.STRING,
+		},
 		project_starts: {
 			type: Sequelize.STRING,
 		},
