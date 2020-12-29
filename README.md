@@ -480,15 +480,14 @@ There are 2 types of endpoint:
    	"dob": 1603636742, // this is epoch (integer)
    	"note": "",
    	"company_uids": [],
-   	"tag_uids": []
+   	"tag_uids": [],
+   	"project_uids": []
    }
    ```
 
-   **You may leave any of field empty if you wish to not have anything for that field**
+   **You may leave any of field empty if you wish to not have anything for that field EXCEPT `contact_uid`**
 
    For example, contact does not belong to any company, leave it as (an) empty (array - in this case) like: `{"[company_uid]": []}`
-
-   Tags can be added as array of strings as such: `["tag0", "tag1"]`
 
    <span id="createContactDV">**Data validation:**</span>
 
@@ -501,6 +500,7 @@ There are 2 types of endpoint:
    7. `note` <kbd>**required**</kbd>-> Error message: `note_fail`
    8. `company_uids` <kbd>**required**</kbd>-> Error message: `company_uids_fail`
    9. `tag_uids` <kbd>**required**</kbd>-> Error message: `tag_uids_fail`
+   10. `project_uids` <kbd>**required**</kbd>-> Error message: `project_uids_fail`
 
    **Upon successful request:** returns `{ "msg": "contact_created", contact_uid: "someContactUid"}` with the http status of `200`.
 
@@ -509,10 +509,13 @@ There are 2 types of endpoint:
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Token Error (#2)</a>
    3. <a href="#errors">Caching Error (#5)</a>
-   4. `{msg: "tag_uids_not_array"}` - when `tags` is not of type array
+   4. `{msg: "tag_uids_not_array"}` - when `tag_uids` is not of type array
    5. `{msg: "company_uids_not_array"}` - when `company_uids` is not of type array
-   6. `{msg: "company_not_found", company_uid: "someCompanyId"}` - when one of the `company_uid` does not exist in the db.
-   7. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#createContactDV">above</a> in the **Data Validation** sub-section.
+   6. `{msg: "project_uids_not_array}` - when `project_uids` is not of type array
+   7. `{msg: "one_or_more_invalid_tag_uid}` - when at least one `tag_uid` in the `tag_uids` array is invalid
+   8. `{msg: "one_or_more_invalid_company_uid}` - when at least one `company_uid` in the `company_uids` array is invalid
+   9. `{msg: "one_or_more_invalid_project_uid}` - when at least one `project_uid` in the `project_uids` array is invalid
+   10. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#createContactDV">above</a> in the **Data Validation** sub-section.
 
    The number of `errorObject` depends on how many data validation is present & how many is violated.
 
@@ -553,10 +556,13 @@ There are 2 types of endpoint:
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Error (#2)</a>
    3. <a href="#errors">Caching Error (#5)</a>
-   4. `{msg: "tag_uids_not_array"}` - when `tags` is not of type array
+   4. `{msg: "tag_uids_not_array"}` - when `tag_uids` is not of type array
    5. `{msg: "company_uids_not_array"}` - when `company_uids` is not of type array
-   6. `{msg: "company_not_found"}` - when `company_uid` does not exist in the db.
-   7. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateSingleContactDV">above</a> in the **Data Validation** sub-section.
+   6. `{msg: "project_uids_not_array}` - when `project_uids` is not of type array
+   7. `{msg: "one_or_more_invalid_tag_uid}` - when at least one `tag_uid` in the `tag_uids` array is invalid
+   8. `{msg: "one_or_more_invalid_company_uid}` - when at least one `company_uid` in the `company_uids` array is invalid
+   9. `{msg: "one_or_more_invalid_project_uid}` - when at least one `project_uid` in the `project_uids` array is invalid
+   10. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateSingleContactDV">above</a> in the **Data Validation** sub-section.
 
 4. `/image/someContactID` - `PUT` | **PRIVATE** | **UPDATE / ADD IMAGE OF A CONTACT**
 
@@ -639,6 +645,14 @@ There are 2 types of endpoint:
    	"company_website": "https://somewebsite.de",
    	"picture": "pathToPicture/img.jpg",
    	"company_phone": "+490000",
+   	"created_at": "1603636742", // This is epoch.
+   	// Convert it to integer first,
+   	// and then you can then convert it again
+   	// to any date format you like.
+   	"updated_at": "1603636742", // This is epoch.
+   	// Convert it to integer first,
+   	// and then you can then convert it again
+   	// to any date format you like.
    	"contact_uids": ["contactUid0", "contactUid1"]
    }
    ```
@@ -656,11 +670,23 @@ There are 2 types of endpoint:
    	"last_name": "lastName",
    	"phone": "+490000",
    	"email": "mail@example.com",
-   	"dob": 1603636742, // this is epoch (integer)
+   	"dob": "1603636742", // This is epoch.
+   	// Convert it to integer first,
+   	// and then you can then convert it again
+   	// to any date format you like.
+   	"created_at": "1603636742", // This is epoch.
+   	// Convert it to integer first,
+   	// and then you can then convert it again
+   	// to any date format you like.
+   	"updated_at": "1603636742", // This is epoch.
+   	// Convert it to integer first,
+   	// and then you can then convert it again
+   	// to any date format you like.
    	"note": "someNote",
    	"picture": "pathToPicture/img.jpg",
    	"tag_uids": ["tagUid0", "tagUid1"],
-   	"company_uids": ["companyUid0", "companyUid1"]
+   	"company_uids": ["companyUid0", "companyUid1"],
+   	"project_uids": ["projectUid0", "projectUid1"]
    }
    ```
 
