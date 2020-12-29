@@ -137,7 +137,7 @@ router.post(
 				tag_uids,
 				contact_uid,
 			} = req.body;
-			if (!Array.isArray(tags)) {
+			if (!Array.isArray(tag_uids)) {
 				return res.status(400).json({ msg: "tags_not_array" });
 			}
 
@@ -171,6 +171,7 @@ router.post(
 							note,
 							picture: "",
 							created_at: Date.now(),
+							updated_at: Date.now(),
 						});
 
 						//if there's a tag for this contact
@@ -181,6 +182,7 @@ router.post(
 										tag_uid,
 										contact_uid,
 										user_uid,
+										created_at: Date.now(),
 									});
 								} catch (e) {
 									return res.status(500).send("Server error");
@@ -234,7 +236,7 @@ router.post(
 				return res.status(400).json({ msg: "one_or_more_invalid_tag_uid" });
 			}
 		} catch (e) {
-			return res.status(500).send("Server error" + e);
+			return res.status(500).send("Server aserror" + e);
 		}
 	}
 );
@@ -290,7 +292,7 @@ router.put(
 				return res.status(400).json({ msg: "contact_not_found" });
 			}
 
-			if (!Array.isArray(tags)) {
+			if (!Array.isArray(tag_uids)) {
 				return res.status(400).json({ msg: "tags_not_array" });
 			}
 
@@ -326,6 +328,7 @@ router.put(
 									user_uid,
 									contact_uid,
 									tag_uid,
+									created_at: Date.now(),
 								});
 							}); // insert all tags
 						}
@@ -337,6 +340,7 @@ router.put(
 								email,
 								dob,
 								note,
+								updated_at: Date.now(),
 							},
 							{
 								where: {
@@ -451,6 +455,7 @@ router.put("/image/:contact_uid", auth, async (req, res) => {
 				await Contacts.update(
 					{
 						picture: newFileName,
+						updated_at: Date.now(),
 					},
 					{
 						where: {

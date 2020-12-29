@@ -118,6 +118,7 @@ router.post(
 				company_phone,
 				picture: "",
 				created_at: Date.now(),
+				updated_at: Date.now(),
 			});
 			return res.status(200).json({ msg: "company_created", company_uid });
 		} catch (e) {
@@ -176,6 +177,7 @@ router.put(
 					company_email,
 					company_website,
 					company_phone,
+					updated_at: Date.now(),
 				},
 				{
 					where: {
@@ -238,6 +240,7 @@ router.put("/image/:company_uid", auth, async (req, res) => {
 			await Companies.update(
 				{
 					picture: newFileName,
+					updated_at: Date.now(),
 				},
 				{
 					where: {

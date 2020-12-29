@@ -82,6 +82,7 @@ router.post(
 				tag_name_lc: tag_name.toLowerCase(),
 				user_uid,
 				created_at: Date.now(),
+				updated_at: Date.now(),
 			});
 			return res.status(200).json({ msg: "tag_created", tag_uid });
 		} catch (e) {
@@ -129,6 +130,7 @@ router.put(
 				{
 					tag_name,
 					tag_name_lc: tag_name.toLowerCase(),
+					updated_at: Date.now(),
 				},
 				{
 					where: {

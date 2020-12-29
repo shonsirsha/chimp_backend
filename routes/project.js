@@ -145,6 +145,7 @@ router.post(
 								user_uid,
 								project_uid,
 								tag_uid,
+								created_at: Date.now(),
 							});
 						} catch (e) {
 							return res.status(500).send("Server error");
@@ -251,6 +252,7 @@ router.put(
 									user_uid,
 									project_uid,
 									tag_uid,
+									created_at: Date.now(),
 								}); // insert all tags
 							} catch (e) {
 								return res.status(500).send("Server error");

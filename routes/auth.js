@@ -70,6 +70,8 @@ router.post(
 				user_uid,
 				refresh_token: refreshToken,
 				access_token: token,
+				created_at: Date.now(),
+				updated_at: Date.now(),
 			});
 			authSucceeded(req);
 			return res.status(200).json({ msg: "signed_up", token, user_uid });
@@ -130,6 +132,8 @@ router.post(
 					user_uid,
 					refresh_token: refreshToken,
 					access_token: token,
+					created_at: Date.now(),
+					updated_at: Date.now(),
 				});
 				authSucceeded(req);
 				return res.status(200).json({ token, msg: "signed_in", user_uid });
@@ -188,7 +192,7 @@ router.post(
 							const newAccessToken = generateAccessToken(user_uid); // a new access token (refreshed)
 							try {
 								await Tokens.update(
-									{ access_token: newAccessToken },
+									{ access_token: newAccessToken, updated_at: Date.now() },
 									{
 										where: {
 											user_uid: user_uid,

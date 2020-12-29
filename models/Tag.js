@@ -19,6 +19,9 @@ const Tag = db2.define(
 		created_at: {
 			type: Sequelize.BIGINT,
 		},
+		updated_at: {
+			type: Sequelize.BIGINT,
+		},
 	},
 	{
 		freezeTableName: true,
