@@ -509,7 +509,7 @@ There are 2 types of endpoint:
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Token Error (#2)</a>
    3. <a href="#errors">Caching Error (#5)</a>
-   4. `{msg: "tags_not_array"}` - when `tags` is not of type array
+   4. `{msg: "tag_uids_not_array"}` - when `tags` is not of type array
    5. `{msg: "company_uids_not_array"}` - when `company_uids` is not of type array
    6. `{msg: "company_not_found", company_uid: "someCompanyId"}` - when one of the `company_uid` does not exist in the db.
    7. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#createContactDV">above</a> in the **Data Validation** sub-section.
@@ -553,7 +553,7 @@ There are 2 types of endpoint:
    1. <a href="#err4">Query Error (#4)</a>
    2. <a href="#errors">Error (#2)</a>
    3. <a href="#errors">Caching Error (#5)</a>
-   4. `{msg: "tags_not_array"}` - when `tags` is not of type array
+   4. `{msg: "tag_uids_not_array"}` - when `tags` is not of type array
    5. `{msg: "company_uids_not_array"}` - when `company_uids` is not of type array
    6. `{msg: "company_not_found"}` - when `company_uid` does not exist in the db.
    7. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateSingleContactDV">above</a> in the **Data Validation** sub-section.

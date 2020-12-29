@@ -7,7 +7,10 @@ const ProjectContact = db2.define(
 		contact_uid: {
 			type: Sequelize.STRING,
 		},
-		company_uid: {
+		project_uid: {
+			type: Sequelize.STRING,
+		},
+		user_uid: {
 			type: Sequelize.STRING,
 		},
 		created_at: {

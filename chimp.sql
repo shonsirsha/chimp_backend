@@ -132,20 +132,24 @@ CREATE TABLE IF NOT EXISTS project_contact (
     id SERIAL NOT NULL,
     contact_uid VARCHAR (256) NOT NULL,
     project_uid VARCHAR(256) NOT NULL,
+    user_uid VARCHAR(256) NOT NULL,
     created_at bigint,
     CONSTRAINT project_contact_pkey PRIMARY KEY (id),
     CONSTRAINT project_contact_contact_uid_fkey FOREIGN KEY (contact_uid) REFERENCES contacts(contact_uid),
-    CONSTRAINT project_contact_project_uid_fkey FOREIGN KEY (project_uid) REFERENCES projects(project_uid)
+    CONSTRAINT project_contact_project_uid_fkey FOREIGN KEY (project_uid) REFERENCES projects(project_uid),
+    CONSTRAINT company_contact_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid)
 );
 
 CREATE TABLE IF NOT EXISTS company_contact (
     id SERIAL NOT NULL,
     contact_uid VARCHAR (256) NOT NULL,
     company_uid VARCHAR(256) NOT NULL,
+    user_uid VARCHAR(256) NOT NULL,
     created_at bigint,
     CONSTRAINT company_contact_pkey PRIMARY KEY (id),
     CONSTRAINT company_contact_contact_uid_fkey FOREIGN KEY (contact_uid) REFERENCES contacts(contact_uid),
-    CONSTRAINT company_contact_company_uid_fkey FOREIGN KEY (company_uid) REFERENCES companies(company_uid)
+    CONSTRAINT company_contact_company_uid_fkey FOREIGN KEY (company_uid) REFERENCES companies(company_uid),
+    CONSTRAINT company_contact_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid)
 );
 
 

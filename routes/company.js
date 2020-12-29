@@ -342,6 +342,7 @@ router.delete(
 
 			await CompanyContact.destroy({
 				where: {
+					user_uid,
 					company_uid,
 				},
 			});

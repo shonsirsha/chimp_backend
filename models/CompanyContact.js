@@ -10,6 +10,9 @@ const CompanyContact = db2.define(
 		company_uid: {
 			type: Sequelize.STRING,
 		},
+		user_uid: {
+			type: Sequelize.STRING,
+		},
 		created_at: {
 			type: Sequelize.BIGINT,
 		},

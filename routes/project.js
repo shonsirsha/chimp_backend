@@ -8,6 +8,7 @@ const checkIfExistsUnique = require("./utils/checkIfExistsUnique");
 const arrayShaper = require("./utils/arrayShaper");
 const tagValidator = require("./utils/tagValidator");
 const checkIfExists = require("./utils/checkIfExists");
+const ProjectContact = require("../models/ProjectContact");
 
 //@route    GET api/project
 //@desc     Get a project for currently logged in user
@@ -107,7 +108,7 @@ router.post(
 			} = req.body;
 
 			if (!Array.isArray(tag_uids)) {
-				return res.status(400).json({ msg: "tags_not_array" });
+				return res.status(400).json({ msg: "tag_uids_not_array" });
 			}
 
 			const projectExists = await checkIfExistsUnique(
@@ -211,7 +212,7 @@ router.put(
 			}
 
 			if (!Array.isArray(tag_uids)) {
-				return res.status(400).json({ msg: "tags_not_array" });
+				return res.status(400).json({ msg: "tag_uids_not_array" });
 			}
 
 			const shapedTagsArray = arrayShaper(tag_uids);
@@ -306,6 +307,13 @@ router.delete(
 					user_uid,
 				},
 			}); //delete all relationship between this project and its tag(s)
+
+			await ProjectContact.destroy({
+				where: {
+					project_uid,
+					user_uid,
+				},
+			}); //delete all relationship between this project and its contact(s)
 
 			await Projects.destroy({
 				where: {
