@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS users (
     user_uid VARCHAR (256) NOT NULL,
     email VARCHAR (256) NOT NULL,
     password VARCHAR(256) NOT NULL,
+    created_at bigint,
+    updated_at bigint,
     CONSTRAINT users_pkey PRIMARY KEY (id),
     CONSTRAINT user_user_uid_unique UNIQUE (user_uid)
 );
@@ -17,6 +19,8 @@ CREATE TABLE IF NOT EXISTS user_profile (
     first_name VARCHAR (256) NOT NULL,
     last_name VARCHAR(256) NOT NULL,
     picture VARCHAR(256) NOT NULL,
+    created_at bigint,
+    updated_at bigint,
     CONSTRAINT user_profile_pkey PRIMARY KEY (id),
     CONSTRAINT user_profile_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid),
     CONSTRAINT user_profile_user_uid_unique UNIQUE (user_uid)
