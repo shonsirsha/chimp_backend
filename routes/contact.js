@@ -194,6 +194,7 @@ router.post(
 								await CompanyContact.create({
 									contact_uid,
 									company_uid: uid,
+									created_at: Date.now(),
 								});
 								const setLastWrite = await setLastCacheTime(
 									"lastContactWriteToDb",
@@ -355,6 +356,7 @@ router.put(
 								await CompanyContact.create({
 									contact_uid,
 									company_uid: uid,
+									created_at: Date.now(),
 								});
 								if (ix === shapedCompanyUidArray.length - 1) {
 									const setLastWrite = await setLastCacheTime(
