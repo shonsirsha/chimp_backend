@@ -82,8 +82,10 @@ router.post(
 		check("project_uid", "project_uid_fail").exists(),
 		check("project_name", "project_name_fail").exists(),
 		check("project_note", "project_note_fail").exists(),
+		check("project_status", "project_status_fail").exists(),
 		check("project_starts", "project_starts_fail").exists(),
 		check("project_ends", "project_ends_fail").exists(),
+		check("project_due", "project_due_fail").exists(),
 		check("tag_uids", "tag_uids_fail").exists(),
 	],
 	auth,
@@ -103,9 +105,11 @@ router.post(
 			const {
 				project_uid,
 				project_name,
-				project_starts,
 				project_note,
+				project_status,
+				project_starts,
 				project_ends,
+				project_due,
 				tag_uids,
 			} = req.body;
 
@@ -137,8 +141,10 @@ router.post(
 						project_uid,
 						project_name,
 						project_note,
+						project_status,
 						project_starts,
 						project_ends,
+						project_due,
 						created_at: Date.now(),
 						updated_at: Date.now(),
 					});
@@ -179,8 +185,10 @@ router.put(
 		check("project_uid", "project_uid_fail").exists(),
 		check("project_name", "project_name_fail").exists(),
 		check("project_note", "project_note_fail").exists(),
+		check("project_status", "project_status_fail").exists(),
 		check("project_starts", "project_starts_fail").exists(),
 		check("project_ends", "project_ends_fail").exists(),
+		check("project_due", "project_due_fail").exists(),
 		check("tag_uids", "tag_uids_fail").exists(),
 	],
 	auth,
@@ -201,8 +209,10 @@ router.put(
 				project_uid,
 				project_name,
 				project_note,
+				project_status,
 				project_starts,
 				project_ends,
+				project_due,
 				tag_uids,
 			} = req.body;
 
@@ -243,8 +253,10 @@ router.put(
 					{
 						project_name,
 						project_note,
+						project_status,
 						project_starts,
 						project_ends,
+						project_due,
 						updated_at: Date.now(),
 					},
 					{

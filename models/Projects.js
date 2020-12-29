@@ -20,10 +20,13 @@ const Projects = db2.define(
 			type: Sequelize.STRING,
 		},
 		project_starts: {
-			type: Sequelize.STRING,
+			type: Sequelize.BIGINT,
 		},
 		project_ends: {
-			type: Sequelize.STRING,
+			type: Sequelize.BIGINT,
+		},
+		project_due: {
+			type: Sequelize.BIGINT,
 		},
 		created_at: {
 			type: Sequelize.BIGINT,
