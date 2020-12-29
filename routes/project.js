@@ -218,56 +218,55 @@ router.put(
 			const shapedTagsArray = arrayShaper(tag_uids);
 
 			if (
-				(await tagValidator(shapedTagsArray)) ||
-				shapedTagsArray.length === 0
+				!(await tagValidator(shapedTagsArray)) &&
+				shapedTagsArray.length > 0
 			) {
-				// all tag uid present in db
-				try {
-					// readjusting tags (deleting and re-inserting):
-					await TagProject.destroy({
-						where: {
-							user_uid,
-							project_uid,
-						},
-					}); // delete all tags
-
-					await Projects.update(
-						{
-							project_name,
-							project_starts,
-							project_ends,
-							updated_at: Date.now(),
-						},
-						{
-							where: {
-								project_uid,
-								user_uid,
-							},
-						}
-					);
-
-					if (shapedTagsArray.length > 0) {
-						shapedTagsArray.forEach(async (tag_uid) => {
-							try {
-								await TagProject.create({
-									user_uid,
-									project_uid,
-									tag_uid,
-									created_at: Date.now(),
-								}); // insert all tags
-							} catch (e) {
-								return res.status(500).send("Server error");
-							}
-						});
-					}
-
-					return res.status(200).json({ msg: "project_updated", project_uid });
-				} catch {
-					return res.status(500).send("Server error");
-				}
-			} else {
 				//something wrong with the tags uid
 				return res.status(400).json({ msg: "one_or_more_invalid_tag_uid" });
+			}
+
+			try {
+				// readjusting tags (deleting and re-inserting):
+				await TagProject.destroy({
+					where: {
+						user_uid,
+						project_uid,
+					},
+				}); // delete all tags
+
+				await Projects.update(
+					{
+						project_name,
+						project_starts,
+						project_ends,
+						updated_at: Date.now(),
+					},
+					{
+						where: {
+							project_uid,
+							user_uid,
+						},
+					}
+				);
+
+				if (shapedTagsArray.length > 0) {
+					shapedTagsArray.forEach(async (tag_uid) => {
+						try {
+							await TagProject.create({
+								user_uid,
+								project_uid,
+								tag_uid,
+								created_at: Date.now(),
+							}); // insert all tags
+						} catch (e) {
+							return res.status(500).send("Server error");
+						}
+					});
+				}
+
+				return res.status(200).json({ msg: "project_updated", project_uid });
+			} catch {
+				return res.status(500).send("Server error");
 			}
 		} catch (e) {
 			return res.status(500).send("Server error" + e);
