@@ -274,7 +274,7 @@ There are 2 types of endpoint:
 
    **Upon successful request:** returns `{companies: [companyObject0,companyObject1], "msg": "success"}` with the http status of `200`.
 
-   `companyObject1` (as **`result`**) is defined <a href="#companyObjRes">here</a>
+   `companyObject1` (as **`response`**) is defined <a href="#companyObjRes">here</a>
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
@@ -436,7 +436,7 @@ There are 2 types of endpoint:
 
    **Upon successful request:** returns `{contacts: [contactObject0,contactObject1], "msg": "success"}` with the http status of `200`.
 
-   `contactObject` (as **`result`**) is defined <a href="#contactObjRes">here</a>
+   `contactObject` (as **`response`**) is defined <a href="#contactObjRes">here</a>
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
@@ -619,7 +619,22 @@ There are 2 types of endpoint:
    4. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
    5. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#contactDeleteDV">above</a> in the **Data Validation** sub-section.
 
-## Results
+### 8. /api/projects
+
+1. `/` - `GET` | **PRIVATE** | **GET ALL PROJECTS**
+
+   **Sample request :** none
+
+   **Upon successful request:** returns `{projects: [projectObject0,projectObject1], "msg": "success"}` with the http status of `200`.
+
+   `projectObject1` (as **`response`**) is defined <a href="#projectObjectRes">here</a>
+
+   **Upon failed request:** returns one of the these with http status of `400`:
+
+   1. <a href="#err4">Query Error (#4)</a>
+   2. <a href="#errors">Token Error (#2)</a>
+
+## Response objects
 
 1. <span id="userObjRes">`userObject`:</span>
 
@@ -637,7 +652,7 @@ There are 2 types of endpoint:
 
    ```json
    {
-   	"id": "someId",
+   	"id": someId, // int
    	"user_uid": "someUserId",
    	"company_uid": "someCompanyId",
    	"company_name": "someCompanyName",
@@ -645,15 +660,14 @@ There are 2 types of endpoint:
    	"company_website": "https://somewebsite.de",
    	"picture": "pathToPicture/img.jpg",
    	"company_phone": "+490000",
-   	"created_at": "1603636742", // This is epoch.
-   	// Convert it to integer first,
-   	// and then you can then convert it again
-   	// to any date format you like.
-   	"updated_at": "1603636742", // This is epoch.
-   	// Convert it to integer first,
-   	// and then you can then convert it again
-   	// to any date format you like.
+   	"created_at": "16000000000", // *This is EPOCH.
+   	"updated_at": "16000000000", // *This is EPOCH.
    	"contact_uids": ["contactUid0", "contactUid1"]
+
+   	//* What to do with EPOCH?
+   	// Convert EPOCH to integer first,
+   	// and then you can then convert it again
+   	// to any date format you like.
    }
    ```
 
@@ -663,34 +677,53 @@ There are 2 types of endpoint:
 
    ```json
    {
-   	"id": "someId",
+   	"id": someId, // int
    	"user_uid": "someUserId",
    	"contact_uid": "someContactId",
    	"first_name": "firstName",
    	"last_name": "lastName",
    	"phone": "+490000",
    	"email": "mail@example.com",
-   	"dob": "1603636742", // This is epoch.
-   	// Convert it to integer first,
-   	// and then you can then convert it again
-   	// to any date format you like.
-   	"created_at": "1603636742", // This is epoch.
-   	// Convert it to integer first,
-   	// and then you can then convert it again
-   	// to any date format you like.
-   	"updated_at": "1603636742", // This is epoch.
-   	// Convert it to integer first,
-   	// and then you can then convert it again
-   	// to any date format you like.
-   	"note": "someNote",
+   	"dob": "16000000000", // *This is EPOCH.
+   	"created_at": "16000000000", // *This is EPOCH.
+   	"updated_at": "16000000000", // *This is EPOCH.
    	"picture": "pathToPicture/img.jpg",
    	"tag_uids": ["tagUid0", "tagUid1"],
    	"company_uids": ["companyUid0", "companyUid1"],
    	"project_uids": ["projectUid0", "projectUid1"]
+
+   	//* What to do with EPOCH?
+   	// Convert EPOCH to integer first,
+   	// and then you can then convert it again
+   	// to any date format you like.
    }
    ```
 
    Any of these might be an empty string except: `id`, `user_uid`, `contact_uid`.
+
+4. `projectObject:`
+
+```json
+{
+	"id": someId, //int
+	"user_uid": "someUserId",
+	"project_uid": "someProjectId",
+	"project_name": "someProjectName",
+	"project_note": "someProjectNote",
+	"project_status": "someProjectStatus",
+	"project_starts": "16000000000", // *This is EPOCH
+	"project_ends": "16000000000", // *This is EPOCH.
+	"project_due": "16000000000", // *This is EPOCH.
+	"created_at": "16000000000", // *This is EPOCH.
+	"updated_at": "16000000000",
+	"tag_uids": ["someTagUid0", "someTagUid1"]
+
+	//* What to do with EPOCH?
+	// Convert EPOCH to integer first,
+	// and then you can then convert it again
+	// to any date format you like.
+}
+```
 
 ## <span id="putExplanation">General Knwoledge Board</span> <a id="general"></a>
 
