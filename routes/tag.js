@@ -8,6 +8,7 @@ const { Op } = require("sequelize");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const checkIfExistsUnique = require("./utils/checkIfExistsUnique");
+const setLastCacheTime = require("./utils/caching/setLastCacheTime");
 
 // //@route    GET api/tag
 // //@desc     Get a single tag for currently logged in user
@@ -198,7 +199,15 @@ router.delete(
 				},
 			}); // delete all tags
 
-			return res.status(200).json({ msg: "tag_deleted" });
+			const setLastWrite = await setLastCacheTime(
+				"lastContactWriteToDb",
+				user_uid
+			);
+			if (setLastWrite) {
+				return res.status(200).json({ msg: "tag_deleted" });
+			} else {
+				return res.status(400).json({ msg: "caching_error" });
+			}
 		} catch (e) {
 			return res.status(500).send("Server error" + e);
 		}
