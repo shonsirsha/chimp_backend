@@ -226,7 +226,7 @@ There are 2 types of endpoint:
 
    **Sample request (`Content-Type`: `application/JSON`):** `{"first_name": "firstName", "last_name": "lastName"}`.
 
-   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB along with other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
+   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB **ALONG WITH ALL** other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
 
    <span id="updateUserProfileDV">**Data validation:**</span>
 
@@ -354,7 +354,7 @@ There are 2 types of endpoint:
    }
    ```
 
-   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB along with other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
+   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB **ALONG WITH ALL** other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
 
    <span id="editCompanyDV">**Data validation:**</span>
 
@@ -536,7 +536,7 @@ There are 2 types of endpoint:
    }
    ```
 
-   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB along with other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
+   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB **ALONG WITH ALL** other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
 
    <span id="updateSingleContactDV">**Data validation:**</span>
 
@@ -663,7 +663,7 @@ There are 2 types of endpoint:
 
    For example, a project does not have any tag, leave it as (an) empty (array - in this case) like: `{"tag_uids": []}`
 
-   <span id="createContactDV">**Data validation:**</span>
+   <span id="createProjectDV">**Data validation:**</span>
 
    1. `project_uid` <kbd>**required**</kbd>-> Error message: `project_uid_fail`
    2. `project_name` <kbd>**required**</kbd>-> Error message: `project_name_fail`
@@ -683,7 +683,7 @@ There are 2 types of endpoint:
    3. <a href="#errors">Caching Error (#5)</a>
    4. `{msg: "tag_uids_not_array"}` - when `tag_uids` is not of type array
    5. `{msg: "one_or_more_invalid_tag_uid}` - when at least one `tag_uid` in the `tag_uids` array is invalid
-   6. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#createContactDV">above</a> in the **Data Validation** sub-section.
+   6. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#createProjectDV">above</a> in the **Data Validation** sub-section.
 
    The number of `errorObject` depends on how many data validation is present & how many is violated.
 
@@ -693,31 +693,29 @@ There are 2 types of endpoint:
 
    ```json
    {
-   	"first_name": "firstName",
-   	"last_name": "lastName",
-   	"phone": "+49000",
-   	"email": "mail@example.com",
-   	"dob": 1603636742, // this is epoch (integer)
-   	"note": "",
-   	"company_uids": [],
-   	"tag_uids": []
+   	"project_name": "someProjectName",
+   	"project_note": "someProjectNote",
+   	"project_status": "someProjectStatus",
+   	"project_starts": 16000000000, // int
+   	"project_ends": 16000000000, // int
+   	"project_due": 16000000000, // int
+   	"tag_uids": ["someTagUid1", "someTagUid2"]
    }
    ```
 
-   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB along with other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
+   **Very important:** For all `PUT` endpoints, please enter the data that you want to be updated and saved to the DB **ALONG WITH ALL** other required data. Read <a href="#putExplanation">here</a> (#1 General Knowledge Board) for further explanation.
 
-   <span id="updateSingleContactDV">**Data validation:**</span>
+   <span id="updateSingleProjectDV">**Data validation:**</span>
 
-   1. `first_name` <kbd>**required**</kbd>-> Error message: `first_name_fail`
-   2. `last_name` <kbd>**required**</kbd>-> Error message: `last_name_fail`
-   3. `phone` <kbd>**required**</kbd>-> Error message: `phone_fail`
-   4. `email` <kbd>**required**</kbd>-> Error message: `email_fail`
-   5. `dob` <kbd>**required**</kbd>-> Error message: `dob_fail`
-   6. `note` <kbd>**required**</kbd>-> Error message: `note_fail`
-   7. `company_uids` <kbd>**required**</kbd>-> Error message: `company_uids_fail`
-   8. `tag_uids` <kbd>**required**</kbd>-> Error message: `tag_uids_fail`
+   1. `project_name` <kbd>**required**</kbd>-> Error message: `project_name_fail`
+   2. `project_note` <kbd>**required**</kbd>-> Error message: `project_note_fail`
+   3. `project_status` <kbd>**required**</kbd>-> Error message: `project_status_fail`
+   4. `project_starts` <kbd>**required**</kbd>-> Error message: `project_starts_fail`
+   5. `project_ends` <kbd>**required**</kbd>-> Error message: `project_ends_fail`
+   6. `project_due` <kbd>**required**</kbd>-> Error message: `project_due_fail`
+   7. `tag_uids` <kbd>**required**</kbd>-> Error message: `tag_uids_fail`
 
-   **Upon successful request:** returns `{ "msg": "contact_updated", contact_uid: "someContactId"}` with the http status of `200`.
+   **Upon successful request:** returns `{ "msg": "project_updated", project_uid: "someProjectUid"}` with the http status of `200`.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
@@ -725,41 +723,18 @@ There are 2 types of endpoint:
    2. <a href="#errors">Error (#2)</a>
    3. <a href="#errors">Caching Error (#5)</a>
    4. `{msg: "tag_uids_not_array"}` - when `tag_uids` is not of type array
-   5. `{msg: "company_uids_not_array"}` - when `company_uids` is not of type array
-   6. `{msg: "project_uids_not_array}` - when `project_uids` is not of type array
-   7. `{msg: "one_or_more_invalid_tag_uid}` - when at least one `tag_uid` in the `tag_uids` array is invalid
-   8. `{msg: "one_or_more_invalid_company_uid}` - when at least one `company_uid` in the `company_uids` array is invalid
-   9. `{msg: "one_or_more_invalid_project_uid}` - when at least one `project_uid` in the `project_uids` array is invalid
-   10. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateSingleContactDV">above</a> in the **Data Validation** sub-section.
+   5. `{msg: "one_or_more_invalid_tag_uid}` - when at least one `tag_uid` in the `tag_uids` array is invalid
+   6. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#updateSingleProjectDV">above</a> in the **Data Validation** sub-section.
 
-4. `/image/someContactID` - `PUT` | **PRIVATE** | **UPDATE / ADD IMAGE OF A CONTACT**
+4. `/` - `DELETE` | **PRIVATE** | **DELETE A PROJECT**
 
-   Related:
+   **Sample request :** `{"project_uid": "someProjectUid"}`
 
-   1. <a href="#whyViaURL">**Why do some endpoints require passing id via URL and not JSON?**</a>
-   2. <a href="#whyUpdateTwoEndpoints">**Why are some endpoints, such as this one separated from the 'main' edit/update endpoint?**</a>
+   <span id="projectDeleteDV">**Data validation:**</span>
 
-   **Sample request (`Content-Type`: `multipart/form-data`):** with a key called `file` and a value of a **single image of type `jpg` / `.jpeg` or `.png`**
+   1. `project_uid` <kbd>**required**</kbd>-> Error message: `project_uid_failed`
 
-   **Upon successful request:** returns `{"msg": "picture_updated", "filePath": "localhost:7500/user_uploads/public/images/contact_image/someContactID/image.jpg"}` with the http status of `200`.
-
-   **Upon failed request:** returns one of the these with http status of `400`:
-
-   1. <a href="#err4">Query Error (#4)</a>
-   2. <a href="#errors">Token Error (#2)</a>
-   3. <a href="#errors">Caching Error (#5)</a>
-   4. `{"msg": "file_error"}` - when `file` is not found / `file` is not properly formatted.
-   5. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
-
-5. `/image` - `DELETE` | **PRIVATE** | **DELETE AN IMAGE OF A CONTACT**
-
-   **Sample request :** `{"contact_uid": "someCompanyId"}`
-
-   <span id="contactImageDeleteDV">**Data validation:**</span>
-
-   1. `contact_uid` <kbd>**required**</kbd>-> Error message: `contact_uid_failed`
-
-   **Upon successful request:** returns `{"msg": "picture_removed"}` with the http status of `200`.
+   **Upon successful request:** returns `{"msg": "project_deleted"}` with the http status of `200`.
 
    **Upon failed request:** returns one of the these with http status of `400`:
 
@@ -767,25 +742,7 @@ There are 2 types of endpoint:
    2. <a href="#errors">Token Error (#2)</a>
    3. <a href="#errors">Caching Error (#5)</a>
    4. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
-   5. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#contactImageDeleteDV">above</a> in the **Data Validation** sub-section.
-
-6. `/` - `DELETE` | **PRIVATE** | **DELETE A CONTACT**
-
-   **Sample request :** `{"contact_uid": "someContactUID"}`
-
-   <span id="contactDeleteDV">**Data validation:**</span>
-
-   1. `contact_uid` <kbd>**required**</kbd>-> Error message: `contact_uid_failed`
-
-   **Upon successful request:** returns `{"msg": "contact_deleted"}` with the http status of `200`.
-
-   **Upon failed request:** returns one of the these with http status of `400`:
-
-   1. <a href="#err4">Query Error (#4)</a>
-   2. <a href="#errors">Token Error (#2)</a>
-   3. <a href="#errors">Caching Error (#5)</a>
-   4. `{"msg": "contact_not_found"}` - when `contact_uid` does not exist in the db.
-   5. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#contactDeleteDV">above</a> in the **Data Validation** sub-section.
+   5. (if data validation is violated) Object containing array of error object(s) `{errors: [errorObject0, errorObject1]}` where `errorObject` has a property of `msg` defined <a href="#projectDeleteDV">above</a> in the **Data Validation** sub-section.
 
 ### 8. /api/projects
 
