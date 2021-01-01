@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS users (
     user_uid VARCHAR (256) NOT NULL,
     email VARCHAR (256) NOT NULL,
     password VARCHAR(256) NOT NULL,
+    created_at bigint,
+    updated_at bigint,
     CONSTRAINT users_pkey PRIMARY KEY (id),
     CONSTRAINT user_user_uid_unique UNIQUE (user_uid)
 );
@@ -17,6 +19,8 @@ CREATE TABLE IF NOT EXISTS user_profile (
     first_name VARCHAR (256) NOT NULL,
     last_name VARCHAR(256) NOT NULL,
     picture VARCHAR(256) NOT NULL,
+    created_at bigint,
+    updated_at bigint,
     CONSTRAINT user_profile_pkey PRIMARY KEY (id),
     CONSTRAINT user_profile_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid),
     CONSTRAINT user_profile_user_uid_unique UNIQUE (user_uid)
@@ -27,6 +31,8 @@ CREATE TABLE IF NOT EXISTS tokens (
     user_uid VARCHAR (256) NOT NULL,
     access_token VARCHAR(256) NOT NULL,
     refresh_token VARCHAR (256) NOT NULL,
+    created_at bigint,
+    updated_at bigint,
     CONSTRAINT tokens_pkey PRIMARY KEY (id),
     CONSTRAINT tokens_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid),
     CONSTRAINT tokens_access_token_unique UNIQUE (access_token),
@@ -45,6 +51,7 @@ CREATE TABLE IF NOT EXISTS contacts (
     picture VARCHAR (256) NOT NULL,
     dob bigint,
     created_at bigint,
+    updated_at bigint,
     CONSTRAINT contacts_pkey PRIMARY KEY (id),
     CONSTRAINT contacts_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users (user_uid), 
     CONSTRAINT contacts_contact_uid_unique UNIQUE (contact_uid)
@@ -60,6 +67,7 @@ CREATE TABLE IF NOT EXISTS companies (
     picture VARCHAR (256) NOT NULL,
     company_phone VARCHAR (256) NOT NULL,
     created_at bigint,
+    updated_at bigint,
     CONSTRAINT companies_pkey PRIMARY KEY (id),
     CONSTRAINT companies_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users (user_uid),
     CONSTRAINT companies_company_uid_unique UNIQUE (company_uid)
@@ -72,6 +80,7 @@ CREATE TABLE IF NOT EXISTS tags (
     tag_name_lc VARCHAR (256) NOT NULL,
     user_uid VARCHAR (256) NOT NULL,
     created_at bigint,
+    updated_at bigint,
     CONSTRAINT tags_pkey PRIMARY KEY (id),
     CONSTRAINT tags_tag_uid_unique UNIQUE (tag_uid),
     CONSTRAINT tags_tag_name_unique UNIQUE (tag_name),
@@ -79,24 +88,71 @@ CREATE TABLE IF NOT EXISTS tags (
 );
 
 
+CREATE TABLE IF NOT EXISTS projects (
+    id SERIAL NOT NULL,
+    user_uid VARCHAR (256) NOT NULL,
+    project_uid VARCHAR(256) NOT NULL,
+    project_name VARCHAR(256) NOT NULL,
+    project_note VARCHAR(256) NOT NULL,
+    project_status VARCHAR(256) NOT NULL,
+    project_starts bigint,
+    project_ends bigint,
+    project_due bigint,
+    created_at bigint,
+    updated_at bigint,
+    CONSTRAINT projects_pkey PRIMARY KEY (id),
+    CONSTRAINT projects_project_uid_unique UNIQUE (project_uid),
+    CONSTRAINT projects_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid)
+);
+
+-- "Connector" tables:
+
 CREATE TABLE IF NOT EXISTS tag_contact (
     id SERIAL NOT NULL,
     user_uid VARCHAR (256) NOT NULL,
     contact_uid VARCHAR(256) NOT NULL,
     tag_uid VARCHAR (256) NOT NULL,
+    created_at bigint,
     CONSTRAINT tag_contact_pkey PRIMARY KEY (id),
     CONSTRAINT tag_contact_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users (user_uid),
     CONSTRAINT tag_contact_contact_uid_fkey FOREIGN KEY (contact_uid) REFERENCES contacts (contact_uid),
     CONSTRAINT tag_contact_tag_uid_fkey FOREIGN KEY (tag_uid) REFERENCES tags (tag_uid)
 );
 
+CREATE TABLE IF NOT EXISTS tag_project (
+    id SERIAL NOT NULL,
+    user_uid VARCHAR (256) NOT NULL,
+    project_uid VARCHAR (256) NOT NULL,
+    tag_uid VARCHAR(256) NOT NULL,
+    created_at bigint,
+    CONSTRAINT tag_project_pkey PRIMARY KEY (id),
+    CONSTRAINT tag_project_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid),
+    CONSTRAINT tag_project_project_uid_fkey FOREIGN KEY (project_uid) REFERENCES projects(project_uid),
+    CONSTRAINT tag_project_tag_uid_fkey FOREIGN KEY (tag_uid) REFERENCES tags(tag_uid)
+);
+
+CREATE TABLE IF NOT EXISTS project_contact (
+    id SERIAL NOT NULL,
+    contact_uid VARCHAR (256) NOT NULL,
+    project_uid VARCHAR(256) NOT NULL,
+    user_uid VARCHAR(256) NOT NULL,
+    created_at bigint,
+    CONSTRAINT project_contact_pkey PRIMARY KEY (id),
+    CONSTRAINT project_contact_contact_uid_fkey FOREIGN KEY (contact_uid) REFERENCES contacts(contact_uid),
+    CONSTRAINT project_contact_project_uid_fkey FOREIGN KEY (project_uid) REFERENCES projects(project_uid),
+    CONSTRAINT company_contact_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid)
+);
+
 CREATE TABLE IF NOT EXISTS company_contact (
     id SERIAL NOT NULL,
     contact_uid VARCHAR (256) NOT NULL,
     company_uid VARCHAR(256) NOT NULL,
+    user_uid VARCHAR(256) NOT NULL,
+    created_at bigint,
     CONSTRAINT company_contact_pkey PRIMARY KEY (id),
     CONSTRAINT company_contact_contact_uid_fkey FOREIGN KEY (contact_uid) REFERENCES contacts(contact_uid),
-    CONSTRAINT company_contact_company_uid_fkey FOREIGN KEY (company_uid) REFERENCES companies(company_uid)
+    CONSTRAINT company_contact_company_uid_fkey FOREIGN KEY (company_uid) REFERENCES companies(company_uid),
+    CONSTRAINT company_contact_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users(user_uid)
 );
 
 
