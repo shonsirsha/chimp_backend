@@ -17,24 +17,28 @@ router.get("/", auth, async (req, res) => {
 			},
 		});
 		let projArrs = [];
-		projects.map(async (project, ix) => {
-			let projTagsArr = [];
-			let projModel = project.dataValues;
-			const projectTags = await TagProject.findAll({
-				where: {
-					project_uid: projModel.project_uid,
-					user_uid: projModel.user_uid,
-				},
+		if (projects.length > 0) {
+			projects.map(async (project, ix) => {
+				let projTagsArr = [];
+				let projModel = project.dataValues;
+				const projectTags = await TagProject.findAll({
+					where: {
+						project_uid: projModel.project_uid,
+						user_uid: projModel.user_uid,
+					},
+				});
+				projectTags.map((tag) => {
+					projTagsArr.push(tag.dataValues.tag_uid);
+				});
+				projModel["tag_uids"] = projTagsArr;
+				projArrs.push(projModel);
+				if (ix === projects.length - 1) {
+					return res.status(200).json({ msg: "success", projects: projArrs });
+				}
 			});
-			projectTags.map((tag) => {
-				projTagsArr.push(tag.dataValues.tag_uid);
-			});
-			projModel["tag_uids"] = projTagsArr;
-			projArrs.push(projModel);
-			if (ix === projects.length - 1) {
-				return res.status(200).json({ msg: "success", projects: projArrs });
-			}
-		});
+		} else {
+			return res.status(200).json({ msg: "success", projects: [] });
+		}
 	} catch (e) {
 		return res.status(500).send("Server error" + e);
 	}

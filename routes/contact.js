@@ -341,9 +341,7 @@ router.put(
 			if (!Array.isArray(company_uids)) {
 				return res.status(400).json({ msg: "company_uids_not_array" });
 			}
-			if (!Array.isArray(project_uids)) {
-				return res.status(400).json({ msg: "project_uids_not_array" });
-			}
+
 			const shapedCompanyUidArray = arrayShaper(company_uids);
 			const shapedTagsArray = arrayShaper(tag_uids);
 			const shapedProjectUidArray = arrayShaper(project_uids);
