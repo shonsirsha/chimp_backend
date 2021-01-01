@@ -3,6 +3,7 @@ const auth = require("../middleware/auth");
 const Contacts = require("../models/Contacts");
 const TagContact = require("../models/TagContact");
 const CompanyContact = require("../models/CompanyContact");
+const ProjectContact = require("../models/ProjectContact");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const setLastCacheTime = require("./utils/caching/setLastCacheTime");
@@ -23,6 +24,7 @@ const getAllContacts = async (user_uid, res) => {
 			allContacts.map(async (contact, ix) => {
 				let tagsArr = [];
 				let companyContactArr = [];
+				let projectsArr = [];
 
 				let contactObj = contact.dataValues;
 
@@ -48,21 +50,35 @@ const getAllContacts = async (user_uid, res) => {
 					},
 				});
 
+				const allProjectUids = await ProjectContact.findAll({
+					attributes: ["project_uid"],
+					where: {
+						contact_uid: contactObj.contact_uid,
+					},
+				});
+
 				contactsArr.push(contact.dataValues);
 
 				allTagUids.map(({ tag_uid }) => {
 					tagsArr.push(tag_uid);
 				});
-				//setting all tags
-				contactObj["tags"] = tagsArr;
 
 				//loop thru the fetched companyContact
 				allCompanyContact.map((ccObj) => {
 					companyContactArr.push(ccObj.dataValues.company_uid);
 				});
 
+				allProjectUids.map(({ project_uid }) => {
+					projectsArr.push(project_uid);
+				});
+
 				//setting all cC
-				contactObj["companies"] = companyContactArr;
+				contactObj["company_uids"] = companyContactArr;
+
+				//setting all tags
+				contactObj["tag_uids"] = tagsArr;
+
+				contactObj["project_uids"] = projectsArr;
 
 				if (ix === allContacts.length - 1) {
 					const setLastRead = await setLastCacheTime(
@@ -99,9 +115,9 @@ const getAllContacts = async (user_uid, res) => {
 router.get("/", auth, async (req, res) => {
 	try {
 		const { user_uid } = req;
-		const userExists = checkIfExists("users", "user_uid", user_uid);
+		const userExists = await checkIfExists("users", "user_uid", user_uid);
 		if (!userExists) {
-			return res.status(400).json({ msg: "user_not_found" });
+			return res.status(400).json({ msg: "invalid_credentials" });
 		}
 		const shouldUseCachedData = await shouldGetFromCache(
 			"lastContactWriteToDb",

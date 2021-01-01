@@ -1,54 +1,54 @@
 {
-  "name": "chimp_backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
-  "jest": {
-    "testEnvironment": "node"
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "bluebird": "^3.7.2",
-    "crypto-random-string": "^3.3.0",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "express-fileupload": "^1.2.0",
-    "express-validator": "^6.6.1",
-    "http-server": "^0.12.3",
-    "jest": "^26.6.3",
-    "jsonwebtoken": "^8.5.1",
-    "mocha": "^8.2.1",
-    "nodemon": "^2.0.4",
-    "pg": "^8.3.3",
-    "pg-hstore": "^2.3.3",
-    "pm2": "^4.5.0",
-    "redis": "^3.0.2",
-    "sequelize": "^6.3.5",
-    "uuid": "^8.3.0",
-    "winston": "^3.3.3"
-  },
-  "devDependencies": {
-    "cross-env": "^7.0.2",
-    "supertest": "^6.0.1"
-  },
-  "scripts": {
-    "start": "cross-env NODE_ENV=development npm run static & node server.js & node authServer.js",
-    "nodemon": "cross-env NODE_ENV=development npm run static & nodemon server.js & nodemon authServer.js",
-    "static": "http-server --port 7500",
-    "dev": "pm2 kill && pm2 start process-dev.json && npm run fileServer_DEV",
-    "dev-remote": "pm2 kill && pm2 start dev-remote.json",
-    "prod": "pm2 kill && pm2 start process-prod.json && npm run fileServer_PROD",
-    "test": " NODE_ENV=test-development mocha './test' --exit",
-    "test-production": "NODE_ENV=test-production mocha './test' --exit",
-    "fileServer_DEV": "pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d --watch",
-    "fileServer_DEV__REMOTE": "pm2 start /usr/bin/http-server --name file-server-dev -- -p 7599 -d -i 4 --watch",
-    "fileServer_PROD": "pm2 start /usr/bin/http-server --name file-server -- -p 7500 -d -i 4 ",
-    "restart_PROD": "pm2 restart rest-api-server auth-server file-server",
-    "restart_DEV_REMOTE": "pm2 restart rest-api-server-dev auth-server-dev",
-    "stop_PROD": "pm2 stop rest-api-server auth-server file-server",
-    "stop_DEV_REMOTE": "pm2 stop rest-api-server-dev auth-server-dev"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+	"name": "chimp_backend",
+	"version": "1.0.0",
+	"description": "",
+	"main": "server.js",
+	"jest": {
+		"testEnvironment": "node"
+	},
+	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"bluebird": "^3.7.2",
+		"crypto-random-string": "^3.3.0",
+		"dotenv": "^8.2.0",
+		"express": "^4.17.1",
+		"express-fileupload": "^1.2.0",
+		"express-validator": "^6.9.0",
+		"http-server": "^0.12.3",
+		"jest": "^26.6.3",
+		"jsonwebtoken": "^8.5.1",
+		"mocha": "^8.2.1",
+		"nodemon": "^2.0.6",
+		"pg": "^8.5.1",
+		"pg-hstore": "^2.3.3",
+		"pm2": "^4.5.1",
+		"redis": "^3.0.2",
+		"sequelize": "^6.3.5",
+		"uuid": "^8.3.2",
+		"winston": "^3.3.3"
+	},
+	"devDependencies": {
+		"cross-env": "^7.0.3",
+		"supertest": "^6.0.1"
+	},
+	"scripts": {
+		"start": "cross-env NODE_ENV=development npm run static & node server.js & node authServer.js",
+		"nodemon": "cross-env NODE_ENV=development npm run static & nodemon server.js & nodemon authServer.js",
+		"static": "http-server --port 7500",
+		"dev": "pm2 kill && pm2 start process-dev.json && npm run fileServer_DEV",
+		"dev-remote": "pm2 kill && pm2 start dev-remote.json",
+		"prod": "pm2 kill && pm2 start process-prod.json && npm run fileServer_PROD",
+		"test": " NODE_ENV=test-development mocha './test' --exit",
+		"test-production": "NODE_ENV=test-production mocha './test' --exit",
+		"fileServer_DEV": "pm2 start /usr/local/bin/http-server --name file-server -- -p 7500 -d --watch",
+		"fileServer_DEV__REMOTE": "pm2 start /usr/bin/http-server --name file-server-dev -- -p 7599 -d -i 4 --watch",
+		"fileServer_PROD": "pm2 start /usr/bin/http-server --name file-server -- -p 7500 -d -i 4 ",
+		"restart_PROD": "pm2 restart rest-api-server auth-server file-server",
+		"restart_DEV_REMOTE": "pm2 restart rest-api-server-dev auth-server-dev",
+		"stop_PROD": "pm2 stop rest-api-server auth-server file-server",
+		"stop_DEV_REMOTE": "pm2 stop rest-api-server-dev auth-server-dev"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
 }

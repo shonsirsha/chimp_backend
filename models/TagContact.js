@@ -13,6 +13,9 @@ const TagContact = db2.define(
 		user_uid: {
 			type: Sequelize.STRING,
 		},
+		created_at: {
+			type: Sequelize.BIGINT,
+		},
 	},
 	{
 		freezeTableName: true,

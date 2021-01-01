@@ -1,22 +1,19 @@
 const Sequelize = require("sequelize");
 const db2 = require("../db/db2");
 
-const Tokens = db2.define(
-	"tokens",
+const TagProject = db2.define(
+	"tag_project",
 	{
+		tag_uid: {
+			type: Sequelize.STRING,
+		},
+		project_uid: {
+			type: Sequelize.STRING,
+		},
 		user_uid: {
 			type: Sequelize.STRING,
 		},
-		refresh_token: {
-			type: Sequelize.STRING,
-		},
-		access_token: {
-			type: Sequelize.STRING,
-		},
 		created_at: {
-			type: Sequelize.BIGINT,
-		},
-		updated_at: {
 			type: Sequelize.BIGINT,
 		},
 	},
@@ -26,4 +23,4 @@ const Tokens = db2.define(
 	}
 );
 
-module.exports = Tokens;
+module.exports = TagProject;
