@@ -70,6 +70,10 @@ router.post(
 				return res.status(400).json({ msg: "tag_uid_invalid" });
 			}
 
+			if (!/\S/.test(tag_name)) {
+				return res.status(400).json({ msg: "tag_name_invalid" });
+			}
+
 			const tagExists = await checkIfExistsUnique(
 				"tags",
 				"tag_name_lc",

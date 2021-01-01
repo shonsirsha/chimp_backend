@@ -101,6 +101,7 @@ router.post(
 			if (!userExists) {
 				return res.status(400).json({ msg: "invalid_credentials" });
 			}
+
 			const {
 				company_uid,
 				company_name,
@@ -111,6 +112,10 @@ router.post(
 
 			if (!/\S/.test(company_uid)) {
 				return res.status(400).json({ msg: "company_uid_invalid" });
+			}
+
+			if (companyExists) {
+				return res.status(400).json({ msg: "company_already_exists" });
 			}
 
 			await Companies.create({

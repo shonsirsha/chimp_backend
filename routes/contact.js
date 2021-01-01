@@ -156,6 +156,9 @@ router.post(
 			if (!/\S/.test(contact_uid)) {
 				return res.status(400).json({ msg: "contact_uid_invalid" });
 			}
+			if (contact_uid) {
+				return res.status(400).json({ msg: "contact_already_exists" });
+			}
 
 			if (!Array.isArray(tag_uids)) {
 				return res.status(400).json({ msg: "tag_uids_not_array" });
