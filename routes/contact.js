@@ -152,6 +152,11 @@ router.post(
 				tag_uids,
 				project_uids,
 			} = req.body;
+
+			if (!/\S/.test(contact_uid)) {
+				return res.status(400).json({ msg: "contact_uid_invalid" });
+			}
+
 			if (!Array.isArray(tag_uids)) {
 				return res.status(400).json({ msg: "tag_uids_not_array" });
 			}

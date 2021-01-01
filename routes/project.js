@@ -9,6 +9,7 @@ const arrayShaper = require("./utils/arrayShaper");
 const tagValidator = require("./utils/tagValidator");
 const checkIfExists = require("./utils/checkIfExists");
 const ProjectContact = require("../models/ProjectContact");
+const setLastCacheTime = require("./utils/caching/setLastCacheTime");
 
 //@route    GET api/project
 //@desc     Get a project for currently logged in user
@@ -112,6 +113,10 @@ router.post(
 				project_due,
 				tag_uids,
 			} = req.body;
+
+			if (!/\S/.test(project_uid)) {
+				return res.status(400).json({ msg: "project_uid_invalid" });
+			}
 
 			if (!Array.isArray(tag_uids)) {
 				return res.status(400).json({ msg: "tag_uids_not_array" });
@@ -339,7 +344,15 @@ router.delete(
 				},
 			}); // delete the project
 
-			return res.status(200).json({ msg: "project_deleted" });
+			const setLastWrite = await setLastCacheTime(
+				"lastContactWriteToDb",
+				user_uid
+			);
+			if (setLastWrite) {
+				return res.status(200).json({ msg: "project_deleted" });
+			} else {
+				return res.status(400).json({ msg: "caching_error" });
+			}
 		} catch (e) {
 			return res.status(500).send("Server error" + e);
 		}

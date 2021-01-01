@@ -65,6 +65,11 @@ router.post(
 		try {
 			const { user_uid } = req;
 			const { tag_uid, tag_name } = req.body;
+
+			if (!/\S/.test(tag_uid)) {
+				return res.status(400).json({ msg: "tag_uid_invalid" });
+			}
+
 			const tagExists = await checkIfExistsUnique(
 				"tags",
 				"tag_name_lc",

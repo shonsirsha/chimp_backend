@@ -687,7 +687,7 @@ There are 2 types of endpoint:
 
    The number of `errorObject` depends on how many data validation is present & how many is violated.
 
-3. `/` - `PUT` | **PRIVATE** | **EDIT A SINGLE CONTACT**
+3. `/` - `PUT` | **PRIVATE** | **EDIT A SINGLE PROJECT**
 
    **Sample request (`Content-Type`: `application/JSON`):**
 

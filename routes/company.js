@@ -109,6 +109,10 @@ router.post(
 				company_phone,
 			} = req.body;
 
+			if (!/\S/.test(company_uid)) {
+				return res.status(400).json({ msg: "company_uid_invalid" });
+			}
+
 			await Companies.create({
 				user_uid,
 				company_uid,
