@@ -1,15 +1,17 @@
 const express = require("express");
-const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
 const Companies = require("../models/Companies");
 const CompanyContact = require("../models/CompanyContact");
+const TagCompany = require("../models/TagCompany");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
 const setLastCacheTime = require("./utils/caching/setLastCacheTime");
+const tagValidator = require("./utils/tagValidator");
+const arrayShaper = require("./utils/arrayShaper");
 
 //@route    GET api/company
 //@desc     Get a contact for currently logged in user
@@ -86,6 +88,7 @@ router.post(
 		check("company_email", "company_email_fail").exists(),
 		check("company_website", "company_website_fail").exists(),
 		check("company_phone", "company_phone_fail").exists(),
+		check("tag_uids", "tag_uids_fail").exists(),
 	],
 	auth,
 	async (req, res) => {
@@ -108,15 +111,36 @@ router.post(
 				company_email,
 				company_website,
 				company_phone,
+				tag_uids,
 			} = req.body;
 
 			if (!/\S/.test(company_uid)) {
 				return res.status(400).json({ msg: "company_uid_invalid" });
 			}
 
+			if (!Array.isArray(tag_uids)) {
+				return res.status(400).json({ msg: "tag_uids_not_array" });
+			}
+
+			const companyExists = await checkIfExists(
+				"companies",
+				"company_uid",
+				company_uid
+			);
+
 			if (companyExists) {
 				return res.status(400).json({ msg: "company_already_exists" });
 			}
+
+			const shapedTagsArray = arrayShaper(tag_uids);
+			if (
+				!(await tagValidator(shapedTagsArray)) &&
+				shapedTagsArray.length > 0
+			) {
+				//something wrong with the tags uid
+				return res.status(400).json({ msg: "one_or_more_invalid_tag_uid" });
+			}
+			// if all uids above are valid and DO exist and DO belong to the user, then:
 
 			await Companies.create({
 				user_uid,
@@ -129,9 +153,22 @@ router.post(
 				created_at: Date.now(),
 				updated_at: Date.now(),
 			});
+
+			shapedTagsArray.forEach(async (tag_uid) => {
+				try {
+					await TagCompany.create({
+						tag_uid,
+						company_uid,
+						user_uid,
+						created_at: Date.now(),
+					});
+				} catch (e) {
+					return res.status(500).send("Server error: " + e);
+				}
+			});
 			return res.status(200).json({ msg: "company_created", company_uid });
 		} catch (e) {
-			return res.status(500).send("Server error" + e);
+			return res.status(500).send("Server error: a" + e);
 		}
 	}
 );
