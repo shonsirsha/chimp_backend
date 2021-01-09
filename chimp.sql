@@ -119,6 +119,18 @@ CREATE TABLE IF NOT EXISTS tag_contact (
     CONSTRAINT tag_contact_tag_uid_fkey FOREIGN KEY (tag_uid) REFERENCES tags (tag_uid)
 );
 
+CREATE TABLE IF NOT EXISTS tag_company (
+    id SERIAL NOT NULL,
+    user_uid VARCHAR (256) NOT NULL,
+    company_uid VARCHAR(256) NOT NULL,
+    tag_uid VARCHAR (256) NOT NULL,
+    created_at bigint,
+    CONSTRAINT tag_company_pkey PRIMARY KEY (id),
+    CONSTRAINT tag_company_user_uid_fkey FOREIGN KEY (user_uid) REFERENCES users (user_uid),
+    CONSTRAINT tag_company_company_uid_fkey FOREIGN KEY (company_uid) REFERENCES companies (company_uid),
+    CONSTRAINT tag_company_tag_uid_fkey FOREIGN KEY (tag_uid) REFERENCES tags (tag_uid)
+);
+
 CREATE TABLE IF NOT EXISTS tag_project (
     id SERIAL NOT NULL,
     user_uid VARCHAR (256) NOT NULL,
@@ -171,6 +183,10 @@ CREATE INDEX contacts_user_uid_idx ON contacts(user_uid);
 --Indexes for table `tag-contact`
 CREATE INDEX tag_contact_contact_uid_idx ON tag_contact(contact_uid);
 CREATE INDEX tag_contact_user_uid_idx ON tag_contact(user_uid);
+
+--Indexes for table `tag-company`
+CREATE INDEX tag_company_company_uid_idx ON tag_company(company_uid);
+CREATE INDEX tag_company_user_uid_idx ON tag_company(user_uid);
 
 --Indexes for table `companies`
 CREATE INDEX companies_company_uid_idx ON companies(company_uid);
