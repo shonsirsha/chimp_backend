@@ -2,6 +2,7 @@ const express = require("express");
 const auth = require("../middleware/auth");
 const Companies = require("../models/Companies");
 const CompanyContact = require("../models/CompanyContact");
+const TagCompany = require("../models/TagCompany");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 
@@ -28,6 +29,7 @@ router.get("/", auth, async (req, res) => {
 			if (companies.length > 0) {
 				companies.map(async (company, ix) => {
 					let company_contact_arr = [];
+					let tag_company_arr = [];
 					let companyObj = company.dataValues;
 
 					//give picture a full url if exists
@@ -44,13 +46,27 @@ router.get("/", auth, async (req, res) => {
 						attributes: ["contact_uid"],
 					});
 
+					const tag_company = await TagCompany.findAll({
+						where: {
+							company_uid: company.dataValues.company_uid,
+						},
+						attributes: ["tag_uid"],
+					});
+
 					//loop thru fetched cC
 					company_contact.map((cc) => {
 						company_contact_arr.push(cc.dataValues.contact_uid);
 					});
 
+					tag_company.map((tc) => {
+						tag_company_arr.push(tc.dataValues.tag_uid);
+					});
+
 					//setting all contacts that works for this company (cC)
 					companyObj["contact_uids"] = company_contact_arr;
+
+					//setting all tags that this company has
+					companyObj["tag_uids"] = tag_company_arr;
 
 					companiesArr.push(companyObj);
 					if (ix === companies.length - 1) {

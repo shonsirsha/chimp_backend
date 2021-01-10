@@ -976,18 +976,13 @@ There are 2 types of endpoint:
 
 ```json
 {
-	"msg": "success",
-	"tags": [
-		{
-			"id": someId, // int
-			"tag_uid": "someTagUid",
-			"tag_name": "someTagName",
-			"tag_name_lc": "sometagname",
-			"user_uid": "someTagUserUid",
-			"created_at": "16000000000", // *This is EPOCH.
-			"updated_at": "16000000000" // *This is EPOCH.
-		}
-	]
+	"id": someId, // int
+	"tag_uid": "someTagUid",
+	"tag_name": "someTagName",
+	"tag_name_lc": "sometagname",
+	"user_uid": "someTagUserUid",
+	"created_at": "16000000000", // *This is EPOCH.
+	"updated_at": "16000000000" // *This is EPOCH.
 
 	//* What to do with EPOCH?
 	// Convert EPOCH to integer first,
