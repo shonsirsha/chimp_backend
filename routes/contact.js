@@ -156,7 +156,14 @@ router.post(
 			if (!/\S/.test(contact_uid)) {
 				return res.status(400).json({ msg: "contact_uid_invalid" });
 			}
-			if (contact_uid) {
+
+			const contactExists = await checkIfExists(
+				"contacts",
+				"contact_uid",
+				contact_uid
+			);
+
+			if (contactExists) {
 				return res.status(400).json({ msg: "contact_already_exists" });
 			}
 
