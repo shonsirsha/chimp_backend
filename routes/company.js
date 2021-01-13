@@ -1,15 +1,17 @@
 const express = require("express");
-const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
 const auth = require("../middleware/auth");
 const Companies = require("../models/Companies");
 const CompanyContact = require("../models/CompanyContact");
+const TagCompany = require("../models/TagCompany");
 const router = express.Router();
 const checkIfExists = require("./utils/checkIfExists");
 const deleteFile = require("./utils/deleteFile");
 const setLastCacheTime = require("./utils/caching/setLastCacheTime");
+const tagValidator = require("./utils/tagValidator");
+const arrayShaper = require("./utils/arrayShaper");
 
 //@route    GET api/company
 //@desc     Get a contact for currently logged in user
@@ -54,6 +56,14 @@ router.get(
 				},
 			});
 
+			const tags = await TagCompany.findAll({
+				attributes: ["tag_uid"],
+				where: {
+					company_uid,
+					user_uid,
+				},
+			});
+
 			let companyModel = allCompanies[0].dataValues;
 
 			if (companyModel.picture !== "") {
@@ -66,7 +76,13 @@ router.get(
 				contact_uids.push(contact_uid);
 			});
 
+			let tag_uids = [];
+			tags.forEach(({ tag_uid }) => {
+				tag_uids.push(tag_uid);
+			});
+
 			companyModel["contact_uids"] = contact_uids;
+			companyModel["tag_uids"] = tag_uids;
 
 			return res.status(200).json({ msg: "success", contact: companyModel });
 		} catch (e) {
@@ -86,6 +102,7 @@ router.post(
 		check("company_email", "company_email_fail").exists(),
 		check("company_website", "company_website_fail").exists(),
 		check("company_phone", "company_phone_fail").exists(),
+		check("tag_uids", "tag_uids_fail").exists(),
 	],
 	auth,
 	async (req, res) => {
@@ -108,15 +125,36 @@ router.post(
 				company_email,
 				company_website,
 				company_phone,
+				tag_uids,
 			} = req.body;
 
 			if (!/\S/.test(company_uid)) {
 				return res.status(400).json({ msg: "company_uid_invalid" });
 			}
 
+			if (!Array.isArray(tag_uids)) {
+				return res.status(400).json({ msg: "tag_uids_not_array" });
+			}
+
+			const companyExists = await checkIfExists(
+				"companies",
+				"company_uid",
+				company_uid
+			);
+
 			if (companyExists) {
 				return res.status(400).json({ msg: "company_already_exists" });
 			}
+
+			const shapedTagsArray = arrayShaper(tag_uids);
+			if (
+				!(await tagValidator(shapedTagsArray)) &&
+				shapedTagsArray.length > 0
+			) {
+				//something wrong with the tags uid
+				return res.status(400).json({ msg: "one_or_more_invalid_tag_uid" });
+			}
+			// if all uids above are valid and DO exist and DO belong to the user, then:
 
 			await Companies.create({
 				user_uid,
@@ -129,9 +167,22 @@ router.post(
 				created_at: Date.now(),
 				updated_at: Date.now(),
 			});
+
+			shapedTagsArray.forEach(async (tag_uid) => {
+				try {
+					await TagCompany.create({
+						tag_uid,
+						company_uid,
+						user_uid,
+						created_at: Date.now(),
+					});
+				} catch (e) {
+					return res.status(500).send("Server error: " + e);
+				}
+			});
 			return res.status(200).json({ msg: "company_created", company_uid });
 		} catch (e) {
-			return res.status(500).send("Server error" + e);
+			return res.status(500).send("Server error: a" + e);
 		}
 	}
 );
@@ -147,6 +198,7 @@ router.put(
 		check("company_website", "company_website_fail").exists(),
 		check("company_phone", "company_phone_fail").exists(),
 		check("company_uid", "company_uid_fail").exists(),
+		check("tag_uids", "tag_uids_fail").exists(),
 	],
 	auth,
 	async (req, res) => {
@@ -168,7 +220,22 @@ router.put(
 				company_website,
 				company_phone,
 				company_uid,
+				tag_uids,
 			} = req.body;
+
+			if (!Array.isArray(tag_uids)) {
+				return res.status(400).json({ msg: "tag_uids_not_array" });
+			}
+
+			const shapedTagsArray = arrayShaper(tag_uids);
+			if (
+				!(await tagValidator(shapedTagsArray)) &&
+				shapedTagsArray.length > 0
+			) {
+				//something wrong with the tags uid
+				return res.status(400).json({ msg: "one_or_more_invalid_tag_uid" });
+			}
+			// if all uids above are valid and DO exist and DO belong to the user, then:
 
 			const companyExists = await checkIfExists(
 				"companies",
@@ -180,24 +247,48 @@ router.put(
 				return res.status(400).json({ msg: "company_not_found" });
 			}
 
-			await Companies.update(
-				{
-					company_name,
-					company_email,
-					company_website,
-					company_phone,
-					updated_at: Date.now(),
-				},
-				{
+			try {
+				// readjusting tag uids (deleting and re-inserting):
+				await TagCompany.destroy({
 					where: {
 						user_uid,
 						company_uid,
 					},
+				}); // delete all tags
+
+				if (shapedTagsArray.length > 0) {
+					shapedTagsArray.forEach(async (tag_uid) => {
+						await TagCompany.create({
+							user_uid,
+							company_uid,
+							tag_uid,
+							created_at: Date.now(),
+						});
+					}); // insert all tag uids
 				}
-			);
+
+				await Companies.update(
+					{
+						company_name,
+						company_email,
+						company_website,
+						company_phone,
+						updated_at: Date.now(),
+					},
+					{
+						where: {
+							user_uid,
+							company_uid,
+						},
+					}
+				);
+			} catch (e) {
+				return res.status(500).send("Server error: " + e);
+			}
+
 			return res.status(200).json({ msg: "company_updated", company_uid });
 		} catch (e) {
-			return res.status(500).send("Server error");
+			return res.status(500).send("Server error: " + e);
 		}
 	}
 );
@@ -349,6 +440,13 @@ router.delete(
 				return res.status(400).json({ msg: "company_not_found" });
 			}
 
+			await TagCompany.destroy({
+				where: {
+					company_uid,
+					user_uid,
+				},
+			});
+
 			await CompanyContact.destroy({
 				where: {
 					user_uid,
@@ -361,6 +459,7 @@ router.delete(
 					user_uid,
 				},
 			});
+
 			const setLastWrite = await setLastCacheTime(
 				"lastContactWriteToDb",
 				user_uid
@@ -371,7 +470,7 @@ router.delete(
 				return res.status(400).json({ msg: "caching_error" });
 			}
 		} catch (e) {
-			return res.status(500).send("Server error");
+			return res.status(500).send("Server error: " + e);
 		}
 	}
 );

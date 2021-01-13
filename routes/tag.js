@@ -3,6 +3,7 @@ const { check, validationResult } = require("express-validator");
 const auth = require("../middleware/auth");
 const Tag = require("../models/Tag");
 const TagContact = require("../models/TagContact");
+const TagCompany = require("../models/TagCompany");
 const TagProject = require("../models/TagProject");
 const { Op } = require("sequelize");
 const router = express.Router();
@@ -177,6 +178,12 @@ router.delete(
 			if (!tagExists || tag_uid.length === 0) {
 				return res.status(400).json({ msg: "tag_not_found" });
 			}
+			await TagCompany.destroy({
+				where: {
+					tag_uid,
+					user_uid,
+				},
+			});
 
 			await TagContact.destroy({
 				where: {
