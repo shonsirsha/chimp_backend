@@ -1,8 +1,11 @@
 # CHIMP BACKEND 🦧
 
+<!---
 ![node.js.yml Actions Status](https://github.com/shonsirsha/chimp_backend/workflows/Node.js%20CI/badge.svg)
+-->
 
 ## 🤔 What is this?
+
 
 This is a repository for the whole backend system of [Chimp](https://chimp.berlin).
 
