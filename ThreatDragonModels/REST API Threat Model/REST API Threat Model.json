@@ -1,0 +1,16 @@
+{
+  "summary": {
+    "title": "REST API Threat Model",
+    "owner": "Sean Liesanggoro"
+  },
+  "detail": {
+    "contributors": [],
+    "diagrams": [
+      {
+        "title": "Diagram 1",
+        "thumbnail": "./public/content/images/thumbnail.jpg",
+        "id": 0
+      }
+    ]
+  }
+}
